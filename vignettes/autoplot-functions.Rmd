@@ -1,0 +1,403 @@
+---
+title: "autoplot-functions"
+#author: "Vignette Author"
+#date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{autoplot-functions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r,echo=FALSE}
+
+knitr::opts_chunk$set(fig.path='Figs/',
+                      echo=TRUE, warning=FALSE, message=FALSE,evaluate=TRUE)
+
+library(ClimIndVis)
+data ("object_grid","object_st")
+```
+
+
+## Introduction
+The package ClimindVis provides a set of functions for the calculation and visualization of climate indices for both climatological and seasonal forecast data. While quite a number of packages exist on CRAN or GitHub for such purposes, none of them combines all the different steps in one. The ClimIndVis package contains a set of wrapper functions which combine the funcionalities of different (sometimes modified) packages in order to generate a variety of different graphic types by using only a single function. These functions, called *autoplot_....*, are easy to use and understandable also to users with little  experience in R. 
+Before using the funcions of the ClimIndVis package, you need to convert your data into a climindvis-object using the function *make_object*. For more information on how to make a climindvis-object, look at the make_object documentation (type `?ClimIndVis::make_object`into the R console). 
+
+## autoplot functions
+The following sections show some example outputs of all the autoplot functions in the ClimIndVis package. The following autoplot functions are available:  
+
+* ***autoplot_ts_stations***  
+    *Plot value*: Time series of index values with several options, e.g. to compare indices, stations, datasets and aggregations.   
+    *Data*: Station data (observations or downscaled reanalysis/hindcasts of a seasonal forecast ensemble)  
+* ***autoplot_climatology_map***   
+    *Plot value*: Map of climatological values of indices (e.g. 30-year mean)  
+    *Data*: Gridded and/or station data  (observations, reanalysis or hindcasts of a seasonal forecast ensemble) 
+* ***autoplot_trend_map***   
+    *Plot value*: Trends of indices (with option to choose significance level)  
+    *Data*: Gridded and/or station data  (observations, reanalysis  or hindcasts of a seasonal forecast ensemble)  
+* ***autoplot_overview_stations***   
+    *Plot value*: Boxplots of climatology of different indices with the option of adding the value of single years for comparison  
+    *Data*: Station data (observations or downscaled reanalysis/hindcasts of a seasonal forecast ensemble)
+
+Additionally there are four autoplot functions which can be used for seasonal forecasts ensembles:  
+
+* ***autoplot_verification_map***  
+    *Plot value*: Map of verification results for different verification metrics  
+    *Data*: Observations and hindcasts of seasonal forecasts ensemble (optionally also reference forecast ensemble). Gridded and/or station data.  
+* ***autoplot_forecast_map***  
+    *Plot value*: Map of forecast probabilities of the dominant forecast category. Optionally only values above a user-defined skill minimum are shown.  
+    *Data*: Ensemble of seasonal hindcasts and forecasts. For skill, additionally observational data. Gridded and/or station data.  
+* ***autoplot_forecast_stations***  
+    *Plot value*: Tacho plot showing probabilities per forecast category. Optionally only forecasts with skill above a user-defined skill minimum are issued.  
+    *Data*: Ensemble of seasonal hindcasts and forecasts at stations. For skill, additionally station observational.  
+* ***autoplot_forecast_spi***  
+    *Plot value*: Time series plot showing historical and forecast SPI. Historical SPI values are displayed as barplots, ensemble forecast SPI as boxplots. For overlapping timescale of historical and forecast data, the SPI is calculated including the historical data for every ensemble member.    
+    *Data*: Observations and forecasts of seasonal forecasts ensemble.
+
+For easy use, most of the arguments of the autoplot functions are set to default values. However all functions need the following input arguments:
+
+* the **data** to be plottet. 
+    ClimIndVis objects generated with the function make_object (`?ClimIndVis::make_object`).
+
+* the ***index***
+    using `?ClimIndVis::calc_index` you will find a list of indices which are implemented in the package. 
+    
+* the ***index arguments***  
+    A mandatory argument for all indices is the aggregation type (***aggt***) . Here you can choose between:   
+    * *annual*: index is calculated over a whole year    
+    * *seasonal*: index is calculated for all seasons (DJF, MAM,JJA,SON) covered by the data set.    
+        Using the optional parameter *selagg* a subset of seasons can be selected (using the season as character ), e.g. selagg="DJF" only calculates DJF.  
+    * *monthly*: index is calculated for all months covered by the data set.      
+        Using the optional parameter *selagg* a subset of months can be selected (as integer numbers where 1:Jan, 2:Feb, ...), e.g. selagg=c(3:4) only calculates the index value for the months March and April.  
+    * *other*: aggregation over user defined months.    
+        In this case you additionally need the parameter *aggmons* to define which months to use, e.g. aggmons=c(1:4) gives you the index value for the months Jan-Apr.  
+    * *dates*: index is calculated for user defined dates.    
+        In this case you additionally need the parameters *start_days* and *end_days*. You have the following options:  
+        * cut out one time period:  1-dim character/date array  
+        e.g. start_days="1982-15-01", end_days="1990-04-15" would return the index value from 15.Jan 1982 - 15.Apr 1990  
+        * cut out n user defined time periods: n-dim character/date array,   
+        e.g. start_days=c("1981-05-15","1982-04-11","1983-05-02",...), end_days=c("1981-06-02","1982-05-18","1983-07-02",...) would return the index value for 15.05.81 - 02.06.81 / 11.4.82 - 18.05.82 / ...  
+        * cut out the same dates for every years:  use "0000" for the year  
+        e.g. start_days="0000-04-15", end_days="0000-05-15" cuts out the data from 15.Apr - 15. May for all available years.  
+    
+If you open the calc_index documentation (`?ClimIndVis::calc_index`) and click on the index_arguments.xx link at the end of the index description you find a list of further index-specific arguments.
+
+
+## Note
+For all map plots in the following sections, data from the hydrological and meteorological Service of Peru (SENAMHI) was used. This is not included in the package. However, the code is also executable using the built-in example objects of the package (note that you first have to load them , see `?ClimIndVis::example_climindvis_objects`)
+
+### 1. autoplot_ts_stations
+This function calculates and visualizes time series of indices for a given station.  
+If you use all the default values, the only arguments which need to be passed to the function are:
+
+* the input data *dat_p*
+* the *index* you want to plot and the corresponding index arguments as a list (*index_args*)   
+* the *ts_type* which defines the type of time series plot to be generated. 
+   The following options are possible (also see the documentation (`?ClimIndVis::autoplot_ts_stations`)  for details):  
+   
+#### ts_type=single_ts 
+Plots one index for one dataset. Returns a seperate plot for each station and each aggregation.       
+In the example below we plot dry days (`index="dd"`) in February (`aggt="monthly", selagg=2`). For demonstration purposes we will only show the plot for the first station (`selpoints=1`) and we changed the size of the text to fit the plot window (`text_cex = 0.6`). If you want a plot for every station and use the default options, you can omit these two parameters. 
+The plot on the left is without trend (default). To add the trend as in the right figure you need to add `trendplots=TRUE`. At the top of the plot you find some information about the plotted values such as the index and aggregation period, the time period and the number of missing values in the time period that you have chosen. If trendplots = TRUE the trend calculation method is additionally shown (all indices have predefined trend methods, however there is an option to calculate a "MannKendall" trend estimate and TeilSen slope). On the right side, you see the significance of the trend as well as the relative (and depending on the method the absolute trend) over the chosen time period. 
+If you want a plain plot without the text information at the top of the plot you can set `plot_title=FALSE`.
+    
+    
+```{r ts_single, fig.width=3.2, fig.height=2.5,fig.show='hold'}
+data(object_st)
+index_args = list(aggt = "monthly",selagg = 3)
+autoplot_ts_stations(dat_p= object_st,index = "dd",index_args = index_args,ts_type = "single_ts",
+  selpoints = 1,text_cex = 0.6) #this line can be omitted if you are using the default parameters and want to plot the results for all stations.
+autoplot_ts_stations(dat_p = object_st,index = "dd",index_args = index_args,ts_type = "single_ts",trendplots = TRUE,
+    selpoints = 1,text_cex = 0.6) #this line can be omitted if you are using the default parameters and want to plot the results for all stations.
+```
+  
+You can also plot time series of hindcasts, the resulting plot will show the ensemble mean as a line and +/- one standard deviation as shaded area.
+  
+```{r ts_single_hc, fig.width=3.2, fig.height=2.5,fig.align='center'}
+data(object_hc_st)
+index_args = list(aggt = "monthly",selagg = 3)
+autoplot_ts_stations(dat_p= object_hc_st,index = "dd",index_args = index_args,ts_type = "single_ts",
+  selpoints = 1,text_cex = 0.6) #this line can be omitted if you are using the default parameters and want to plot the results for all stations.
+
+```
+
+The default output (`output=NULL`) opens a plotting device. If you want to save the figures in a file, you need to change the *output*, and additionally specify the directory where the plot should be saved (*plotdir*). This is the same for all autoplot functions. The plot name is automatically generated by the function containing the index name, the aggregation as well as the time period (for other autoplot functions you may have additional information in the title). You can optionally add an additional title above using the argument *plotname*. For the example above the code would look like this: 
+
+```{r ts_single write, eval=FALSE,echo=TRUE}
+ data(object_st)
+index_args = list(aggt = "monthly",selagg = 3)
+autoplot_ts_stations(dat_p= object_st,index = "dd",index_args = index_args,ts_type = "single_ts",
+  output="png",plotdir=name_of_directory_to_save_plots_in,plotname="test")
+autoplot_ts_stations(dat_p = object_st,index = "dd",index_args = index_args,ts_type = "single_ts",trendplots = TRUE,
+  output="png",plotdir=name_of_directory_to_save_plots_in,plotname="test_with_trend")
+```
+    
+#### ts_type = multi_ind 
+
+Plots different indices for one dataset. Returns a seperate plot for each station and each aggregation.   
+For this function, you have to define the index arguments for each index as a list of lists. Note that the aggregation should be the same for all indices, otherwise you will receive and error.  
+The examples below show the minimum and maximum value of tmin in JJA. If you only want to plot a subset of years, you can define this by using the parameter *selyears* as shown in the right plot (note that if your time period is too short, a trend calculation does not make much sense). The output to a file works in the same way as for the ts_type=single_ts.
+
+```{r ts_multind, fig.width=3.2, fig.height=2.5,fig.show='hold'}
+data(object_st)
+index=c("tnn","tnx")
+aggt="seasonal"
+selagg="JJA"
+index_args = list(tnn=list(aggt = aggt, selagg = selagg),
+                  tnx=list(aggt = aggt, selagg = selagg))
+autoplot_ts_stations(dat_p= object_st,index = index,index_args = index_args,ts_type = "multi_ind",trendplots=TRUE,
+  selpoints = 1,text_cex = 0.6) #this line can be omitted if you are using the default parameters and want to plot the results for all stations.
+autoplot_ts_stations(dat_p= object_st,index = index,index_args = index_args,ts_type = "multi_ind", selyears=c(1990:2000),trendplots=TRUE,
+  selpoints = 1,text_cex = 0.6) #this line can be omitted if you are using the default parameters and want to plot the results for all stations.
+```
+
+
+
+#### ts_type = multi_agg 
+
+Plots one index and one dataset. Returns a seperate plot for each station and combines aggregation values in one plot.  
+Using this function you can e.g. compare the annual time series to that of a season or compare different months and their trends.   
+
+```{r ts_multagg, fig.width=3.2, fig.height=2.5,fig.align='center'}
+data(object_st)
+index_args = list(list(aggt = "seasonal",selagg="DJF"),
+                  list(aggt="annual"))
+autoplot_ts_stations(dat_p= object_st,index = "dd",index_args = index_args,ts_type = "multi_agg",trendplots=TRUE,
+  selpoints = 1,text_cex = 0.6 #this line can be omitted if you are using the default parameters and want to plot the results for all stations.
+  )
+
+```
+
+#### ts_type = multi_point 
+
+Plots one index and one dataset. Returns a seperate plot for each aggregation value and combines different stations in one plot (either all stations or a subset to be specified in selpoints).
+You can use this function to compare different stations, e.g. stations 2 and 3 of the example data set (`selpoints=c(2:3)`). If you want to change the color of the plot lines you can do this adding the optional argument *pcols*. It needs to have the same length as the number of time series, in this case two.
+If you don't specify which stations to compare the function will take all stations available in the dataset (in the case of example data: 4 stations). 
+
+```{r ts_multpoint, fig.width=3.3, fig.height=2.5,fig.show='hold'}
+data(object_st)
+index_args=list(aggt="monthly",selagg=c(1))
+autoplot_ts_stations(dat_p = object_st,index="tx10p",index_args=index_args,ts_type="multi_point", pcols=c("purple","green"),selpoints=c(2:3),
+ text_cex=0.6) #this line can be omitted if you are using the default parameters and want to plot the results for all stations.
+autoplot_ts_stations(dat_p = object_st,index="tn10p",index_args=index_args,ts_type="multi_point",
+  text_cex=0.6) #this line can be omitted if you are using the default parameters and want to plot the results for all stations.
+
+```
+
+#### ts_type = multi_dat 
+
+Plots one index for multiple datasets. Returns a seperate plot for each station and each aggregation.
+This plot type can be used for comparing different data sets. If you plot seasonal forecast data it will show the ensemble mean and the ensemble spread (+/- one standard deviation). 
+```{r ts_dat, fig.width=3.3, fig.height=2.5,fig.align="center"}
+data(object_st, object_hc_st)
+index_args=list(aggt="seasonal")
+autoplot_ts_stations(dat_p=list(object_st,object_hc_st) ,index="prcptot",index_args=index_args,ts_type="multi_dat",
+  selpoints=1,text_cex=0.6) #this line can be omitted if you are using the default parameters and want to plot the results for all stations.
+
+
+```
+
+
+
+#### ts_type = spi_barplot 
+
+Plots the SPI value calculated for one station as a barplot. Returns a seperate plot for each station. For the SPI, you have to set the argument aggt = "monthly" in order to calculate monthly sums. Unlike the previous plots, "spi_barplot"" returns the full time period and does not create different aggregations. If you would like the SPI values of only one month and its corresponding trend, you set ts_type = "single_ts" and index = "spi"  
+
+
+```{r ts_spi, fig.width=3.3, fig.height=2.5,fig.align='center'}
+data(object_st)
+index_args=list(aggt="monthly")
+autoplot_ts_stations(dat_p = object_st,index="spi",index_args=index_args,ts_type="spi_barplot",
+  selpoints=1,text_cex=0.6) #this line can be omitted if you are using the default parameters and want to plot the results for all stations.
+
+```
+  
+### 2. autoplot_climatology_map
+
+This function allows you to calcualte and visualize the mean, sum, median or standard deviation of the index values over a selected time period, e.g. the mean number of frost days in December from 1971-2000. 
+If you use all default values, the only arguments which need to be passed to the function are: 
+
+* the input data *dat_grid* and/or *dat_point*  
+* the *index* you want to plot and the corresponding index arguments as a list (*index_args*). Note that *trend* is automatically set to FALSE.  
+* the *plot_value* (="mean"/"sum"/...). 
+
+To see a more detailed description of the function arguments check out the documentation (`?ClimIndVis::autoplot_climatology_map`)
+
+
+If you want the figures to be saved in a file, you have to add the output (in the example "png") and the directory in which the plots should be saved (*plotdir*). The name of the plot is generated automatically and includes the index name, the aggregation and time span. If you want to add a prefix to this title (e.g. if you want to repeat the plot for different data sets) you can do this using the *plotname* argument.
+
+
+The examples show the simple precipitation index (sdii). Left: Index for stations. Right: Index with gridded data and stations with additional plot parameters such as size of points (*p_cex*), plot limits (*xlims*,*ylims*), Color of data mask where all data values are NA (*mask_col*) and color of values where index is NA (*NA_col*).
+In order to add altitude contour lines ,  to the figure, you have use the parameter (*topo*) which is a list conatining a list with the of an array with the topography data (*alt*) and respective longitude (*lon*) and latitude (*lat*).
+
+```{r clim_map_code,eval=FALSE,echo=TRUE}
+#left figure
+autoplot_climatology_map(dat_p = object_st,
+  index = "sdii", index_args = list(aggt="other", aggmons=c(11:12,1:4)),
+  plot_value="mean",
+  output="png",plotdir=plotdir,plotname="climatology_map1-1")
+
+#right figure
+ylims=c(-17,-12) #change if using example objects
+xlims=c(287,292) #change if using example objects
+plot_args=list(p_cex=2,topo=list(alt=g_dat,lat=g_lat,lon=g_lon),ylims=ylims, xlims=xlims,mask_col="lightblue",NA_col="grey")
+autoplot_climatology_map(dat_grid=object_grid, dat_p = object_st,
+  index = "sdii", index_args = list(aggt="other", aggmons=c(11:12,1:4)),NAmaxClim = 20,
+  plot_value="mean",plot_args=plot_args,
+  output="png",plotdir=plotdir)
+
+```
+
+
+```{r clim_map, fig.width=3.3, fig.height=2.5,fig.show='hold',echo=FALSE}
+knitr::include_graphics("Figs/climatology_map1-1_SDII_mean_NDJFMA_1981-2009.png",dpi=400)
+knitr::include_graphics("Figs/climatology_map1-2_SDII_mean_NDJFMA_1981-2009.png",dpi=400)
+```
+
+The examples show the mean simple precipitation index (sdii) for 1981-2009 for the months Nov-Apr.\cr Left: Index for stations. Right: Index with gridded data and stations with additional plot parameters such as size of points (*p_cex*), altitude contour lines (*topo*) - data taken from USGS dataset, plot limits (*xlims*,*ylims*), color of data mask where all data values are NA (*mask_col*) and color of values where index is NA (*NA_col*).
+
+**options** 
+
+As with the autoplot_ts_stations function, you can select a subset of years using the argument (*selyears*), e.g. when adding selyears=c(1990:2000) to the function call, the mean over the years 1990-2000 is plotted. You can also select non-consecutive years, e.g. years=c(1981,1995,1990,1994,1980).  
+Default colors are defined for all indices of the package. If you want to change the color scheme you can use the *col* argument, e.g. col=c("blue","green","orange","red").   
+
+There are a number of further optional arguments which can be passed to the plotting function and can be found on the help page `? autoplot_climatology_map`
+
+
+
+
+
+### 3. autoplot_trend_map
+
+This function allows you to visualize the trend of indices, omitting val?ues where the trend is not significant. 
+
+If you use all the default values, the only arguments which need to be passed to the function are:
+
+* the input data *dat_grid* and/or *dat_point*  
+* the *index* you want to plot and the corresponding index arguments as a list (*index_args*). Note that *trend* is automatically set to TRUE and a default trend method is implemented for each index.
+
+To see a more detailed description of the function arguments check out the documentation (`?ClimIndVis::autoplot_trend_map`).
+
+The color indicates the magnitude of the trends, for stations trends, the size of the triangle is also proportional to the absolute magnitude and the direction indicates the trend direction. 
+
+
+```{r trend_map_code,eval=FALSE,echo=TRUE}
+plot_args=list(p_cex=2,topo=list(alt=g_dat,lat=g_lat,lon=g_lon),ylims=c(y2,y1), xlims=c(x1,x2),mask_col="lightblue",NA_col="grey")
+autoplot_trend_map(dat_grid=object_grid, 
+  index="mean",index_args = list(aggt="seasonal", selagg=c("DJF","JJA"),var="tmin"),plot_args=plot_args,
+    output="png",plotdir=plotdir)
+```
+
+
+
+```{r trend_map_plots, fig.width=3.3, fig.height=2.5,fig.show='hold',echo=FALSE}
+
+knitr::include_graphics("Figs/trend_map1-1_mean_tmin_DJF_abs-trend_1981-2010.png",dpi=400)
+knitr::include_graphics("Figs/trend_map1-1_mean_tmin_JJA_abs-trend_1981-2010.png",dpi=400)
+```
+The figures show the trends of the seasonal mean minimum temperature for seasons "DJF" and "JJA".
+
+
+### 4. autoplot_overview_stations
+This function allows you to show the climatology of different indices as boxplots, optionally adding values of certain years as points to the plot. 
+
+If you use all the default values, the only arguments which need to be passed to the function are:
+
+* the input data *dat_grid* and/or *dat_point*  
+* the *indices* you want to plot and the corresponding index arguments as a list (*indices_args*). Note that *trend* is automatically set to FALSE.
+* additionally you can add a selection of years using the argument *years*
+
+To see a more detailed description of the function arguments check out the documentation (`?ClimIndVis::autoplot_overview_stations`).
+
+```{r overview_stations, fig.width=5, fig.height=7,fig.align='center'}
+data("object_st")
+indices=c("dd","fd","th","tx90p","cdd","sdii")
+common_args=list(aggt="dates",start_days="0000-12-15", end_days="0000-03-15")
+indices_args=list(dd=common_args,
+  fd=common_args,
+  th=c(common_args,list(th=20,thvar="prec",op=">")), 
+  tx90p=common_args,
+  cdd=common_args,
+  sdii=common_args
+)
+
+autoplot_overview_stations(dat_p=object_st,indices=indices,indices_args=indices_args,
+  addyears=c(1983,1998),yearcols=c("orange","red"), selpoints = 2)
+
+```
+
+
+### 5. autoplot_verification_map
+
+With this function you can calculate and visualize different verification metrics defined in the easyVerification package. 
+If you use all the default values, the only arguments which need to be passed to the function are:
+
+* the input data - hindcasts and verifying observations for grid and/or at stations. 
+* the *index* you want to plot and the corresponding index arguments as a list (*index_args*). Note that *trend* is automatically set to FALSE.
+* the verification metrics that you want to plot (*veri_metrics*)
+
+To see a more detailed description of the function arguments check out the documentation (`?ClimIndVis::autoplot_verification_map`).
+
+***Example figures will be added soon!***
+
+
+
+### 6. autoplot_forecast_map
+
+This function generates maps showing the forecast probability of the dominant forecast category for a seasonal forecast of indices. Aditionally a skill criterion can be applied which omits showing the forecasts with a skill lower than a user defined minimum skill.  
+
+If you use all the default values, the only arguments which need to be passed to the function are:
+
+* the input data for forecasts, hindcasts and observations (if skill criterion is applied) at statios, grid or both.
+* the *index* you want to plot and the corresponding index arguments as a list (*index_args*). Note that *trend* is automatically set to FALSE.
+* if the skill criterion is applied, the verification metric (*veri_metric*) and minimum skill (*skillmin*) are additionally needed.
+
+To see a more detailed description of the function arguments check out the documentation (`?ClimIndVis::autoplot_forecast_map`).
+
+***Example figures will be added soon!***
+
+
+
+### 7 autoplot_forecast_stations
+
+This function generates plots showing the forecast probabilities of category forecasts of indices at station level as a tacho plot. Additionally a skill criterion can be applied and forecasts with skill lower than a minimum skill value are overlayed by a text message. 
+
+If you use all the default values, the only arguments which need to be passed to the function are:
+
+* the input data *fc_p* and *hc_p*. If *verify*=TRUE, *obs_p* needs to be passed to the function as well.
+* the *index* you want to plot and the corresponding index arguments as a list (*index_args*). Note that *trend* is automatically set to FALSE.
+* if the skill criterion is applied, the verification metric (*veri_metric*) and minimum skill (*skillmin*) are additionally needed.
+
+To see a more detailed description of the function arguments check out the documentation (`?ClimIndVis::autoplot_forecast_stations`).
+
+
+***Example figures will be added soon!***
+
+### 8 autoplot_forecast_spi
+
+This function generates plots showing the historical and ensemble seasonal forecast data of the SPI. 
+
+If you use all the default values, the only arguments which need to be passed to the function are:
+
+* the input data *obs_p* and *fc_p*. 
+* in *index_args* the aggregation needs to be set to *aggt* = "monthly".
+
+Note that *index* is by default set to "spi_forecast" and does not have to be provided. The special *index_args* for the SPI are all set to default values. To see a more detailed description of the function arguments and default arguments check out the documentation (`?ClimIndVis::autoplot_forecast_spi` and `?ClimIndVis::index_arguments.spi`).
+
+In the example, a 3-monthly SPI for observations and forecast is calculated for the full period as reference period, but displaying observations only starting in 2008.
+
+```{r forecast_spi_plots,fig.width=6.3, fig.height=4.5, fig.align="center"}
+data(object_st, object_fc_st)
+autoplot_forecast_spi(obs_p=object_st, fc_p=object_fc_st,index_args = list(aggt = "monthly", timescale = 3),selpoints=1, plotstart = 2008,text_cex = 0.8)
+```
+
+The figure shows the SPI starting in 2008 including the forecast data. The SPI is calculated for a reference period from 1964 to 2012. 
+
+

@@ -1,0 +1,42 @@
+Package: ClimIndVis
+Type: Package
+Title: Calculation, verification and visualisation of climate indices 
+Version: 0.1.0
+Authors@R: c(person("MeteoSwiss",role=c("aut","cph")),
+    person("WMO",role="cph"),
+    person("SDC",role="cph"),
+    person("Katrin"," Sedlmeier",email="katrin.sedlmeier@meteoswiss.ch",role=c("aut","cre")),
+    person("Noemi","Imfeld",email="noemi.imfeld@meteoswiss.ch",role="aut"),
+    person("Felix", "Maurer ",role="ctb"),
+    person("Stefanie", "Gubler" ,role="ctb"),
+    person("Christoph" ,"Frei" ,role="ctb"),
+    person("Jonas" ,"Bhend" ,role="ctb"))
+Copyright: MeteoSwiss, WMO (World Meteorological Organization) and SDC (Swiss Agency for Developement and Cooperation).
+Description: The R package enables the calculation of  climate indices. It works for different data types (observational and reanalysis data products as well as seasonal forecast data) for point data and gridded data. Furthermore, the package includes functions for verification of seasonal forecasts and different plot functions for the graphical representation of the climatology and seasonal forecasts (including skill) of the indices.  The package was developed within the CLIMANDES project, a project funded by the Swiss Agency for Developement and Cooperation (SDC) and coordinated by the World Meteorological Organization (WMO).
+License: GPL-3 (https://www.gnu.org/licenses/gpl-3.0.en.html)
+LazyData: TRUE
+Depends:
+    R (>= 3.0.2)
+Imports:
+    stringr,
+    maps,
+    Hmisc,
+    caTools,
+    climdex.pcic,
+    SCI,
+    easyVerification (>= 0.4.4),
+    abind,
+    RColorBrewer,
+    grDevices,
+    stats,
+    graphics,
+    utils,
+    gplots,
+    ggplot2,
+    SpecsVerification
+Suggests:
+    testthat,
+    knitr,
+    rmarkdown
+RoxygenNote: 6.0.1
+VignetteBuilder: knitr
