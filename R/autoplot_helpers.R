@@ -286,7 +286,7 @@ get_plot_title<-function(titlestring,show_title=TRUE,autoplot,aa=NULL,yy=NULL,pp
       t <- list(utitle=switch((titlestring != "")+1, NULL,titlestring),
                 title=paste0(iinfo[[1]]$iname," ",iinfo[[1]]$aggnames[aa]),
                 period = paste0("Period: ",yearnames),
-                trend= paste0("Trend:  ",lapply(tmet, function(t) get_method(unique(t)))),
+                trend= paste0("Trend:  ",lapply(tmet, function(t) get_method(unique(t), dif=FALSE))),
                 sig = paste0("Sig.lev: ", sig_lev),
                 data = paste0(ifelse(env$points==1,paste0("Stations: ",paste0(unique(dnames[grepl("p",names(env$ind_dat))]),collapse=","),ifelse(env$grid==1 & env$points==1," | ","")),"") ,ifelse(env$grid==1,paste0("Grid: ",paste0(unique(dnames[grepl("grid",names(env$ind_dat))]),collapse=",")),"")))
     } else {t <- NA}
