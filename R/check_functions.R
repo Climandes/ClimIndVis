@@ -35,6 +35,7 @@ check_SPI<-function(index){
 check_aggt<- function(index,aggt){
   tryCatch({
     if(!is.character(aggt)) stop("aggt needs to be a character string")
+    if(!is.element(aggt,c("annual","seasonal","monthly","other","dates"))) stop("aggt does not exist (maybe check spelling).")
     if (grepl("spi",index) & aggt!="monthly") {
       aggt="monthly"
       message("Warning:Wrong aggt for SPI calculation, aggt is set to <<monthly>>.")
@@ -54,22 +55,43 @@ check_dims<- function(data,dates,var,lon,lat,data_info){
     if (is.null(dates)) {
       stop(paste0("Time dimension for ",var," is missing") ) }
 
-    if (is.element(data_info$type, c("p","p_hc","p_fc"))){
-      if(is.null(dim(data)[1])){ if(!length(data)==length(dates)) stop("Data dimension does not fit time dimension") }
-      else if (dim(data)[1] == length(lon)) { if (dim(data)[1] == length(lat)){
-        if(is.element(data_info$date_format, "t1d")){
-          if(!tail(dim(data),1) == length(dates)) {stop("Data dimension does not fit time dimension")}
-        }  }
-        else  stop("Data dimension does not fit lat/lon dimensions") }
-    }
+    dd <- dim(data)
+    dl <- length(dd)
+    dt <- data_info$type
+
+    if (is.element(dt, c("p","p_hc","p_fc"))){
+      #if (length(dd)>2 & dt=="p") stop("<type> is not set correctly")
+      if (!dd[1] == length(lon)) { stop("Data dimension does not fit lon dimensions") }
+      if (!dd[1] == length(lat)){ stop("Data dimension does not fit lat dimensions") }
+
+      if(is.element(data_info$date_format, "t1d")){
+          if(!tail(dd,1) == length(dates)) {stop("Data dimension does not fit time dimension")}
+      }  else {
+        dates <- unlist(dates)
+        #if (data_info$type == "p") {stop("<type> does not fit date_format.")}
+        #if (dl==4  & dt == "p_fc") {stop("<type> is not set correctly")}
+        #if (dl==3  & dt == "p_hc") {stop("<type> is not set correctly")}
+        if (!dd[dl]*dd[dl-1] == length(dates)) stop("Data dimension does not fit time dimensions")
+
+      }
+      }
+
     else if (is.element(data_info$type, c("grid","grid_hc","grid_fc"))){
-      if (dim(data)[1] == length(lon)){ if(dim(data)[2] == length(lat)){
-        if(is.element(data_info$date_format, "t1d")){
-          if (!dim(data)[3] == length(dates)) {stop("Data dimension does not fit time dimension")}
-        }
-        else if(dim(data)[3]*dim(data)[4] == length(dates)) stop("Data dimension does not fit lat/lon dimensions")
-      } else stop("Data dimension does not fit lat/lon dimensions")}
-    }
+      if (length(dd)<=2) stop("<type> is not set correctly")
+      if (!dd[1] == length(lon)){stop("Data dimension does not fit lon dimensions")}
+      if (!dd[2] == length(lat)){stop("Data dimension does not fit lat dimensions")}
+
+      if(is.element(data_info$date_format, "t1d")){
+        if (is.list(dates)) stop("if date_format=t1d, time must be an array and not a list.")
+        #if (!length(dd)==3) {stop("<type> or <date_format> is not set correctly")}
+        if (!tail(dd,1) == length(dates)) {stop("Data dimension does not fit time dimension")}
+             } else {
+          dates <- unlist(dates)
+          #if (length(dd)==5  & data_info$type == "p_fc") {stop("<type> is not set correctly")}
+          #if (length(dd)==4  & data_info$type == "p_hc") {stop("<type> is not set correctly")}
+          if (!dd[dl]*dd[dl-1] == length(dates)) stop("Data dimension does not fit time dimensions")
+
+      } }
     else stop("<<type>> is not set correctly")
   }, error=function(cond){
     message("Error in input data:")
@@ -176,6 +198,27 @@ check_fcmon<-function(data){
   })
 }
 
+#checks in make object funcion if fcmon is integer/chracter and corresponds to first month of data
+check_fmon_object <- function(dates, fmon){
+  tryCatch({
+    if(is.integer(fmon)) {fmon <- as.character(fmon)}
+    if(is.character(fmon)) {if(suppressWarnings(is.na(as.numeric(fmon)))) {stop("<fmon> is not set correctly.")}}
+
+    if(!is.list(dates)){dates <- list(dates)}
+    firstmon <- unique(sapply(dates, function(x) substr(x[1],6,7)))
+    if(length(firstmon)>1) stop("Initial month of fc/hc is not the same for all time slices.")
+
+    if(!firstmon == fmon){
+      stop("Initial months of fc/hc data is not the same as <fmon>.")
+      }
+    }, error=function(cond){
+    message("Error in input data:")
+    message(cond)
+    stop_quietly()
+  })
+  return(fmon)
+
+}
 
 # checks if input in data_list is of same type
 check_same_type<-function(data_list){
@@ -204,6 +247,7 @@ check_type_error<-function(data,error_types){
 
 check_dir <- function(dir, output) {
   if (!is.null(output)) {
+    if (output!="dev.new"){
       tryCatch({
         if (!dir.exists(dir)) {
           dir.create(dir)
@@ -213,6 +257,7 @@ check_dir <- function(dir, output) {
         message(cond)
         stop_quietly()
       })
+    }
   }
 }
 
@@ -260,4 +305,22 @@ check_type<- function(dat, index, index_args, type){
 
 check_trend <- function(var){return(ifelse(is.element(var, c("tmin","tmax","tavg")), FALSE, TRUE))}
 
+# check format of dates
+check_dates <- function(dates,var){
+  tryCatch({
+    if(is.list(dates)) {
+      if(any(!sapply(dates, function(x) is_date(x)))){
+        stop(paste0("<dates_",var ,"> format not set correctly. It needs to be of class <<Date>>."))
+        }
+    } else {
+        if(!is_date(dates)){
+          stop(paste0("<dates_",var ,"> format not set correctly. It needs to of class <<Date>>."))
+        }
+    }
+  }   , error=function(cond){
+    message("Error in input data:")
+    message(cond)
+    stop_quietly()
 
+  })
+}

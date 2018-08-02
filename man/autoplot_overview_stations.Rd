@@ -16,17 +16,17 @@ autoplot_overview_stations(dat_p, indices, indices_args, selpoints = NULL,
 
 \item{indices_args}{List containing a list of index arguments for each index. See \code{\link{calc_index}}.}
 
-\item{selpoints}{Integer array of stations to select for plotting. Default= NULL (all stations are plottet).}
+\item{selpoints}{Optional integer array of stations to select for plotting. Default= NULL (all stations are plottet).}
 
-\item{addyears}{Array of years (integer or character) to add as points to the plot.}
+\item{addyears}{Optional array of years (integer or character) to add as points to the plot. Default=NULL.}
 
-\item{yearcols}{Array of same length as addyears with colors for marking selected years.}
+\item{yearcols}{Optional array of same length as addyears with colors for marking selected years. Entries have to be valid arguments to \code{\link[grDevices]{col2rgb}}. Default=1:length(addyears)}
 
-\item{yearpchs}{Array of pch for each year.}
+\item{yearpchs}{Optional array of pch for each year. Default= 18}
 
 \item{NAmaxClim}{Integer [0,100]. Maximum percentage of years with missing values for calculation of climatology. If exceeded value for respective grid point/station is set to NA. Default = 20 ( = 20"\%").}
 
-\item{output}{Format of image to be plotted ("png", "jpg", "tiff", "pdf","dev.new").  Default = NULL, output to null.device}
+\item{output}{Format of image to be plotted ("png", "jpg", "tiff", "pdf","dev.new").  Default = NULL, output to null device (getOption("device") will show you the null device. If you are not using RStudio, NULL and dev.new will give the same output).}
 
 \item{plotdir}{Character string of path of directory for saving plots. Ignored if  \emph{output} is NULL or "dev.new".}
 
@@ -49,8 +49,8 @@ This function returns one plot per station and temporal aggregation whch is cove
 
 If output is not NULL or "dev.new" the graphics are directly saved in the user specified directory (\emph{plotdir}) with the following filename structure: \cr
 
-    \emph{plotname} // "overview_indices" // aggregation // years // addyears //\emph{output} \cr e.g.: \cr
-    \emph{plotname}"_overview_indices_MAM_1981-2010_add2018.png \cr
+    \emph{plotname} // "overview_indices" // aggregation // years // addyears //station_name// \emph{output} \cr e.g.: \cr
+    \emph{plotname}"_overview_indices_MAM_1981-2010_add2018_station2.png \cr
 }
 
 \section{Details}{

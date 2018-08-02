@@ -39,7 +39,6 @@ get_plot_data_fc<-function(ind_dat,years,ip,fdiminfo){
 #'   \item different indices calculated from the same dataset (...$data_info$data_name has to be the same for all element of ind_dat) or
 #'   \item one indice for different datasets (class of list elements and ...$index_info$iname have to be the same for all element of ind_dat)
 #'   }
-#'@param trendplots logical. Array of same length as ind_dat indicating for each index whether or not the trend should be plotted. If not specified all values are set to false.
 #'@param output: type of output xxx auch write moeglich
 #'@param plotdir: directory where files/plots are saved to.
 #'@param plotname: string for outputnames, the final name will be outfilestring_month/season/etc..
@@ -53,18 +52,10 @@ get_plot_data_fc<-function(ind_dat,years,ip,fdiminfo){
 #'@param pwidth,pheight,pres  Width,Height and Resolution of plot (see width in  \code{\link[grDevices]{png}}).If output=="pdf" the heights and widths are adjusted to pwidth/res and pheight/res. Default values are pwidth=2000,pheight=1300,pres=250.
 #'@param cex cex of plots (see par()). Default=1
 #'
-plot_spi_forecast <- function(ind_dat,full_dat_NA, trendplots,selpoints,pdims, plot_title=TRUE,title="",output=NULL,plotdir=NULL,plotname=NULL,ylims=NULL,plotstart =NULL,pwidth=2000,pheight=1300,pres=250,cex=1,text_cex=1,show.grid.h=TRUE, ...){
+plot_spi_forecast <- function(ind_dat,full_dat_NA, selpoints,pdims, plot_title=TRUE,title="",output=NULL,plotdir=NULL,plotname=NULL,ylims=NULL,plotstart =NULL,pwidth=2000,pheight=1300,pres=250,cex=1,text_cex=1,show.grid.h=TRUE, ...){
   opargs<-list(...)
 
   if(any(is.element(class(ind_dat), "climindvis_index"))) ind_dat<-list(ind_dat)
-   if (missing(trendplots)) trendplots=rep(FALSE,length(ind_dat))
-  if(length(trendplots) != length(ind_dat)) {
-    trendplots = c(trendplots,rep(FALSE,length(ind_dat)-length(trendplots)))
-    message("Length of <<trendplots>> differs from length of <<ind_dat>> , array filled up with <<FALSE>>")
-  }
-  if(all(trendplots)==TRUE){
-    if(sum(sapply(ind_dat,function(x) is.na(x["index_trend"]))==TRUE)>1)
-      message(" Trend calculation in climindvis Index List is missing ")}
 
   lty <- rep(1, length(ind_dat))
   datname<-unique(sapply(ind_dat,function(x) x$data_info$data_name))
@@ -86,16 +77,16 @@ plot_spi_forecast <- function(ind_dat,full_dat_NA, trendplots,selpoints,pdims, p
   # pinfo$legend<-sapply(ind_dat,function(x) x$data_info$data_name)
 
   breaks <- c(0,0.675,0.92, 1.2,1.6,2)
-  colors.spi <- get_default_color("spi", ind_dat$index_info$iname)$col
+  colors.spi <- get_default_color("spi", ind_dat[[1]]$index_info$iname)$col
   colors.spi <- colors.spi[2:(length(colors.spi)-1)]
   colors.pos <- colors.spi[((length(colors.spi)/2)+1):length(colors.spi)]
   colors.neg <- rev(colors.spi[1:(length(colors.spi)/2)])
 
-  if (trendplots==TRUE){
-    pinfo$legend[[length(pinfo$legend)+1]] <- "Fit"
-    pinfo$legend[[length(pinfo$legend)+1]] <- "Lw"
-
-  }
+  # if (trendplots==TRUE){
+  #   pinfo$legend[[length(pinfo$legend)+1]] <- "Fit"
+  #   pinfo$legend[[length(pinfo$legend)+1]] <- "Lw"
+  #
+  # }
 
   for ( pp in 1:pdims$pnumber){
 
@@ -174,34 +165,34 @@ plot_spi_forecast <- function(ind_dat,full_dat_NA, trendplots,selpoints,pdims, p
         boxplot(fdat.ts.mat,at=seq(offset_fcst+1.5,(offset_fcst+fdl+0.5),by=1), add=TRUE, names= rep("",fdl), col=boxcol,outline = FALSE, pars=list(xaxt="n"), border = "gray40", yaxt="n")
       }
 
-      if (trendplots==TRUE){
-        tdata<-get_plot_data_points_trend(ind_dat,iagg=agg,years=tdims$year,ip=pp,pdiminfo=pdims$dims)
-
-        if (TRUE %in% is.na(tdata[[i]]$data[length(tdata[[i]]$data[,1]),])){
-          tdata[[i]]$data<- tdata[[i]]$data[-length(tdata[[i]]$data[,1]),]
-        }
-
-        #if (!is.na(nagg)){
-        if (!is.na(agg)){
-          if (TRUE %in% is.na(tdata[[i]]$data[length(tdata[[i]]$data[,1]),])){
-            tdata[[i]]$data<- tdata[[i]]$data[-length(tdata[[i]]$data[,1]),]
-          }
-
-          # if (!is.na(nagg)){
-          if (!is.na(agg)){
-            polygon(c(1:length(tdata[[i]]$data[,1]),length(tdata[[i]]$data[,1]):1),c(tdata[[i]]$data[,2],rev(tdata[[i]]$data[,3])),border=NA,col=rgb(colv[1],colv[2],colv[3], alpha=70, maxColorValue = 255),cex=cex)
-            lines(tdata[[i]]$data[,1],type="l",col=rgb(colv[1],colv[2],colv[3],maxColorValue = 255),cex=cex)
-            lines(tdata[[i]]$data[,4],type="l",col=rgb(colv[1],colv[2],colv[3],maxColorValue = 255),lty=2,cex=cex)
-
-          } else {
-            polygon(c(1:length(tdata[[i]]$data[,1]),length(tdata[[i]]$data[,1]):1),c(tdata[[i]]$data[,2],rev(tdata[[i]]$data[,3])),border=NA,col=rgb(colv[1],colv[2],colv[3], alpha=70, maxColorValue = 255),cex=cex)
-            lines(tdata[[i]]$data[,1],type="l",col=rgb(colv[1],colv[2],colv[3],maxColorValue = 255),cex=cex)
-            lines(tdata[[i]]$data[,4],type="l",col=rgb(colv[1],colv[2],colv[3],maxColorValue = 255),lty=2,cex=cex)
-
-          }
-          pcols <- c("gray33", rep("black",2))
-        }
-      }
+      # if (trendplots==TRUE){
+      #   tdata<-get_plot_data_points_trend(ind_dat,iagg=agg,years=tdims$year,ip=pp,pdiminfo=pdims$dims)
+      #
+      #   if (TRUE %in% is.na(tdata[[i]]$data[length(tdata[[i]]$data[,1]),])){
+      #     tdata[[i]]$data<- tdata[[i]]$data[-length(tdata[[i]]$data[,1]),]
+      #   }
+      #
+      #   #if (!is.na(nagg)){
+      #   if (!is.na(agg)){
+      #     if (TRUE %in% is.na(tdata[[i]]$data[length(tdata[[i]]$data[,1]),])){
+      #       tdata[[i]]$data<- tdata[[i]]$data[-length(tdata[[i]]$data[,1]),]
+      #     }
+      #
+      #     # if (!is.na(nagg)){
+      #     if (!is.na(agg)){
+      #       polygon(c(1:length(tdata[[i]]$data[,1]),length(tdata[[i]]$data[,1]):1),c(tdata[[i]]$data[,2],rev(tdata[[i]]$data[,3])),border=NA,col=rgb(colv[1],colv[2],colv[3], alpha=70, maxColorValue = 255),cex=cex)
+      #       lines(tdata[[i]]$data[,1],type="l",col=rgb(colv[1],colv[2],colv[3],maxColorValue = 255),cex=cex)
+      #       lines(tdata[[i]]$data[,4],type="l",col=rgb(colv[1],colv[2],colv[3],maxColorValue = 255),lty=2,cex=cex)
+      #
+      #     } else {
+      #       polygon(c(1:length(tdata[[i]]$data[,1]),length(tdata[[i]]$data[,1]):1),c(tdata[[i]]$data[,2],rev(tdata[[i]]$data[,3])),border=NA,col=rgb(colv[1],colv[2],colv[3], alpha=70, maxColorValue = 255),cex=cex)
+      #       lines(tdata[[i]]$data[,1],type="l",col=rgb(colv[1],colv[2],colv[3],maxColorValue = 255),cex=cex)
+      #       lines(tdata[[i]]$data[,4],type="l",col=rgb(colv[1],colv[2],colv[3],maxColorValue = 255),lty=2,cex=cex)
+      #
+      #     }
+      #     pcols <- c("gray33", rep("black",2))
+      #   }
+      # }
     if (plot_title){
       if(title!="") mtext(title,side=3,line=5*text_cex,adj=0.5,cex=1.5*text_cex)
     mtext(paste0(pinfo$titlestring," ",pname," (lon: ", pdims$lon[pp],"/lat: ",pdims$lat[pp],")"),side=3,line=4*text_cex,cex=1*text_cex, adj=0)
@@ -210,17 +201,17 @@ plot_spi_forecast <- function(ind_dat,full_dat_NA, trendplots,selpoints,pdims, p
     mtext(paste0("Missing Values: ",round(full_dat_NA[pp]) ," [%]"), side=3, line = 2 *text_cex, cex=0.8*text_cex, adj=0)
     mtext (paste0("Data: ",paste0(unique(sapply(ind_dat, function(ii) ii$data_info$data_name)),collapse=",")), side=3, line = text_cex, cex=0.8*text_cex, adj=0)
 
-     if (trendplots==TRUE){
-      lty <- c(lty, rep(c(2,3), length(ind_dat)))
-
-      if(!is.na(agg) & length(nagg)> 1 ){
-        trinfo <- lapply(ind_dat, function(ll) index_array(ll$trend_info,c(1),pdims$dims[[1]]$ipoint[pp],drop=TRUE))
-        mtext(paste0("Period: ",paste0(trinfo[[1]][which(nagg==agg),1],"-",trinfo[[1]][which(nagg==agg),2]),"  p-value: ",paste0(1:length(ind_dat),":",round( as.numeric(sapply(trinfo,function(x) x[which(nagg==agg),3])),3)," ",collapse="") ,"  relative trend: ",paste0(1:length(ind_dat),":",round(as.numeric(sapply(trinfo,function(x) x[which(nagg==agg),4])),3)," ",collapse="")),side=3, line = 0.1,cex=0.7)
-      } else{
-        trinfo <- sapply(ind_dat, function(ll) index_array(ll$trend_info,c(1),pdims$dims[[1]]$ipoint[pp]))
-        mtext(paste0("Period: ",trinfo[1,1],"-",trinfo[2,1],"  p-value: ",paste0(1:length(ind_dat),":",round( as.numeric(trinfo[3,]),3)," ",collapse="") ,"  relative trend: ",paste0(1:length(ind_dat),":",round(as.numeric(trinfo[4,]),3)," ",collapse="")),side=3, line = 0.1,cex=0.7)
-
-      }}
+     # if (trendplots==TRUE){
+     #  lty <- c(lty, rep(c(2,3), length(ind_dat)))
+     #
+     #  if(!is.na(agg) & length(nagg)> 1 ){
+     #    trinfo <- lapply(ind_dat, function(ll) index_array(ll$trend_info,c(1),pdims$dims[[1]]$ipoint[pp],drop=TRUE))
+     #    mtext(paste0("Period: ",paste0(trinfo[[1]][which(nagg==agg),1],"-",trinfo[[1]][which(nagg==agg),2]),"  p-value: ",paste0(1:length(ind_dat),":",round( as.numeric(sapply(trinfo,function(x) x[which(nagg==agg),3])),3)," ",collapse="") ,"  relative trend: ",paste0(1:length(ind_dat),":",round(as.numeric(sapply(trinfo,function(x) x[which(nagg==agg),4])),3)," ",collapse="")),side=3, line = 0.1,cex=0.7)
+     #  } else{
+     #    trinfo <- sapply(ind_dat, function(ll) index_array(ll$trend_info,c(1),pdims$dims[[1]]$ipoint[pp]))
+     #    mtext(paste0("Period: ",trinfo[1,1],"-",trinfo[2,1],"  p-value: ",paste0(1:length(ind_dat),":",round( as.numeric(trinfo[3,]),3)," ",collapse="") ,"  relative trend: ",paste0(1:length(ind_dat),":",round(as.numeric(trinfo[4,]),3)," ",collapse="")),side=3, line = 0.1,cex=0.7)
+     #
+     #  }}
     }
 
     if(!is.null(output)) dev.off()

@@ -7,8 +7,9 @@
 get_indexvar<-function(index,index_args){
 
   preci<-c("dd" ,"cdd","prcptot","rx","cwd","sdii","rXptot","spi","spi_forecast","rainy_season_start","rainy_season_end","rainy_season_length")
-  tmini<-c("fd","tn10p","tnn","tn90p","tnx")
-  tmaxi<-c("tx10p","txn","txx","tx90p")
+  tmini<-c("fd","tn10p","tnn","tn90p","tnx","th_tmin")
+  tmaxi<-c("tx10p","txn","txx","tx90p","th_tmax")
+  tavgi<-c("th_topt")
 
  tryCatch({
   if (is.element(index,preci)){
@@ -17,6 +18,8 @@ get_indexvar<-function(index,index_args){
     var="tmin"
   } else if (is.element(index,tmaxi)){
     var="tmax"
+  } else if (is.element(index,tavgi)){
+    var="tavg"
   } else {
     if (!any(grepl("var",names(index_args)))) stop(paste0("for index ",index, " var/thvar needs to be defined in index_args"))
     var=unlist(index_args[grepl("var",names(index_args))])
@@ -32,34 +35,46 @@ get_indexvar<-function(index,index_args){
 
 }
 
-get_default_color<-function(index,iname){
+get_default_color<-function(index,iname,fc=FALSE){
 
-  cold<-c("#0E6134","#2BAC66","#ABCF63","#E8F69E","#D7E3EE","#B5CAFF","#8FB3FF","#7F97FF","#0570B0","#023858")
-  hot<-c("#FFFF8F","#FED679","#FBBA5B","#F99C4F","#E76636","#D62F27","#B50626","#6B0026","#2B0016")
-  sun=c("#FFF5CC","#FFE670","#FFCC33","#FFAF33","#FF9933","#FF6F00","#FF5500","#E6281E","#C81E14")
-  prec<-c("#EDFAC2","#CDFFCD","#99F0B2","#53BD9F","#32A696","#3296B4","#0570B0","#05508C","#0A1F96","#2C0246","#6A2C5A")
-  dry= c("#9ACD32","#C9E959","#EBF3B1","#E1D075","#B48222","#6F5741")
-  vegetation<-c("#6F5741","#B48222","#E1D075","#EBF3B1","#CCFF9C","#C9E959","#9ACD32","#4FBD33","#619E40","#326329")
+  if(!fc){
+    cold<-c("#0E6134","#2BAC66","#ABCF63","#E8F69E","#D7E3EE","#B5CAFF","#8FB3FF","#7F97FF","#0570B0","#023858")
+    hot<-c("#FFFF8F","#FED679","#FBBA5B","#F99C4F","#E76636","#D62F27","#B50626","#6B0026","#2B0016")
+    sun=c("#FFF5CC","#FFE670","#FFCC33","#FFAF33","#FF9933","#FF6F00","#FF5500","#E6281E","#C81E14")
+    prec<-c("#EDFAC2","#CDFFCD","#99F0B2","#53BD9F","#32A696","#3296B4","#0570B0","#05508C","#0A1F96","#2C0246","#6A2C5A")
+    dry= c("#9ACD32","#C9E959","#EBF3B1","#E1D075","#B48222","#6F5741")
+    vegetation<-c("#6F5741","#B48222","#E1D075","#EBF3B1","#CCFF9C","#C9E959","#9ACD32","#4FBD33","#619E40","#326329")
 
-  #--- 0 zentriert----------------------
-  prec_anom<-c("#B66A28","#CD853F","#E1A564","#F5E09E","#FFF5BA","#FFFADC","#E6FFE6","#99F4B2","#53BD9F","#6EAAC8","#0570B0","#023858")
-  temp_abs<-c("#071E46","#08529C","#4292C7","#78BFD6","#DBDBDB","#FC9272","#F03C2B","#A60F14","#5F0000")
-  pheno<-c("#8B3A3A","#F4BA00","#009999")
+    #--- 0 zentriert----------------------
+    prec_anom<-c("#B66A28","#CD853F","#E1A564","#F5E09E","#FFF5BA","#FFFADC","#E6FFE6","#99F4B2","#53BD9F","#6EAAC8","#0570B0","#023858")
+    temp_abs<-c("#071E46","#08529C","#4292C7","#78BFD6","#DBDBDB","#FC9272","#F03C2B","#A60F14","#5F0000")
+    pheno<-c("#8B3A3A","#F4BA00","#009999")
+
+  } else {
+    cold<-c("#0E6134","#ABCF63","#023858")
+    hot<-c("#E76636","#6B0026","#2B0016")
+    sun=c("#FFF5CC","#FFE670","#FFCC33","#FFAF33","#FF9933","#FF6F00","#FF5500","#E6281E","#C81E14")
+    prec<-c("#53BD9F","#0A1F96","#2C0246")
+    dry= c("#9ACD32","#EBF3B1","#B48222")
+    vegetation<-c("#6F5741","#B48222","#4FBD33")
+    pheno<-c("#8B3A3A","#F4BA00","#009999")
+  }
+
 
   center=FALSE # color scale centered around 0?
-  if (is.element(index,c("dd" ,"cdd"))){
+  if (is.element(index,c("dd" ,"cdd")) | (index=="cxd" & grepl("prec<",iname))){
     col=dry
-  } else if (is.element(index,c("fd","tn10p"))) {
+  } else if (is.element(index,c("fd","tn10p","th_tmin")) | (index=="cxd" & grepl("tmin<",iname))) {
     col = cold
-  } else if (is.element(index,c("tnn"))) {
+  } else if (is.element(index,c("tnn"))  |(index=="cxd" & grepl("tmin>",iname))) {
     col = rev(cold)
     center=TRUE
-  } else if (is.element(index, c("prcptot","rx","cwd","sdii","rXptot"))){
+  } else if (is.element(index, c("prcptot","rx","cwd","sdii","rXptot")) | (index=="cxd" & grepl("prec>",iname))){
     col=prec
   } else if (is.element(index, c("spi","spi_forecast"))){
     col=prec_anom
     center=TRUE
-  } else if (is.element(index,c("tx90p"))){
+  } else if (is.element(index,c("tx90p","th_tmax")) ){
     col=hot
   } else if (is.element(index,c("txx"))){
     col=hot
@@ -69,12 +84,20 @@ get_default_color<-function(index,iname){
   } else if (is.element(index,c("txn","tnx"))){
     col=sun[1:5]
     center=TRUE
+  } else if (index=="cxd" & grepl("tmax",iname)){
+    col=ifelse(grepl(">",iname,sun,cold))
   } else if (index == "rainy_season_start"){
     col=rev(vegetation)
   } else if (index == "rainy_season_end") {
     col=vegetation
+  } else if (is.element(index,c("minmax_xdays","varmin","varmax"))){
+    if (grepl("min",iname)){
+      col(ifelse(grepl("prec",iname)),prec,cold)
+    } else if (grepl("max",iname)){
+      col(ifelse(grepl("prec",iname)),prec,sun)
+    }
   } else if (is.element(index,c("th","qth"))){
-    if (length(grep(iname,"prec>"))>0 ){
+    if (grepl("prec>",iname) ){
       col=prec
     } else if (grepl("prec<",iname)){
       col=dry
@@ -87,10 +110,10 @@ get_default_color<-function(index,iname){
       if (grepl("prec",iname)){
         col=prec
       } else if  (length(grep(paste(c("tmin","tavg","tmax"),collapse="|"),iname))>0 ){
-        col=temp_abs
+        col=ifelse(fc,sun,temp_abs)
         center=TRUE
       } else grDevices::colorRampPalette(c("lightgrey","darkgrey"))(10)
-  } else if (grepl("pheno",index)){
+  } else if (grepl(paste(c("th_topt","th_range"),collapse="|"),index)){
     col=pheno
   } else if (index=="cxd"){
       if(grepl("tmin",iname) & grepl("<", iname)) {
@@ -103,60 +126,6 @@ get_default_color<-function(index,iname){
   return(list(col=col,center=center))
 }
 
-get_default_color_fc<-function(index,iname){
-
-
-  cold<-c("#0E6134","#ABCF63","#023858")
-  hot<-c("#E76636","#6B0026","#2B0016")
-  sun=c("#FFF5CC","#FFE670","#FFCC33","#FFAF33","#FF9933","#FF6F00","#FF5500","#E6281E","#C81E14")
-  prec<-c("#53BD9F","#0A1F96","#2C0246")
-  dry= c("#9ACD32","#B48222","#6F5741")
-  vegetation<-c("#6F5741","#B48222","#4FBD33")
-  pheno<-c("#8B3A3A","#F4BA00","#009999")
-
-
-  if (is.element(index,c("dd" ,"cdd"))){
-    col=dry
-  } else if (is.element(index,c("fd","tn10p"))) {
-    col = cold
-  } else if (is.element(index,c("tnn"))) {
-    col = rev(cold)
-  } else if (is.element(index, c("prcptot","rx","cwd","sdii"))){
-    col=prec
-  } else if (is.element(index, c("spi","spi_forecast"))){
-    col=pheno
-  } else if (is.element(index,c("txx","tx90p"))){
-    col=hot
-  } else if (is.element(index,c("tn90p","tx10p","txn","tnx"))){
-    col=sun[1:5]
-  } else if (index == "rainy_season_start"){
-    col=rev(vegetation)
-  } else if (index == "rainy_season_end") {
-    col=vegatation
-  } else if (is.element(index,c("th","qth"))){
-    if (length(grep(iname,"prec>"))>0 ){
-      col=prec
-    } else if (length(grep(iname,"prec<"))>0 ){
-      col=dry
-    } else if (grepl(paste(c("tmin<","tavg<","tmax<"),collapse="|"),iname) ){
-      col=cold
-    } else if (grepl(paste(c("tmin<","tavg<","tmax<"),collapse="|"),iname) ){
-      col=sun[1:5]
-    } else grDevices::colorRampPalette(c("lightgrey","darkgrey"))(10)
-  } else if (is.element(index,c("mean","sum"))){
-    if (length(grep(iname,"prec"))>0 ){
-      col=prec
-    } else if  (length(grep(paste(c("tmin","tavg","tmax"),collapse="|"),iname))>0 ){
-      col=pheno
-    } else grDevices::colorRampPalette(c("lightgrey","darkgrey"))(10)
-  } else if (grepl("pheno",index)){
-    col=pheno
-  }else {
-    message(paste0("no default color defined for index",index))
-    col=grDevices::colorRampPalette(c("lightgrey","darkgrey"))(10)
-  }
-  return(list(col=col))
-}
 # get name of aggregation type
 get_aggtname<-function(index_args,aggnames) {
    if(index_args$aggt=="monthly" & !is.na(aggnames[1])) {aggtname="mon"
@@ -281,7 +250,7 @@ image_scale <- function(breaks,col, axis.pos=1, add.axis=TRUE, xlab,ylab,scale_l
 
   } else
     if(!is.null(fc_axis)){
-    wc=c(0,which(col=="white"),max(height))
+    wc=c(0,which(col[2:(length(col)-1)]=="white")+1,max(height))
     pbox <- vector(mode="list", length(wc)+1)
     for(i in 1:(length(wc)-1)){
       if(axis.pos %in% c(1,3)){

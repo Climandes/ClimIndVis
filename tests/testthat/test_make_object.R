@@ -42,6 +42,12 @@ expect_error(make_object(tmin=data_point, tmax=data_point,prec=data_point,tavg=d
 expect_error(make_object(tmin=data_grid_t2d_hc,tmax=data_grid_t2d_hc,dates_tmin=time_t2d_hc,dates_tmax=time_t2d,lon=lon,lat=lat,data_info=grid_data_info_t2d_hc))
 # lat wrong
 expect_error(make_object(tmin=data_point, tavg=data_point,dates_tavg = time,dates_tmin = time,lon=lon,lat=lat2,data_info=point_data_info))
+data("data_hc_st","data_st")
+# hc and t1d
+expect_error(make_object(tmin=data_hc_st$tmin, tavg=data_hc_st$tmax,dates_tavg = data_hc_st$time, dates_tmin =data_hc_st$time,lon=data_hc_st$lon,lat=data_hc_st$lat,data_info=list(type="p_hc",data_name="test",date_format="t1d")))
+expect_error(make_object(tmin=data_hc_st$tmin, tavg=data_hc_st$tmax,dates_tavg = data_st$time, dates_tmin =data_hc_st$time,lon=data_hc_st$lon,lat=data_hc_st$lat,data_info=list(type="p_hc",data_name="test",date_format="t2d")))
+
+expect_error(make_object(tmin=data_point, tavg=data_point,dates_tavg = time,dates_tmin = time,lon=lon,lat=lat2,data_info=point_data_info))
 
 ### cut time to same lengths
 dl <- length(test_object_point2$data) # point data
@@ -88,14 +94,3 @@ expect_equal(a,b)
 }
 )
 
-
-test_that("single station transformation",{
-
-  sstmin <- data_point[1,]
-  sstmin_lon <- lon[1]
-  sstmin_lat <- lat[1]
-  test_object_point <- make_object(tmin=sstmin, dates_tmin=time,lon=sstmin_lon,lat=sstmin_lat,data_info=point_data_info)
-  expect_equal(dim(test_object_point$data[[1]])[1],1)
-
-}
-)

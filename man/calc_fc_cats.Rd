@@ -12,9 +12,9 @@ calc_fc_cats(fc, hc, index, index_args = list(), selyears = NULL, prob,
 
 \item{hc}{Hindcasts. "climindvis_index" object  of type hc_p/hc_grid as output from \code{\link{make_object}} using an ensemble of  daily seasonal hindcasts.}
 
-\item{index}{Name of index to be calculated.}
+\item{index}{Name of index to be calculated., e.g. index = "dd" or index = "tnn". For list of indices see \code{\link{indices_list}}}
 
-\item{index_args}{List of arguments for index. See \code{\link{calc_index}}.}
+\item{index_args}{List of arguments for index. See \code{\link{indices_list}}.}
 
 \item{selyears}{Integer array of years to be selected from data. For indices with quantiles, years as defined in index_args are used for quantile calculation, but only selected years are plotted. For functions using seasonal forecast data, selyears is only applied to hindcasts.}
 
@@ -37,7 +37,7 @@ Object of class \emph{index} and "climindvis_fc" with following entries:
 }
 \description{
 Calculates index for hindcasts and forecasts and then derives category thresholds from hindcasts and calculates forecast probabilities for each category.
-The function works with gridded or station data (all input data needs to be of same type) and first calculates the chosen index (using \code{\link{calc_index}}) for hindcasts and forecasts and then divides the forecast into categories (e.g. terciles) based on the climatology of the hindcasts. It outputs the forecast probabilities for each category as well as the category thresholds.
+The function works with gridded or station data (all input data needs to be of same type) and first calculates the chosen index (using \code{\link{calc_index}}) for hindcasts and forecasts and then divides the forecast into categories (e.g. terciles for ncat=3) based on the climatology of the hindcasts. It outputs the forecast probabilities for each category as well as the category thresholds.
 }
 \section{Note}{
 

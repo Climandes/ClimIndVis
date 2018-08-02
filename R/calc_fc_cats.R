@@ -1,7 +1,7 @@
 #' Get probabilities of forecast categories
 #'
 #' Calculates index for hindcasts and forecasts and then derives category thresholds from hindcasts and calculates forecast probabilities for each category.
-#'The function works with gridded or station data (all input data needs to be of same type) and first calculates the chosen index (using \code{\link{calc_index}}) for hindcasts and forecasts and then divides the forecast into categories (e.g. terciles) based on the climatology of the hindcasts. It outputs the forecast probabilities for each category as well as the category thresholds.
+#'The function works with gridded or station data (all input data needs to be of same type) and first calculates the chosen index (using \code{\link{calc_index}}) for hindcasts and forecasts and then divides the forecast into categories (e.g. terciles for ncat=3) based on the climatology of the hindcasts. It outputs the forecast probabilities for each category as well as the category thresholds.
 #'
 #' @inheritParams plot_doc
 #' @inheritParams veri_doc

@@ -2,20 +2,22 @@
 % Please edit documentation in R/calc_indices_get_arguments.R
 \name{index_arguments.varmin}
 \alias{index_arguments.varmin}
-\title{arguments for index tnn}
+\title{arguments for index varmin}
 \usage{
 \method{index_arguments}{varmin}(climindvis, var, NAmaxAgg = 20,
   trend = FALSE, NAmaxTrend = 20, ...)
 }
 \arguments{
+\item{climindvis}{Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable "var".}
+
 \item{NAmaxAgg}{Maximum number of missing values in daily data of each aggregation period (e.g. in all January values for the whole time series). Value between 0 (=0\%; no missing values allowed) and 100 (=100\%; all values can be missing values). If the number of missing values is higher than NAmaxAgg the index value for the respective grid point/station is set to NA. Default = 20 (20\%).}
 
-\item{trend}{Logial (or character). Calculates trends with a predefined method for the chosen index. For information on default method, see  \code{\link{calc_index_trend}}. You can chose to calculate a non-parameteric trend, by setting trend to a character string "MannKendall". This calculates a TheilSen slope and MannKendall test. Default = TRUE.}
+\item{trend}{Logial (or character). Calculates trends with a predefined method for the chosen index. For information on default method, see  \code{\link{trend_methods}}. You can chose to calculate a non-parameteric trend, by setting trend to a character string "MannKendall". This calculates a TheilSen slope and MannKendall test. Default = TRUE.}
 
 \item{NAmaxTrend}{Maximum number of years in time series of index which are missing values. Value between 0 (=0\%); no years with missing values allowed) and 100 (=100\%); all years can be missing values). If exceeded, the trend is set to NA for the respective grid point/station. Note that the value is relative to the length of the time series. Default = 20 (20\%).}
 }
 \description{
-arguments for index tnn
+arguments for index varmin
 }
 \examples{
 data(object_st) # load example objects

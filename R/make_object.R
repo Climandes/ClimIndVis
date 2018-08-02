@@ -23,14 +23,15 @@
 #'       \item p,p_hc,p_fc: point data for observations/reanalyses, hindcasts,forecasts. For a single station, see NOTES.
 #'       \item grid,grid_hc,grid_fc: gridded data for observations/reanalysis, hindcasts,forecasts
 #'     }
-#'  \item date_format  [character]:
+#'  \item date_format  [character] (see NOTES)
 #'   \itemize{
-#'       \item t1d: In this case data has the dimension spatial-dims ( x ensemble dims) x time and time is a 1d array
-#'       \item t2d: In this case data has the dimension spatial-dims ( x ensemble dims) x no days x no years and time is a named list of length years with each list element containing the dates for one year, the name of the list element should correspond to the year of the first list entry. In the case of a turn of the year, the name in time list corresponds to the year of the first entry of the time array. NOTE2: in case of forecast data, the array should have the last dimension as year dimension of length one (if the year dimension is missing it is set to one) and years can be given as list or as array of dates. NOTE3: In this case, all variables need to have the same time steps, i.e. dates_xxx need to be equal for all variables.
+#'       \item t1d: time is a vector (1d), applies to data provided as single time series.
+#'       \item t2d: time is a named list, applies to data provided in form of time slices (list elements being the individual time slices). The names of the list elements correspond to the begin years of the time slices.
 #'     }
 #'  \item data_name: Name of dataset (e.g. "Station data" or "ECMWF S4 hindcasts"). Nessesary for plot functions
 #'
 #'  \item pnames: Character array of station names (optional). If provided they can be used for plotting. For point data (type="p*") only.
+#'  \item fmon: Only for forecast and hindcast data. Character or integer of month, the forecast is initialzied, eg.  fmon = "12".
 #'}
 #' @return The function returns a climindvis object with the following entries:
 #' \itemize{
@@ -40,14 +41,24 @@
 #' \item lat: Array of latitudes common for all input data.
 #' \item data_info: data_info as assed to function.
 #' \item time_factors: time factors used for calculation of temporal aggregation of indices.
+#' \item mask: (only for gridded data) list containing a mask for each variable with mask=1 for gridpoints where all time steps are NA
 #' }
 #' @section NOTES:
 #'
-#' The data input is an array where the dimensions depend on the type of data. Generally the data must be structured in the following way:
-#' spatial dimensions,ensemble dimension (in case of hindcasts or forecasts), time dimensions. In case of single stations, it must still be a matrix with two dimensions; one for the station and one for the time.
+
+#' The data input is an array where the dimensions depend on the type of data. Generally there are two possible ways to provide the data depending on the date_format. Currently, for hindcasts and forecasts, date_format has to be "t2d":
+#' \itemize{
+#' \item time series: In this case \emph{date_format}="t1d" and the dimensions of the data are: \cr
+#'  spatial dimensions x ensemble dimension (optional, applies to hindcasts or forecasts) x time \cr
+#'  where time is a 1d array (but the time series does not have to be continous and gaps are allowed). \cr
+#'   If providing data for a single station, it is a matrix with two dimensions; one for the station (the ensemble dimension in case of hindcasts/forecasts) and one for the time.
+#' \item time slices: In this case \emph{date_format}="t2d" and the dimensions of the data are: \cr
+#' #'  spatial dimensions x ensemble dimension (optional, applies to hindcasts or forecasts) x forecast days x forecast years \cr
+#' and time is a named list of length years with each list element containing the dates for one time slice, the names of the list elements correspond to the year of the first entry of the time slice. \cr
+#' In case of forecast data, the array should have the last dimension as year dimension of length one (if the year dimension is missing it is set to one).
+#' For date_format="t2d", all variables need to have the same time steps, i.e. dates_xxx need to be equal for all variables.
+#' }
 #' At least one of the 4 variables (and the respective dates) must be provided, otherwise the function gives an error.
-#'
-#' As mentioned in date_format, the format of dates_* can either be an 1dim array of all the dates or in the case of time slice data, a list of the dates for each year.
 #'
 #' For example data and example objects see \code{\link{example_data}} \code{\link{example_climindvis_objects}}.
 
@@ -55,46 +66,51 @@
 #' # make climindvis object with station data
 #'
 #' data(data_st)
-#' climindvis_st <- make_object(tmin = data_st$tmin, tmax = data_st$tmax, tavg = data_st$tvag, prec = data_st$prec,
-#' dates_tmin = data_st$time, dates_tmax = data_st$time, dates_tavg = data_st$time, dates_prec = data_st$time,
-#' lon = data_st$lon, lat = data_st$lat,  data_info = data_st$data_info, data_range=c(1950,2000))
+#' data_info = list(type="p",date_format="t1d", data_name="test data station",
+#'   pnames=paste0("station",1:4))
+#' climindvis_st <- make_object(
+#'     tmin = data_st$tmin, tmax = data_st$tmax, tavg = data_st$tvag, prec = data_st$prec,
+#'     dates_tmin = data_st$time, dates_tmax = data_st$time, dates_tavg = data_st$time, dates_prec = data_st$time,
+#'     lon = data_st$lon, lat = data_st$lat,  data_info = data_info, data_range=c(1950,2000))
 #' class(climindvis_st)
 #'
 #' # make climindvis object with gridded data
 #'
 #' data(data_grid)
+#' data_info=list(type="grid",date_format="t1d", data_name="test data grid")
 #' climindvis_grid <- make_object(
 #'     tmin = data_grid$tmin,tmax = data_grid$tmax, prec = data_grid$prec,
 #'     dates_tmin = data_grid$time, dates_tmax = data_grid$time, dates_prec = data_grid$time,
-#'     lon = data_grid$lon, lat = data_grid$lat,  data_info = data_grid$data_info)
+#'     lon = data_grid$lon, lat = data_grid$lat,  data_info = data_info)
 #' class(climindvis_grid)
 #'
 #' # make climindvis object with gridded hindcast data
 #'
 #' data(data_hc_grid)
+#' data_info=list(type="grid_hc",date_format="t2d", data_name="test data hc grid",fmon = "01")
 #' climindvis_grid_hc <- make_object(
 #'     tmin = data_hc_grid$tmin, tmax = data_hc_grid$tmax, prec = data_hc_grid$prec,
 #'     dates_tmin = data_hc_grid$time, dates_tmax = data_hc_grid$time, dates_prec = data_hc_grid$time,
-#'     lon = data_hc_grid$lon, lat = data_hc_grid$lat,  data_info = data_hc_grid$data_info)
+#'     lon = data_hc_grid$lon, lat = data_hc_grid$lat,  data_info = data_info)
 #' class(climindvis_grid_hc)
 
 #'@export
 make_object<- function(tmin = NULL, tmax = NULL, prec = NULL, tavg = NULL, dates_tmin = NULL, dates_tmax = NULL, dates_prec = NULL, dates_tavg = NULL, lon, lat, data_range = NULL, data_info){
 
-  if(missing(lon)) { lon=NA ; warning("no longitudes specified, set to NA")}
-  if(missing(lat)) {lat=NA ; warning("no latitudes specified, set to NA")}
+  if(missing(lon)) {stop("no longitudes specified.")}
+  if(missing(lat)) {stop("no latitudes specified.")}
   if(is.null(data_info$type)) stop ("<<type>> is missing in data_info")
   if(is.null(data_info$data_name)) stop ("<<data_name>> is missing in data_info")
+  if(is.null(data_info$date_format)) stop ("<<date_format>> is missing in data_info")
   if(all(is.null(tmin),is.null(tmax), is.null(tavg),is.null(prec))) stop ("data (tmin,tmax,prec,tavg) is missing")
   if(all(is.null(dates_tmin),is.null(dates_tmax), is.null(dates_tavg),is.null(dates_prec))) stop ("dates are missing")
+  if (grepl(paste("hc","fc",sep="|"),data_info$type) & data_info$date_format!= "t2d") stop("For types *hc and *fc only date_format=t2d is currently implemented.")
 
   for (var in c("tavg","prec","tmin","tmax")){
     if (!is.null(get(var))){
-      check_dims(get(var), get(paste0("dates_",var)),var,lon,lat,data_info)
 
-      if(is.null(dim(get(var)))) {
-        assign(var, matrix(data=get(var), nrow=1, ncol=length(get(var))))
-      }
+      check_dims(get(var), get(paste0("dates_",var)),var,lon,lat,data_info)
+      check_dates(get(paste0("dates_",var)),var)
     }
     }
   data<-list()
@@ -106,6 +122,10 @@ make_object<- function(tmin = NULL, tmax = NULL, prec = NULL, tavg = NULL, dates
     for (var in c("tavg","prec","tmin","tmax")){
       if (!is.null(get(var))){
 
+        if(!is.null(data_info$fmon)){
+          data_info$fmon <- check_fmon_object(get(paste0("dates_",var)),data_info$fmon)
+        }
+
         dims <- dim(get(var))
         dl <- length(dims)
 
@@ -114,7 +134,8 @@ make_object<- function(tmin = NULL, tmax = NULL, prec = NULL, tavg = NULL, dates
         }
         dims <- dim(get(var))
         dl <- length(dims)
-        if(!prod(dims[(dl-1):dl]) == length(unlist(get(paste0("dates_",var))))) stop(paste0("time input does not match time dimensions of data for var = ",var))
+        if(!prod(dims[(dl-1):dl]) == length(unlist(get(paste0("dates_",var)))))
+          stop(paste0("time input does not match time dimensions of data for var = ",var))
 
         if(!is.list(get(paste0("dates_",var)))) assign(paste0("dates_",var), list(get(paste0("dates_",var))))
 
@@ -159,7 +180,7 @@ make_object<- function(tmin = NULL, tmax = NULL, prec = NULL, tavg = NULL, dates
 
 
 ######################### help functions ###################################################
-#function to cut out the first "fcmons" months
+#function to cut out the first "fmon" months
 equal_time<-function(dates_list,data_range,data_info){
   if (length(grep("c",data_info$type))==0 & data_info$date_format=="t1d"){
     if (is.null(data_range)){
@@ -186,22 +207,6 @@ get_vals <- function(dates_list){
   max_val <- dates_list[[all_max]][length(dates_list[[all_max]])]
   return(c(min_val, max_val))
 }
-
-
-cut_months<-function(data,time_fcst,fcmons=7){
-
-   months<-unique(format(time_fcst[[1]],"%m"))[1:fcmons]
-
-   time_new <-
-     lapply(time_fcst, function(x) {
-    cuts <- which(is.element(format(x,"%m"),months))
-     z <- x[cuts]
-     return(z)
-   })
-   dl <-  length(dim(data))
-   data_new <- index_array(data,dim=dl-1,value = cuts, drop=FALSE)
-   return(list(data = data_new,time = time_new))
- }
 
 
 # converts arrays with two time dimension into one, data=list or array

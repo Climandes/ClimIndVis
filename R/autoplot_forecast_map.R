@@ -98,17 +98,7 @@ autoplot_forecast_map<-function(
 
   #3. get and check data--------------------------------------------------
   dat=get_data_list(c("fc","hc","hc_ref","obs"))
-  # skip_index==FALSE
-  # tryCatch({
   check_class(dat[!sapply(dat,is.null)],"climindvis")
-  # }, error=function(cond){
-  #   tryCatch({
-  #   check_class(dat[!sapply(dat,is.null)],"climindvis_index")
-  #   }, error=function(cond2){
-  #     message("problem with input data:")
-  #     message("input data is not of type <<climindvis>> nor of type <<climindvis_index>>")
-  #     stop_quietly()
-  #   }, finally = {skip_index=TRUE})})
   check_spatial_dims(dat[!sapply(dat,is.null)])
   check_fcmon(dat[!sapply(dat,is.null)])
   switch(is_index_special(index)+1,selyears_data<-selyears,selyears_data<-NULL)
@@ -172,12 +162,6 @@ autoplot_forecast_map<-function(
   }
 
   #6. plot_arguments-------------------------------------------------
-  if(col == "default"){
-    ch = grDevices::colorRampPalette(get_default_color_fc(index,  ind_dat$fc_p$index_info$iname)$col)(ncat)
-  } else {
-    ch=grDevices::colorRampPalette(col)(ncat)
-  }
-
   get_plot_args(autoplot="forecast_map")
 
   # 5. plot forecasts ---------------------------------------------------------
@@ -208,7 +192,7 @@ autoplot_forecast_map<-function(
       if (error==0){
 
         pnames=get_plot_title(titlestring=title,show_title=plot_title,autoplot="forecast_map",aa,yy)
-        plot_args[c("fc_plot","output","outfile","plot_title")]<-list(TRUE,output,pnames$f,pnames$t)
+        plot_args[c("fc_plot","output","outfile","plot_title","NA_col")]<-list(TRUE,output,pnames$f,pnames$t,nocat_col)
 
         if(grid == 1 & points == 1){
           do.call("plot_map_grid_points", c(list(g_dat = pdat$grid, g_lon = ind_dat$fc_grid$lon, g_lat = ind_dat$fc_grid$lat,

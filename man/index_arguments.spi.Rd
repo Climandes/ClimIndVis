@@ -9,6 +9,8 @@
   forecast = FALSE, NAmaxTrend = 20, ...)
 }
 \arguments{
+\item{climindvis}{Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable precipitation (prec)}
+
 \item{timescale}{Integer. Timescale for monthly SPI calculation, i.e.running mean for 1-monthly,3-monthly, etc. period. Default = 6.}
 
 \item{ref}{Vector with start and end year for reference period. If no reference period is specified, the full period is used as reference period.}
@@ -17,7 +19,7 @@
 
 \item{limit}{Truncate SPI values that are larger than a given threshold, as values larger than 4 are not reasonable. Default = 4. The truncation can be disabled by setting limit = Inf.}
 
-\item{trend}{Logial (or character). Calculates trends with a predefined method for the chosen index. For information on default method, see  \code{\link{calc_index_trend}}. You can chose to calculate a non-parameteric trend, by setting trend to a character string "MannKendall". This calculates a TheilSen slope and MannKendall test. Default = TRUE.}
+\item{trend}{Logial (or character). Calculates trends with a predefined method for the chosen index. For information on default method, see  \code{\link{trend_methods}}. You can chose to calculate a non-parameteric trend, by setting trend to a character string "MannKendall". This calculates a TheilSen slope and MannKendall test. Default = TRUE.}
 
 \item{NAmaxAgg}{Maximum number of missing values in daily data of each aggregation period (e.g. in all January values for the whole time series). Value between 0 (=0\%; no missing values allowed) and 100 (=100\%; all values can be missing values). If the number of missing values is higher than NAmaxAgg the index value for the respective grid point/station is set to NA. Default = 20 (20\%).}
 
@@ -29,7 +31,7 @@ arguments for index spi
 \section{Details}{
 
 The SPI calculation is based on the SCI package from Lukas Gudmundsson & James Stagge. For the SPI calculation, aggt needs to be set to "monthly". For the argument distribution, provide a distribution for which the corresponding density function (dname), the corresponding distribution function (pname) and the quantile function (qname) must be defined (see for example GammaDist). Distributions are listed in the package stats.\cr
-Note, that it is important, what distribution you choose for the transformation of your rainfall data. If you are not sure, consider the below references.
+Note, that it is important, what distribution you choose for the transformation of your rainfall data. If you are not sure, consider the references below.
 }
 
 \examples{

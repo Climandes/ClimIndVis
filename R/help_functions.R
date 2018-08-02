@@ -161,4 +161,6 @@ stop_quietly <- function() {
   stop()
 }
 
+is_date <- function(x) inherits(x, 'Date')
+
 

@@ -16,7 +16,7 @@ if (skill <= skillmin) {
   p <- ggplot2::ggplot()
   for (i in 1:(length(breaks)-1)){
   # p <- p + geom_polygon(data=get.poly(breaks[i],breaks[i+1], r1),aes(x,y),fill=colors[i])
-  r2<-perc_cat[i]/100
+  r2<-sqrt(perc_cat[i]/100)
   p <- p + ggplot2::geom_polygon(data=get.poly(breaks[i],breaks[i+1], r1,r2=1),ggplot2::aes(x,y),fill=NA,colour=colors[i])
   p <- p + ggplot2::geom_polygon(data=get.poly(breaks[i],breaks[i+1], r1,r2),ggplot2::aes(x,y),fill=colors2[i],colour=colors2[i])
   }

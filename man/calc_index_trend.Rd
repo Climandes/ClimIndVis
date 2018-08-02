@@ -38,3 +38,4 @@ For count data (e.g dd, cdd, cwd) by default a logistic regression is calculated
 If you choose trend = "MannKendall" instead of trend = TRUE the non-parametric Mann-Kendall test based on the relative ranking in the series is applied and a Theil-Sen slope is estimated. See e.g. Yue et al. 2002 or Mann (1945), Kendall (1975).
 }
 
+\keyword{internal}

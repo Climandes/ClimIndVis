@@ -1,6 +1,6 @@
 #'Wrapper function to calculate and plot timerseries of indices from station data
 #'
-#'The function call \code{\link{calc_index}} and returns a timeseries plot with different options for indices and aggregation described below. \cr
+#'The function calls \code{\link{calc_index}} and returns a timeseries plot with different options for indices and aggregation described below. \cr
 #'To see some example outputs of this function, look at the vignette "autoplot-functions" accessible through the package help main page or by typing \cr
 #' \emph{vignette("autoplot-functions",package="ClimIndVis")} into the console.
 #'
@@ -41,7 +41,12 @@
 #'
 #' By passing the optional parameters \emph{shading}, \emph{nshading} (\emph{ycal_shading}) and \emph{col_shading} to the function, horizontal shading polygons can be added to the plot. \cr
 #' For example, to mark the area below zero in blue and the one above zero in red when looking at temperature indices such as maximum teperatures one has to pass the following values to the function: \emph{shading}=TRUE, \emph{nshading}=2, \emph{yval_shading}=c(-999,0,999), \emph{col_shading}=c("blue","red").\cr
-#' If you want to add equidistant shading categories (e.g. if you issue a tercile forecast and want to show the corresponding values in the climatology you just need to specify \emph{nshading} which would be equal to the number of forecast categories and the function calculates the corresponding category thresholds. This is used e.g. by the \code{\link{autoplot_forecast_point}} function when \emph{plot_climatology}=TRUE.
+#' If you want to add equidistant shading categories (e.g. if you issue a tercile forecast and want to show the corresponding values in the climatology you just need to specify \emph{nshading} which would be equal to the number of forecast categories and the function calculates the corresponding category thresholds. This is used e.g. by the \code{\link{autoplot_forecast_stations}} function when \emph{plot_climatology}=TRUE.
+#'
+#' If you set trendplots = TRUE, a trend line with confidence interval is added to the plot. For every index a default method is used for the trend calculation. The default trend estimation and test depends on the nature of the calculated index:
+#' For continuous data (e.g. sum, mean, prcptot, spi) by default an ordinary linear regression is calculated, for count data (e.g dd, cdd, cwd) a logistic regression with time as predictor for the trend estimation and applying a students-t test for significance testing.
+#' If you set trend = "MannKendall" inside the list of index arguments (index_args), the non-parametric Mann-Kendall test based on the relative ranking in the series is applied and a Theil-Sen slope is estimated. See e.g. Yue et al. 2002 or Mann (1945), Kendall (1975) for further references.
+#'
 #'
 #'@examples
 #'  data("object_st","object_hc_st") # load example data
@@ -50,14 +55,14 @@
 #' ## ts_type = single_ts
 #' autoplot_ts_stations(
 #'       object_st, index = "sdii",
-#'       index_args = list(aggt = "other", aggmons = c(1:3), trend = TRUE),
+#'       index_args = list(aggt = "other", aggmons = c(1:3)), trendplots=TRUE,
 #'       ts_type = "single_ts", pcols = "royalblue", ylims = c(0,30),
 #'       output = "png", plotdir = plotdir, plotname = Sys.Date())
 #'
 #'  # add shading
 #' autoplot_ts_stations(
 #'       object_st, index = "tnn",
-#'       index_args = list(aggt = "other", aggmons = c(4), trend = TRUE),
+#'       index_args = list(aggt = "other", aggmons = c(4)), trendplots = TRUE,
 #'       ts_type = "single_ts", pcols = "royalblue", ylims = c(-10,20), selpoints=2,
 #'       shading = TRUE, nshading = 2, yval_shading = c(-999,0,999),col_shading = c("blue","red"),
 #'       output = "png", plotdir = plotdir, plotname = Sys.Date())
@@ -65,9 +70,9 @@
 #' ## ts_type = multi_ind
 #' index = c("txn", "txx","dd")
 #' index_args = list(
-#'       txn = list(aggt = "other", aggmons = c(1:3), trend = TRUE),
-#'       txx = list(aggt = "other", aggmons = c(1:3), trend = TRUE),
-#'       tnx = list(aggt = "other", aggmons = c(1:3), trend = TRUE))
+#'       txn = list(aggt = "other", aggmons = c(1:3)),
+#'       txx = list(aggt = "other", aggmons = c(1:3)),
+#'       tnx = list(aggt = "other", aggmons = c(1:3)))
 #' autoplot_ts_stations(
 #'       dat_p = object_st, index = index, index_args = index_args,
 #'       ts_type = "multi_ind", trendplots = TRUE,

@@ -160,7 +160,7 @@ get_leg_units<-function(ind_dat,trend=FALSE){
   if(units=="days_since") {
     nc=nchar(ind_dat[[1]]$index_info$start_days)
     units = ifelse(trend,"days",paste0("days since ",substring(ind_dat[[1]]$index_info$start_days,nc-4,nc)))
-  }
+  } else units=units
   ret=ifelse(trend,units,paste0("[",units,"]"))
   return(ret)
 }
@@ -169,7 +169,7 @@ get_leg_units<-function(ind_dat,trend=FALSE){
 get_plot_args<-function(autoplot){
   env=parent.frame()
   if(autoplot=="forecast_map"){
-    ifelse(env$col == "default",ch <- colorRampPalette(get_default_color_fc(env$index, env$iname)$col)(env$ncat),ch <- colorRampPalette(col)(env$ncat))
+    ifelse(env$col == "default",ch <- colorRampPalette(get_default_color(env$index, env$ind_dat$fc_p$index_info$iname,fc=TRUE)$col)(env$ncat),ch <- colorRampPalette(col)(env$ncat))
     breaks=c(0,100,110,sapply(1:env$ncat*100 , function(n) n+ seq(40 ,110,10)),(env$ncat+1.55)*100)
     if(is.null(env$skillmin)) breaks=breaks[1:(length(breaks)-2)]
     env$plot_args[c("p_breaks","g_breaks")] <-list(breaks)
@@ -252,7 +252,7 @@ get_plot_title<-function(titlestring,show_title=TRUE,autoplot,aa=NULL,yy=NULL,pp
                 skill = switch(env$verify+1,NULL,paste0(env$veri_metric," >= ",env$skillmin)),
                 data = paste0(unique(dnames[grepl(paste(c("hc","fc"),collapse="|"),names(env$ind_dat))]),collapse=","))
     } else {t <- NA}
-    f=ifelse(!is.null(env$output),paste0(env$plotdir, env$plotname, ifelse(env$plotname == "", "", "_"), "forecast_", replace_operator_name(iinfo[[1]]$iname), ifelse(!is.null(env$skillmin),paste0("_",env$veri_metric,"_gt_",env$skillmin),""), "_", iinfo[[1]]$aggnames[aa],"_",iinfo[[fc[1]]]$years[yy],"_fcmon",fcmon,"_hc",yearnames,"_",ifelse(!is.null(stn[pp]),stn[pp],paste0("st",pp)),".",env$output),"")
+    f=ifelse(!is.null(env$output),paste0(env$plotdir, env$plotname, ifelse(env$plotname == "", "", "_"), "forecast_", replace_operator_name(iinfo[[1]]$iname), ifelse(env$verify,paste0("_",env$veri_metric,"_gt_",env$skillmin),""), "_", iinfo[[1]]$aggnames[aa],"_",iinfo[[fc[1]]]$years[yy],"_fcmon",fcmon,"_hc",yearnames,"_",ifelse(!is.null(stn[pp]),stn[pp],paste0("st",pp)),".",env$output),"")
 
   } else if (autoplot=="verification_map"){
     if (!is.null(env$output)) {
@@ -347,4 +347,9 @@ get_skill_data<-function(veri_dat,vv,aa,tt,cc,aggl,nout,tdims){
 
 is.even <- function(x) x %% 2 == 0
 
+
+return_m <- function(x){
+  x <- pad2(1:12)[c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")%in% x]
+return(x)
+  }
 

@@ -23,9 +23,9 @@ autoplot_verification_map(obs_grid, hc_grid, hc_ref_grid = NULL, obs_p, hc_p,
 
 \item{hc_ref_p}{Optional. Reference hindcasts at stations for calculation of skill scores. If not provided (NULL), climatology is taken as reference. Default = NULL.}
 
-\item{index}{Name of index to be calculated.}
+\item{index}{Name of index to be calculated., e.g. index = "dd" or index = "tnn". For list of indices see \code{\link{indices_list}}}
 
-\item{index_args}{List of arguments for index. See \code{\link{calc_index}}.}
+\item{index_args}{List of arguments for index. See \code{\link{indices_list}}.}
 
 \item{selyears}{Integer array of years to be selected from data. For indices with quantiles, years as defined in index_args are used for quantile calculation, but only selected years are plotted. For functions using seasonal forecast data, selyears is only applied to hindcasts.}
 
@@ -37,7 +37,7 @@ autoplot_verification_map(obs_grid, hc_grid, hc_ref_grid = NULL, obs_p, hc_p,
 
 \item{ncat}{Number of forecast categories. Default = 3.}
 
-\item{output}{Format of image to be plotted ("png", "jpg", "tiff", "pdf","dev.new").  Default = NULL, output to null.device}
+\item{output}{Format of image to be plotted ("png", "jpg", "tiff", "pdf","dev.new").  Default = NULL, output to null device (getOption("device") will show you the null device. If you are not using RStudio, NULL and dev.new will give the same output).}
 
 \item{plotdir}{Character string of path of directory for saving plots. Ignored if  \emph{output} is NULL or "dev.new".}
 

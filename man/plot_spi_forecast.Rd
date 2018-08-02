@@ -4,11 +4,10 @@
 \alias{plot_spi_forecast}
 \title{function for plotting spi for station data}
 \usage{
-plot_spi_forecast(ind_dat, full_dat_NA, trendplots, selpoints, pdims,
-  plot_title = TRUE, title = "", output = NULL, plotdir = NULL,
-  plotname = NULL, ylims = NULL, plotstart = NULL, pwidth = 2000,
-  pheight = 1300, pres = 250, cex = 1, text_cex = 1,
-  show.grid.h = TRUE, ...)
+plot_spi_forecast(ind_dat, full_dat_NA, selpoints, pdims, plot_title = TRUE,
+  title = "", output = NULL, plotdir = NULL, plotname = NULL,
+  ylims = NULL, plotstart = NULL, pwidth = 2000, pheight = 1300,
+  pres = 250, cex = 1, text_cex = 1, show.grid.h = TRUE, ...)
 }
 \arguments{
 \item{ind_dat}{1 List of climindvis_index objects (as returned by \code{\link{calc_index}}).
@@ -17,8 +16,6 @@ You can either plot
   \item different indices calculated from the same dataset (...$data_info$data_name has to be the same for all element of ind_dat) or
   \item one indice for different datasets (class of list elements and ...$index_info$iname have to be the same for all element of ind_dat)
   }}
-
-\item{trendplots}{logical. Array of same length as ind_dat indicating for each index whether or not the trend should be plotted. If not specified all values are set to false.}
 
 \item{selpoints}{Array to select subset of points to plot,there are two options:
  \itemize{

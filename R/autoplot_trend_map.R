@@ -14,7 +14,7 @@
 #'
 #'For count data (e.g dd, cdd, cwd) by default a logistic regression is calculated with time as predictor for the trend estimation and applying a students-t test for significance testing. In the calculation, a correction for overdispersion is applied. \cr
 #'
-#'If you choose trend = "MannKendall" instead of trend = TRUE the non-parametric Mann-Kendall test based on the relative ranking in the series is applied and a Theil-Sen slope is estimated. See e.g. Yue et al. 2002 or Mann (1945), Kendall (1975) for further references.
+#' If you set trend = "MannKendall" inside the list of index arguments (index_args), the non-parametric Mann-Kendall test based on the relative ranking in the series is applied and a Theil-Sen slope is estimated. See e.g. Yue et al. 2002 or Mann (1945), Kendall (1975) for further references.
 #' @section Output:
 #' This function returns one plot per temporal aggregation which is covered by the data( e.g. aggt="seasonal" returns 4 graphics, one for each season).
 #'
@@ -33,7 +33,7 @@
 #'@export
 autoplot_trend_map <-function(
   dat_grid, dat_p,
-  index, index_args = list(),abs = FALSE,sig_lev = 0.95, NAmaxTrend = 20,selyears=NULL,
+  index, index_args = list(),abs = FALSE,sig_lev = 0.95, selyears=NULL,
   title = "", plot_title = TRUE, plot_args = list(),
   output=NULL, plotdir, plotname = "") {
 

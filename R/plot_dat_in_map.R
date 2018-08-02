@@ -67,7 +67,10 @@ opargs<-list(...)
 # default limits from lon and lat if not specified
   if (missing(xlims)) xlims <-range(g_lon,p_lon)
   if (missing(ylims)) ylims <-range(g_lat,p_lat)
-  if(grid==1) ylims=ylims+(diff(g_lon)[1]/2 *c(-1,1))
+  if(grid==1) {
+    ylims=ylims+(diff(g_lon)[1]/2 *c(-1,1))
+    xlims=xlims+(diff(g_lat)[1]/2 *c(-1,1))
+  }
 
   limcalc <- "quant" # for test purpose and put switch later
 

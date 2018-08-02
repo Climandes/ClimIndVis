@@ -35,7 +35,7 @@
 #'
 #' @examples
 #'
-#' ## load data (see \code{\link{example_objects}}):
+#' ## load example data:
 #' data(object_st, object_hc_st, object_fc_st)
 #'
 #' autoplot_forecast_stations(
@@ -72,7 +72,7 @@ autoplot_forecast_stations<-function(
     if (verify & missing(veri_metric)) stop("<<veri_metric>> needs to be specified if <<verify>>=TRUE")
     if (verify & missing(obs_p)) stop("if <<verify>>=TRUE obs_p is needed for verification")
     if (!is.null(skillmin) & !verify) warning("if <<verify>> =FALSE, skillmin is ignored and skill won't be plottet")
-    #if (plot_climatology & missing(obs_p)) stop("observations <<obs_p>> need to be provided for verification/climatology")
+    if (plot_climatology & missing(obs_p)) stop("observations <<obs_p>> need to be provided for climatology")
   }, error=function(cond){
     message("error(s) in input data:")
     message(cond)
@@ -152,7 +152,7 @@ autoplot_forecast_stations<-function(
 
   # plot data
   if (col == "default"){
-    ch = grDevices::colorRampPalette(get_default_color_fc(index, ind_dat$fc_p$index_info$iname)$col)(ncat)
+    ch = grDevices::colorRampPalette(get_default_color(index, ind_dat$fc_p$index_info$iname,fc=TRUE)$col)(ncat)
   } else {
     ch=grDevices::colorRampPalette(col)(ncat)
   }
@@ -233,14 +233,17 @@ autoplot_forecast_stations<-function(
          if(!dir.exists(paste0(plotdir,"climatology/")))
          dir.create(paste0(plotdir,"climatology/"))
          filenamestring=paste0(replace_operator_name(ind_dat$fc_p$index_info$iname),"_climatology")
+         plotdir_clim=paste0(plotdir,"climatology/")
+         out=1
        } else out=NULL
        } else out=NULL
        if (is.null(out)){
-         plotdir=NULL
+         plotdir_clim=NULL
          filenamestring=""
        }
+       if (is.element(index_args$aggt,c("seasonal","monthly"))) index_args$selagg=ind_dat$fc_p$index_info$aggnames
      autoplot_ts_stations(obs_p, index, index_args,trendplots = FALSE,shading=TRUE,nshading=ncat,col_shading=paste0(ch,80),pcols="black",
-       output = output,plotdir=plotdir,plotname=filenamestring,title = "",plot_title=TRUE,
+       output = output,plotdir=plotdir_clim,plotname=filenamestring,title = "",plot_title=TRUE,
        type = "single_ts",selyears=selyears)
 
 

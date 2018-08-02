@@ -34,9 +34,7 @@ test_that("get_date_factors return correct output",{
 
   t_miss<-data_hc_st$time
   t_miss[["1982"]]<-seq(as.Date("1982-02-15"),as.Date("1982-02-15")+213,by="days")
-  object_miss<-make_object(prec=data_hc_st$prec[],dates_prec=t_miss,lon=data_hc_st$lon,lat=data_hc_st$lat,data_info=data_hc_st$data_info)
-  testthat::expect_message(sel_time<-ClimIndVis:::get_date_factors(object_miss,"monthly"))
-  testthat::expect_equal(sel_time$aggnames,month.abb[c(1,3:7)])
+  object_miss<-testthat::expect_error(make_object(prec=data_hc_st$prec[],dates_prec=t_miss,lon=data_hc_st$lon,lat=data_hc_st$lat,data_info=data_hc_st$data_info))
  }
 )
 

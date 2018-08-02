@@ -1,7 +1,7 @@
 Package: ClimIndVis
 Type: Package
 Title: Calculation, verification and visualisation of climate indices 
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: c(person("MeteoSwiss",role=c("aut","cph")),
     person("WMO",role="cph"),
     person("SDC",role="cph"),

@@ -4,15 +4,13 @@
 \alias{calc_spi}
 \title{spi calculations}
 \usage{
-calc_spi(temp = NULL, date_factor, forecast = FALSE, timescale, ref,
+calc_spi(temp = NULL, date_factor, param = FALSE, timescale, ref,
   distribution, NAmaxAgg = 20, iformat, limit = 4)
 }
 \arguments{
 \item{temp}{vector of daily precipitation data to calculate SPI}
 
 \item{date_factor}{factors of dates}
-
-\item{forecast}{logical; Returns SPI parameters of historical timeseries to transform forecast data. Default = FALSE}
 
 \item{timescale}{Integer. Timescale for monthly SPI calculation, i.e.running mean for 1-monthly,3-monthly, etc. period. Default = 6.}
 
@@ -23,6 +21,8 @@ calc_spi(temp = NULL, date_factor, forecast = FALSE, timescale, ref,
 \item{NAmaxAgg}{number of days to check for <<mcdd>>}
 
 \item{limit}{Truncate SPI values that are larger than a given threshold, as values larger than 4 are not reasonable. Default = 4. The truncation can be disabled by setting limit = Inf.}
+
+\item{forecast}{logical; Returns SPI parameters of historical timeseries to transform forecast data. Default = FALSE}
 }
 \description{
 spi calculations

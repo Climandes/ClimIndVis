@@ -5,17 +5,17 @@
 #'\emph{vignette("autoplot-functions",package="ClimIndVis")} into the console.
 #'
 #' @inheritParams plot_doc
-#' @param addyears Array of years (integer or character) to add as points to the plot.
-#' @param yearcols Array of same length as addyears with colors for marking selected years.
-#' @param yearpchs Array of pch for each year.
-#' @param selpoints Integer array of stations to select for plotting. Default= NULL (all stations are plottet).
+#' @param addyears Optional array of years (integer or character) to add as points to the plot. Default=NULL.
+#' @param yearcols Optional array of same length as addyears with colors for marking selected years. Entries have to be valid arguments to \code{\link[grDevices]{col2rgb}}. Default=1:length(addyears)
+#' @param yearpchs Optional array of pch for each year. Default= 18
+#' @param selpoints Optional integer array of stations to select for plotting. Default= NULL (all stations are plottet).
 #' @section Output:
 #' This function returns one plot per station and temporal aggregation whch is covered by the data( e.g. if aggt="seasonal" it would return 4 graphics, one for each season).
 #'
 #' If output is not NULL or "dev.new" the graphics are directly saved in the user specified directory (\emph{plotdir}) with the following filename structure: \cr
 #'
-#'     \emph{plotname} // "overview_indices" // aggregation // years // addyears //\emph{output} \cr e.g.: \cr
-#'     \emph{plotname}"_overview_indices_MAM_1981-2010_add2018.png \cr
+#'     \emph{plotname} // "overview_indices" // aggregation // years // addyears //station_name// \emph{output} \cr e.g.: \cr
+#'     \emph{plotname}"_overview_indices_MAM_1981-2010_add2018_station2.png \cr
 #'
 #'
 #'@section Details:
@@ -179,7 +179,7 @@ autoplot_overview_stations<-function(dat_p,
         if(plot_title){
 
             if(ut) mtext(side=3,line=3.5+ut, title, adj=NA, cex=1)
-            mtext(side=3,line=2.5, paste0("Overview ",ifelse(is.null(pnames),paste0("station",pp),pnames[pp]),"(lon:",round(dat_p$lon[pp],digits=1),"/ lat:",round(dat_p$lat[pp],digits=1),") ", aggnames[aa]), adj=0, cex=ifelse(ut,0.8,1))
+            mtext(side=3,line=2.5, paste0("Overview ",ifelse(is.null(pnames),paste0("station",pp),pnames[pp])," (lon:",round(dat_p$lon[pp],digits=1),"/ lat:",round(dat_p$lat[pp],digits=1),") ", aggnames[aa]), adj=0, cex=ifelse(ut,0.8,1))
             mtext(side=3,line=1.5, paste0("Period: ",paste0(dyears,collapse="-")), adj=0, cex=0.8)
             mtext(side=3,line=0.5,paste0("Data: ",dat_p$data_info$data_name), adj=0, cex=0.8)
         }

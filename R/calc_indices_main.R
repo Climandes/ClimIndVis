@@ -3,7 +3,7 @@
 #'The function calculated climate indices for different temporal aggregations for gridded and station data. It also works for seasonal forecast ensembles (grid and station). As input a climindvis object (output of \code{\link{make_object}} is needed.
 #'
 #'@param climindvis Object of type climindvis as returned by \code{\link{make_object}}
-#'@param index Name of index to be calculated (see section "indices" below)
+#'@param index Name of index to be calculated, e.g. "dd","tnn","spi". (for a complete list of indices see see section "indices" below).
 #'@param aggt Aggregation type for temporal aggregation:
 #' \itemize{
 #' \item "annual": annual aggregation
@@ -14,7 +14,7 @@
 #' }
 #'@param ... for  index specific arguments see links in section "indices" below.
 #'
-#'@return The function returns an S3 object of type climindvis_index with the following entries:
+#'@return The function returns an S3 object of class climindvis_index with the following entries:
 #'\itemize{
 #'\item index Array of index values of dimension: spatial dimensions x (ensemble members) x aggregations x years
 #'\item index_info List with information about the indices (name (@@iname), @@aggt, names of aggregations (@@aggnames), @@years, index format (@@iformat), index dimensions (@@idims)) used for plotting functions.
@@ -34,15 +34,12 @@
 #' \itemize{
 #'   \item \strong{dd} Dry days (Prec < 1mm). For arguments and default values see \code{\link{index_arguments.dd}}
 #'   \item \strong{fd} Frost days (Tmin<0C). For arguments and default values see \code{\link{index_arguments.fd}}
+#'   \item \strong{th_tmin} Days with minimum temperature below a user defined threshold (Tmin < threshold). For arguments and default values see  \code{\link{index_arguments.th_tmin}}
+#'   \item \strong{th_tmax} Days with maximum temperature above a user defined threshold (Tmax > threshold). For arguments and default values see  \code{\link{index_arguments.th_tmax}}
+#'   \item \strong{th_topt} Days with average temperature within a user defined temperature range (threshold <= Tavg <= threshold2). For arguments and default values see  \code{\link{index_arguments.th_topt}}
+#'   \item \strong{th} Threshold function for days below/above a user defined threshold (Variable >/>=/</<= threshold). For arguments and default values see \code{\link{index_arguments.th}}
+#'   \item \strong{th_range} Threshold function for days within a user defined range  (threshold >/>=/</<= variable >/>=/</<= threshold2). For arguments and default values see \code{\link{index_arguments.th_range}}
 
-#'   \item \strong{th_range} Threshold function for days within user defined range of variable (Variable <=/< threshold 1 & >=/<= threshold 2). For arguments and default values see \code{\link{index_arguments.th_range}}
-#'   \item \strong{th_tmin} Days with minimum temperature below user defined threshold (Tmin < threshold). For arguments and default values see  \code{\link{index_arguments.th_tmin}}
-#'   \item \strong{th_tmax} Days with maximum temperature below user defined threshold (Tmax > threshold). For arguments and default values see  \code{\link{index_arguments.th_tmax}}
-#'   \item \strong{th_topt} Days with average temperature within user defined temperature range (threshold <= Tavg <= threshold2). For arguments and default values see  \code{\link{index_arguments.th_topt}}
-#'   \item \strong{th} Threshold function for days below/above user defined threshold (Variable >/>=/</<= threshold). For arguments and default values see \code{\link{index_arguments.th}}
-#'   \item \strong{th_range} Threshold function for days within user defined range  (threshold >/>=/</<= variable >/>=/</<= threshold2). For arguments and default values see \code{\link{index_arguments.th_range}}
-#'   \item \strong{rx} Maximum rx-day precipitation? \code{\link{index_arguments.rx}}
-#'   \item \strong{minmax_xdays} Maximum/minimum rx-day value of variable. For arguments and default values see  \code{\link{index_arguments.minmax_xdays}}
 #'   }
 #'Minimum-Maximum Indices:
 #'\itemize{
@@ -52,12 +49,14 @@
 #'   \item \strong{txx} Maximum value of daily maximum temperature. For arguments and default values see  \code{\link{index_arguments.txx}}
 #'   \item \strong{varmin} Minimum value of user defined variable. For arguments and default values see  \code{\link{index_arguments.varmin}}
 #'   \item \strong{varmax} Maximum value of user defined variable. For arguments and default values see  \code{\link{index_arguments.varmin}}
+#'   \item \strong{rx} Maximum rx-day precipitation. \code{\link{index_arguments.rx}}
+#'   \item \strong{minmax_xdays} Maximum/minimum rx-day value of variable. For arguments and default values see  \code{\link{index_arguments.minmax_xdays}}
 #'   }
 #'Spell-Duration Indices:
 #'\itemize{
 #'   \item \strong{cwd} Consecutive wet days. For arguments and default values see  \code{\link{index_arguments.cwd}}
 #'   \item \strong{cdd} Consecutive dry days. For arguments and default values see  \code{\link{index_arguments.cdd}}
-#'   \item \strong{cxd} Consecutive days of variables above/below threshold. For arguments and default values see  \code{\link{index_arguments.cxd}}
+#'   \item \strong{cxd} Consecutive days of variable above/below a threshold. For arguments and default values see  \code{\link{index_arguments.cxd}}
 #'   \item \strong{csdi} Cold spell duration index. Count of days with at least 6 consecutive days when TN < 10th percentile. For arguments and default values see  \code{\link{index_arguments.csdi}}
 #'   \item \strong{wsdi} Warm spell duration index. Count of days with at least 6 consecutive days when TX > 90th percentile. For arguments and default values see  \code{\link{index_arguments.wsdi}}
 #'   }
@@ -76,7 +75,7 @@
 #'   \item \strong{sum} For arguments and default values see  \code{\link{index_arguments.sum}}
 #'   \item \strong{spi} Standard precipitation index. Argument \emph{aggt} needs to be set to \emph{monthly} for this index.  For more arguments and default values see  \code{\link{index_arguments.spi}}
 #'   \item \strong{spi_forecast}  Argument \emph{aggt} needs to be set to \emph{monthly} for this index.  For more arguments and default values see  \code{\link{index_arguments.spi_forecast}}
-#'   \item \strong{sdii} Simple pricipitation intensity index. Precipitation amount with days >1mm. For arguments and default values see  \code{\link{index_arguments.sdii}}
+#'   \item \strong{sdii} Simple precipitation intensity index. Ratio of total rainfall to the number of days when precipitation is higher than a dry day threshold. For arguments and default values see  \code{\link{index_arguments.sdii}}
 #'   \item \strong{prcptot} Total precipitation in wet days. For arguments and default values see  \code{\link{index_arguments.prcptot}}
 #'   \item \strong{rainy_season_start} Start of the rainy season. Argument \emph{aggt} needs to be set to \emph{dates} and \emph{start_days} and \emph{end_days} additionally provided for this index.  For more arguments and default values see  \code{\link{index_arguments.rainy_season_start}}
 
@@ -93,6 +92,11 @@ calc_index <- function(climindvis, index, aggt, ...) {
     aggt=check_aggt(index,aggt)
 
     class(climindvis) <- append(index,"climindvis")
+
+    if (!exists(paste0("index_arguments.",index),mode="function")){
+      stop("Error: chosen index does not exist. Please check index list.")
+      stop_quietly()
+    }
 
     climindvis_index<- do.call("calculate_index", list(climindvis,aggt,...))
 

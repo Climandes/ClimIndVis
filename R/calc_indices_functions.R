@@ -3,8 +3,9 @@
 aggregate_var<-function (temp, date_factor,NAmaxAgg=20,aggfun)
 {
   stopifnot(is.numeric(temp) && is.factor(date_factor))
-  agg<-climdex.pcic:::tapply.fast(temp, date_factor,
-    aggfun, na.rm = TRUE)
+  agg<-suppressWarnings(climdex.pcic:::tapply.fast(temp, date_factor,
+    aggfun, na.rm = TRUE))
+  agg[is.infinite(agg)]<-NA
   nna<-climdex.pcic:::tapply.fast(is.na(temp)==FALSE, date_factor,
     sum, na.rm = TRUE)
   length<-climdex.pcic:::tapply.fast(temp, date_factor,
@@ -150,9 +151,9 @@ minmax_value <- function(temp, date_factor, func, NAmaxAgg=20,rx=1) {
     #temp[is.na(temp)]<-0
     temp.sum <- caTools::runmean(temp, k= rx, endrule="NA")
     temp.sum[is.na(temp.sum)]<- NA
-    vals <- climdex.pcic:::tapply.fast(temp.sum, date_factor, func, na.rm=TRUE) * rx
-  } else vals <- climdex.pcic:::tapply.fast(temp,date_factor,func, na.rm=TRUE)
-
+    vals <- suppressWarnings(climdex.pcic:::tapply.fast(temp.sum, date_factor, func, na.rm=TRUE) * rx)
+  } else vals <- suppressWarnings(climdex.pcic:::tapply.fast(temp,date_factor,func, na.rm=TRUE))
+  vals[is.infinite(vals)] <- NA
   nna<-climdex.pcic:::tapply.fast(is.na(temp)==FALSE, date_factor,sum, na.rm = TRUE)
   length<-climdex.pcic:::tapply.fast(temp, date_factor, function(x) length(x))
   vals[nna/length*100<(100-NAmaxAgg)]=NA

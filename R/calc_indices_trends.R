@@ -18,7 +18,7 @@
 #'For count data (e.g dd, cdd, cwd) by default a logistic regression is calculated with time as predictor for the trend estimation and a students-t test. In the calculation a correction for overdispersion is applied. \cr
 #'
 #'If you choose trend = "MannKendall" instead of trend = TRUE the non-parametric Mann-Kendall test based on the relative ranking in the series is applied and a Theil-Sen slope is estimated. See e.g. Yue et al. 2002 or Mann (1945), Kendall (1975).
-#'@export
+#'@keywords internal
 #'
 
 calc_index_trend <- function(index,trend,targs,time=NULL ){
@@ -33,8 +33,8 @@ calc_index_trend <- function(index,trend,targs,time=NULL ){
    itrend <- as.array(apply(index,c(sel_dim), function(x)
     # tryCatch um fehlermeldungen abzufangen...
     tryCatch(calc_trend(x, time,targs),error=function(e) {
-      dat.final <- matrix(NA,nrow = 4,ncol=length(x))
-      stat <- data.frame(matrix(NA, nrow=1,ncol=6))
+      dat.final <- matrix(-99.9,nrow = 4,ncol=length(x))
+      stat <- data.frame(matrix(-99.9, nrow=1,ncol=6))
       return(list(data = dat.final, stat=stat))})
    ))
 

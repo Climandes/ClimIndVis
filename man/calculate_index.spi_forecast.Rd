@@ -14,7 +14,7 @@
 \item{args}{List of arguments for calculation of index.  Arguments depend on type of index, for more information see documentation of calculate_index}
 }
 \value{
-The function returns a climindvis_index_object with an additonal entry <index_fcst>. This
+The function returns a climindvis_index object with an additonal entry <index_fcst>.
 }
 \description{
 default index function for climindvis objects

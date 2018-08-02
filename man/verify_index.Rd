@@ -14,9 +14,9 @@ verify_index(obs, hc, hc_ref = NULL, index, index_args = list(),
 
 \item{hc_ref}{Reference forecast for calculation of skill scores. "climindvis"  object of type hc_p/hc_grid as output from \code{\link{make_object}} sing an ensemble of  daily seasonal hindcasts .  If hc_ref=NULL climatology will be taken as reference, Default = NULL.}
 
-\item{index}{Name of index to be calculated.}
+\item{index}{Name of index to be calculated., e.g. index = "dd" or index = "tnn". For list of indices see \code{\link{indices_list}}}
 
-\item{index_args}{List of arguments for index. See \code{\link{calc_index}}.}
+\item{index_args}{List of arguments for index. See \code{\link{indices_list}}.}
 
 \item{selyears}{Integer array of years to be selected from data. For indices with quantiles, years as defined in index_args are used for quantile calculation, but only selected years are plotted. For functions using seasonal forecast data, selyears is only applied to hindcasts.}
 

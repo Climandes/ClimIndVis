@@ -12,6 +12,43 @@ get_arguments.default<-function(climindvis){
 }
 
 # documentation of parameters which are the same for all functions  ---------------------------------------------------------------
+
+#'varall
+#' @param climindvis Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable "var".
+#' @name varall
+#' @keywords  internal
+NULL
+
+#'varallth
+#' @param climindvis Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable "thvar".
+#' @name varallth
+#' @keywords  internal
+NULL
+
+#'varprec
+#' @param climindvis Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable precipitation (prec)
+#' @name varprec
+#' @keywords  internal
+NULL
+
+#'vartmin
+#' @param climindvis Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable minimum temperature (tmin)
+#' @name vartmin
+#' @keywords  internal
+NULL
+
+#'vartmax
+#' @param climindvis Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable maximum temperature (tmax)
+#' @name vartmax
+#' @keywords  internal
+NULL
+
+#'vartavg
+#' @param climindvis Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable average temperature (tavg)
+#' @name vartavg
+#' @keywords  internal
+NULL
+
 #'iformat
 #'@param iformat Format for indicator "perc"(default)/"days"
 #'@name iformat_doc
@@ -19,7 +56,7 @@ get_arguments.default<-function(climindvis){
 NULL
 
 #'trend
-#'@param trend Logial (or character). Calculates trends with a predefined method for the chosen index. For information on default method, see  \code{\link{calc_index_trend}}. You can chose to calculate a non-parameteric trend, by setting trend to a character string "MannKendall". This calculates a TheilSen slope and MannKendall test. Default = TRUE.
+#'@param trend Logial (or character). Calculates trends with a predefined method for the chosen index. For information on default method, see  \code{\link{trend_methods}}. You can chose to calculate a non-parameteric trend, by setting trend to a character string "MannKendall". This calculates a TheilSen slope and MannKendall test. Default = TRUE.
 #'@param NAmaxTrend Maximum number of years in time series of index which are missing values. Value between 0 (=0\%); no years with missing values allowed) and 100 (=100\%); all years can be missing values). If exceeded, the trend is set to NA for the respective grid point/station. Note that the value is relative to the length of the time series. Default = 20 (20\%).
 #'@name trend_doc
 #'@keywords internal
@@ -64,6 +101,9 @@ NULL
 
 # mean/sum ---------------------------------------------------------------
 #'arguments for calculating mean
+#'arguments for calculating sum
+#'
+#' @inheritParams varall
 #' @param var Variable for which mean should be calculated (tmin/tmax/tavg/prec)
 #' @inheritParams index_arguments
 #' @inheritParams trend_doc
@@ -81,6 +121,7 @@ index_arguments.mean<-function(climindvis,var,NAmaxAgg=20,trend=FALSE,NAmaxTrend
 }
 
 #'arguments for calculating sum
+#' @inheritParams varall
 #' @param var Variable for which sum should be calculated (tmin/tmax/tavg/prec)
 #' @inheritParams index_arguments
 #' @inheritParams trend_doc
@@ -100,6 +141,8 @@ index_arguments.sum<-function(climindvis,var,NAmaxAgg=20,trend=FALSE,NAmaxTrend=
 # minmax ------------------------------------------------------------------
 
 #'arguments for index tnn
+#'arguments for calculating sum
+#'@inheritParams vartmin
 #'@inheritParams index_arguments
 #'@inheritParams trend_doc
 #' @examples
@@ -114,6 +157,7 @@ index_arguments.tnn<-function(climindvis,NAmaxAgg=20,trend=FALSE,NAmaxTrend=20,.
 }
 
 #'arguments for index tnx
+#'@inheritParams vartmin
 #'@inheritParams index_arguments
 #'@inheritParams trend_doc
 #'@examples
@@ -128,6 +172,7 @@ index_arguments.tnx<-function(climindvis,NAmaxAgg=20,trend=FALSE,NAmaxTrend=20,.
 }
 
 #'arguments for index txn
+#'@inheritParams vartmax
 #'@inheritParams index_arguments
 #'@inheritParams trend_doc
 #'@examples
@@ -142,6 +187,7 @@ index_arguments.txn<-function(climindvis,NAmaxAgg=20,trend=FALSE,NAmaxTrend=20,.
 }
 
 #'arguments for index txx
+#'@inheritParams vartmax
 #'@inheritParams index_arguments
 #'@inheritParams trend_doc
 #' @examples
@@ -155,7 +201,8 @@ index_arguments.txx<-function(climindvis,NAmaxAgg=20,trend=FALSE,NAmaxTrend=20, 
     plotargs=list(iname="TXX",iformat="degreeC")))
 }
 
-#'arguments for index tnn
+#'arguments for index varmin
+#'@inheritParams varall
 #'@inheritParams index_arguments
 #'@inheritParams trend_doc
 #' @examples
@@ -167,10 +214,11 @@ index_arguments.varmin<-function(climindvis,var,NAmaxAgg=20,trend=FALSE,NAmaxTre
   var_units<-ifelse (var=="prec","mm","degreeC")
   return(list(ifun="minmax_value",var=var,ifunargs=list(func=min, NAmaxAgg=NAmaxAgg),
     trend=trend,trendargs=list(method="lin_reg",count=FALSE,  log_trans=FALSE,NAmaxTrend=NAmaxTrend, rel = check_trend(var)),
-    plotargs=list(iname=paste0("Min ",var),iformat=var_units)))
+    plotargs=list(iname=paste0("min ",var),iformat=var_units)))
 }
 
 #'arguments for index varmax
+#'@inheritParams varall
 #'@inheritParams index_arguments
 #'@inheritParams trend_doc
 #' @examples
@@ -182,10 +230,11 @@ index_arguments.varmax<-function(climindvis,var,NAmaxAgg=20,trend=FALSE,NAmaxTre
   var_units<-ifelse (var=="prec","mm","degreeC")
   return(list(ifun="minmax_value",var=var,ifunargs=list(func=max, NAmaxAgg=NAmaxAgg),
     trend=trend,trendargs=list(method="lin_reg",count=FALSE,  log_trans=FALSE,NAmaxTrend=NAmaxTrend, rel = check_trend(var)),
-    plotargs=list(iname=paste0("Max ",var),iformat=var_units)))
+    plotargs=list(iname=paste0("max ",var),iformat=var_units)))
 }
 
 #'arguments for index rx days
+#'@inheritParams varprec
 #'@inheritParams index_arguments
 #'@inheritParams trend_doc
 #'@param rx Length of days to be considered. i.e. rx1day, rx5day, etc.
@@ -202,6 +251,7 @@ index_arguments.rx<-function(climindvis,NAmaxAgg=20,trend=FALSE,rx , NAmaxTrend=
 
 
 #'arguments for min/max of x days
+#'@inheritParams varall
 #'@inheritParams index_arguments
 #'@inheritParams trend_doc
 #'@param rx Length of days to be considered. i.e. rx1day, rx5day, etc.
@@ -225,6 +275,7 @@ index_arguments.minmax_xdays<-function(climindvis,var,NAmaxAgg=20,trend=FALSE,rx
 
 # threshold ---------------------------------------------------------------
 #'arguments for index th
+#'@inheritParams varallth
 #'@inheritParams index_arguments
 #'@inheritParams iformat_doc
 #'@inheritParams th_doc
@@ -242,6 +293,7 @@ index_arguments.th<-function(climindvis,threshold,operator,thvar,iformat="perc",
 }
 
 #'arguments for index th_range
+#'@inheritParams varallth
 #'@inheritParams index_arguments
 #'@inheritParams iformat_doc
 #'@inheritParams th_doc
@@ -260,6 +312,7 @@ index_arguments.th_range<-function(climindvis,threshold,operator,threshold2,oper
 }
 
 #'arguments for index fd
+#'@inheritParams vartmin
 #'@inheritParams index_arguments
 #'@inheritParams iformat_doc
 #'@inheritParams trend_doc
@@ -275,6 +328,7 @@ index_arguments.fd<-function(climindvis,iformat="perc",NAmaxAgg=20,trend=FALSE,N
 }
 
 #'arguments for index dd
+#'@inheritParams varprec
 #'@inheritParams index_arguments
 #'@inheritParams iformat_doc
 #'@inheritParams trend_doc
@@ -290,6 +344,7 @@ index_arguments.dd<-function(climindvis,iformat="perc",NAmaxAgg=20,trend=FALSE,N
 }
 
 #'arguments for index sdii
+#'@inheritParams varprec
 #'@inheritParams index_arguments
 #'@inheritParams trend_doc
 #'@inheritParams th_doc
@@ -305,6 +360,7 @@ index_arguments.sdii<-function(climindvis,NAmaxAgg=20,trend=FALSE,NAmaxTrend=20,
 }
 
 #'arguments for index prcptot
+#'@inheritParams varprec
 #'@inheritParams index_arguments
 #'@inheritParams trend_doc
 #'@inheritParams th_doc
@@ -320,13 +376,14 @@ index_arguments.prcptot<-function(climindvis,NAmaxAgg=20,trend=FALSE,NAmaxTrend=
 }
 
 #'arguments for index cdd
+#'@inheritParams varprec
 #'@inheritParams index_arguments
 #'@inheritParams trend_doc
 #'@inheritParams th_doc
 #'@examples
 #' data(object_st) # load example objects
 #' calc_index(object_st,index="cdd",aggt="annual")
-#'@section NOTE if spells_span_agg=TRUE spells starting before the chosen aggregation period are considered. Spells starting in the chosen period and lasting until the next period however are not accounted for. Therefore it is not recommended to use this function for very short time periods as the returned results may not be very plausible. For years where all values within the chosen aggregation period are dry days, the function returns NA.
+#'@section NOTE: if spells_span_agg=TRUE spells starting before the chosen aggregation period are considered. Spells starting in the chosen period and lasting until the next period however are not accounted for. Therefore it is not recommended to use this function for very short time periods as the returned results may not be very plausible. For years where all values within the chosen aggregation period are dry days, the function returns NA.
 #'@keywords internal
 index_arguments.cdd<-function(climindvis,NAmaxAgg=20,trend=FALSE,NAmaxTrend=20,dd_threshold=1,spells_span_agg=TRUE,...){
   check_var(climindvis,"prec")
@@ -336,13 +393,14 @@ index_arguments.cdd<-function(climindvis,NAmaxAgg=20,trend=FALSE,NAmaxTrend=20,d
 }
 
 #'arguments for index cwd
+#'@inheritParams varprec
 #'@inheritParams index_arguments
 #'@inheritParams trend_doc
 #'@inheritParams th_doc
 #'@examples
 #' data(object_st) # load example objects
 #' calc_index(object_st,index="cwd",aggt="annual")
-#'@section NOTE if spells_span_agg=TRUE spells starting before the chosen aggregation period are considered. Spells starting in the chosen period and lasting until the next period however are not accounted for. Therefore it is not recommended to use this function for very short time periods as the returned results may not be very plausible. For years where all values within the chosen aggregation period are dry days, the function returns NA.
+#'@section NOTE: if spells_span_agg=TRUE spells starting before the chosen aggregation period are considered. Spells starting in the chosen period and lasting until the next period however are not accounted for. Therefore it is not recommended to use this function for very short time periods as the returned results may not be very plausible. For years where all values within the chosen aggregation period are dry days, the function returns NA.
 #'@keywords internal
 index_arguments.cwd<-function(climindvis,NAmaxAgg=20,trend=FALSE,NAmaxTrend=20,dd_threshold=1,spells_span_agg=TRUE,...){
   check_var(climindvis,"prec")
@@ -352,6 +410,7 @@ index_arguments.cwd<-function(climindvis,NAmaxAgg=20,trend=FALSE,NAmaxTrend=20,d
 }
 
 #'arguments for index cxd
+#'@inheritParams varallth
 #'@inheritParams index_arguments
 #'@inheritParams trend_doc
 #'@inheritParams th_doc
@@ -368,6 +427,7 @@ index_arguments.cxd<-function(climindvis,NAmaxAgg=20,trend=FALSE,NAmaxTrend=20,t
 # temperature-thresholds -------------------------------------------------------------------
 
 #'arguments for index th_tmin
+#'@inheritParams vartmin
 #'@param threshold Threshold value in degrees C for  tmin < threshold
 #'@inheritParams index_arguments
 #'@inheritParams iformat_doc
@@ -385,6 +445,7 @@ index_arguments.th_tmin<-function(climindvis,threshold,iformat="perc",NAmaxAgg=2
 }
 
 #'arguments for index th_tmax
+#'@inheritParams vartmax
 #'@param threshold Threshold value in degrees C for  tmax > threshold
 #'@inheritParams index_arguments
 #'@inheritParams iformat_doc
@@ -402,7 +463,9 @@ index_arguments.th_tmax<-function(climindvis,threshold,iformat="perc",NAmaxAgg=2
 }
 
 #'arguments for index th_topt
-#'@param threshold, threshold2 Threshold value in degrees C for  threshold <= tavg <= threshold2
+#'@inheritParams vartavg
+#'@param threshold Threshold value in degrees C for  threshold <= tavg <= threshold
+#'@param threshold2 Threshold value in degrees C for  threshold <= tavg <= threshold2
 #'@inheritParams index_arguments
 #'@inheritParams iformat_doc
 #'@inheritParams trend_doc
@@ -432,6 +495,7 @@ check_qth_args<-function(indexname,th=FALSE){
 }
 
 #'arguments for index qth
+#'@inheritParams varallth
 #'@inheritParams index_arguments
 #'@inheritParams iformat_doc
 #'@inheritParams trend_doc
@@ -468,6 +532,7 @@ index_arguments.qth<-function(climindvis,thvar, NAmaxAgg=20,trend=FALSE ,NAmaxTr
 }
 
 #'arguments for index tn10p
+#'@inheritParams vartmin
 #'@inheritParams index_arguments
 #'@inheritParams iformat_doc
 #'@inheritParams trend_doc
@@ -500,6 +565,7 @@ index_arguments.tn10p<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=2
 }
 
 #'arguments for index tn90p
+#'@inheritParams vartmin
 #'@inheritParams index_arguments
 #'@inheritParams iformat_doc
 #'@inheritParams trend_doc
@@ -533,6 +599,7 @@ index_arguments.tn90p<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=2
 }
 
 #'arguments for index tx10p
+#'@inheritParams vartmax
 #'@inheritParams index_arguments
 #'@inheritParams iformat_doc
 #'@inheritParams trend_doc
@@ -565,6 +632,7 @@ index_arguments.tx10p<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=2
 }
 
 #'arguments for index tx90p
+#'@inheritParams vartmax
 #'@inheritParams index_arguments
 #'@inheritParams iformat_doc
 #'@inheritParams trend_doc
@@ -597,6 +665,7 @@ index_arguments.tx90p<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=2
 }
 
 #'arguments for index rXptot
+#'@inheritParams varprec
 #'@inheritParams index_arguments
 #'@inheritParams trend_doc
 #'@inheritParams quantile_doc
@@ -625,11 +694,12 @@ index_arguments.rXptot<-function(climindvis,NAmaxAgg=20,trend=FALSE , NAmaxTrend
   return(list(ifun="total_precip_op_threshold",var="prec",ifunargs=list(op=operator,NAmaxAgg=NAmaxAgg),
     qargs=list(qth=(q_threshold/100),baseperiod = baseperiod,th_quantiles=th_object$index_info$th_quantiles,NAmaxbasep=NAmaxbasep,qens_all=qens_all),
     trend=trend,trendargs=list(method="lin_reg",count=FALSE,  log_trans=TRUE,NAmaxTrend=NAmaxTrend, rel= TRUE),
-    plotargs=list(iname=paste0("r",q_threshold,"ptot"))))
+    plotargs=list(iname=paste0("r",q_threshold,"ptot",iformat="mm"))))
 
 }
 
 #'arguments for index cold spell duration index
+#'@inheritParams vartmin
 #'@inheritParams index_arguments
 #'@inheritParams trend_doc
 #'@inheritParams quantile_doc
@@ -663,6 +733,7 @@ index_arguments.csdi<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=20
 }
 
 #'arguments for index warm spell duration index
+#'@inheritParams vartmax
 #'@inheritParams index_arguments
 #'@inheritParams trend_doc
 #'@inheritParams quantile_doc
@@ -699,6 +770,7 @@ index_arguments.wsdi<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=20
 # rainy season ------------------------------------------------------------
 
 #'arguments for index rainy_season_start
+#'@inheritParams varprec
 #'@param rs_method: method for calculation of index (further indicator arguments for each rs_method are given in brackets and defined below, arguments without default that have to be provided are in bold font ):
 #'\itemize{
 #' \item stern (nval): 3 of 5 days > 0.1mm & sum(5days) > 25mm and maximum number of consecutive dry days  within the next 30 days >=7 (definition from Stern et al., 1981 )
@@ -748,12 +820,13 @@ index_arguments.rainy_season_start<-function(climindvis,rs_method,days,th,dd_th=
 
 #----spi-----
 #'arguments for index spi
+#'@inheritParams varprec
 #'@inheritParams index_arguments
 #'@inheritParams trend_doc
 #'@inheritParams spi_doc
 #'@section Details:
 #' The SPI calculation is based on the SCI package from Lukas Gudmundsson & James Stagge. For the SPI calculation, aggt needs to be set to "monthly". For the argument distribution, provide a distribution for which the corresponding density function (dname), the corresponding distribution function (pname) and the quantile function (qname) must be defined (see for example GammaDist). Distributions are listed in the package stats.\cr
-#' Note, that it is important, what distribution you choose for the transformation of your rainfall data. If you are not sure, consider the below references.
+#' Note, that it is important, what distribution you choose for the transformation of your rainfall data. If you are not sure, consider the references below.
 #'@references
 #'Stagee, J.H. ; Tallaksen, L.M.; Gudmundsson, L.; van Loon, A.; Stahl, K.: Candidate Distributions for Climatological Drought Indices (SPI and SPEI), 2015, International Journal of Climatology, 35, 4027-4040, doi:10.1002/joc.4267.
 #'@examples
@@ -764,27 +837,29 @@ index_arguments.rainy_season_start<-function(climindvis,rs_method,days,th,dd_th=
 index_arguments.spi<-function(climindvis,timescale=6,ref=NULL,distribution="gamma",limit=Inf, trend=FALSE,NAmaxAgg=20,forecast=FALSE,NAmaxTrend=20,...){
   if(missing(climindvis)) stop("Not all mandatory arguments provided")
   check_var(climindvis,"prec")
-  return(list(ifun="calc_spi",var="prec",ifunargs=list(distribution=distribution,forecast=FALSE,timescale=timescale,ref= ref,NAmaxAgg=NAmaxAgg,limit=limit, iformat="SPI"),
+  return(list(ifun="calc_spi",var="prec",ifunargs=list(distribution=distribution,param=FALSE,timescale=timescale,ref= ref,NAmaxAgg=NAmaxAgg,limit=limit, iformat="SPI"),
               trendargs=list(method="lin_reg", count=FALSE,log_trans=FALSE,NAmaxTrend=NAmaxTrend, rel= TRUE),trend=trend,
               plotargs=list(iname=paste0("SPI",timescale))))
 }
 
 #'arguments for index spi_forecast
+#'@inheritParams varprec
 #'@inheritParams index_arguments
 #'@inheritParams trend_doc
 #'@inheritParams spi_doc
-#'@param forecast Climindvis object with forecast data.
+#'@param fc_p Climindvis object with forecast data.
 
 #'@section Details:
 #'The SPI calculation is based on the SCI package from Lukas Gudmundsson & James Stagge. For integrating forecasts into the SPI plot, the timeseries of forecast and historical data are checked for the overlapping period. For this period a mean
 #'@references
 #'Stagee, J.H. ; Tallaksen, L.M.; Gudmundsson, L.; van Loon, A.; Stahl, K.: Candidate Distributions for Climatological Drought Indices (SPI and SPEI), 2015, International Journal of Climatology, 35, 4027-4040, doi:10.1002/joc.4267.
 #'@keywords internal
-index_arguments.spi_forecast<-function(climindvis,timescale=6,forecast=TRUE,ref=NULL,distribution="gamma", trend=FALSE,trendargs, NAmaxAgg=20,...){
+index_arguments.spi_forecast<-function(climindvis,fc_p, timescale=6,param=TRUE,ref=NULL,distribution="gamma", trend=FALSE,trendargs, NAmaxAgg=20,...){
   if(missing(climindvis)) stop("Not all mandatory arguments provided")
   check_var(climindvis,"prec")
+  check_var(fc_p,"prec")
 
-  return(list(ifun="calc_spi",var="prec",ifunargs=list(distribution=distribution,forecast=TRUE,timescale=timescale, ref,NAmaxAgg=NAmaxAgg),
+  return(list(ifun="calc_spi",var="prec",ifunargs=list(distribution=distribution,param=TRUE,timescale=timescale, ref,NAmaxAgg=NAmaxAgg,iformat="SPI"),
               trendargs=list(method="lin_reg", count=FALSE,log_trans=FALSE,rel= TRUE),trend=trend,
               plotargs=list(iname=paste0("SPI",timescale, ref))))
 }

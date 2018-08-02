@@ -66,7 +66,13 @@ autoplot_verification_map <-function(
   check_fcmon(dat[!sapply(dat,is.null)])
   #if !is.null hc_ref compute only skill scores
   veri_metrics<-skill_scores_only(dat,veri_metrics) #wird spaeter in verfy_index nochmal gecheckt aber wenn es hier einen Fehler gibt dann muss man Indikatoren erst gar nicht berechnen.
-
+  if(grid==1){
+    indexvar=get_indexvar(index,index_args)
+    m_hc<-hc_grid$mask[[indexvar]]
+    m_obs<-obs_grid$mask[[indexvar]]
+    plot_args$mask <-array(NA,dim=dim(m_obs))
+    plot_args$mask[m_hc==1 & m_obs==1]=1
+  }
 
   #4. calculate index --------------------------------------------------
   index_args$trend = FALSE

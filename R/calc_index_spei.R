@@ -7,7 +7,7 @@
 #'@param NAmaxAgg number of days to check for <<mcdd>>
 #'@keywords internal
 #'@inheritParams spi_doc
-calc_spi <- function (temp = NULL,date_factor, forecast=FALSE,timescale , ref, distribution, NAmaxAgg = 20,iformat, limit=4)
+calc_spi <- function (temp = NULL,date_factor, param=FALSE,timescale , ref, distribution, NAmaxAgg = 20,iformat, limit=4)
 {
   stopifnot(is.numeric(temp) && is.numeric(timescale) && is.character(distribution))
   if (is.null(ref)){
@@ -41,7 +41,7 @@ calc_spi <- function (temp = NULL,date_factor, forecast=FALSE,timescale , ref, d
   spi_val <- as.vector(SCI::transformSCI(agg_pred, first.mon= frstmon, obj= spi_par, sci.limit= limit))
   names(spi_val) <- levels(date_factor)
 
-  if(forecast==TRUE){
+  if(param==TRUE){
     return(list(spi_param=spi_par,spi_val=spi_val))
   } else return(spi_val)
 }
@@ -67,7 +67,7 @@ predict_spi_fcst <- function (temp,spi_par, date_factor, limit=4)
 #' @param args List of arguments for calculation of index.  Arguments depend on type of index, for more information see documentation of calculate_index
 #' @family calculate_index
 #' @seealso \code{\link{calc_index}}
-#' @return The function returns a climindvis_index_object with an additonal entry <index_fcst>. This
+#' @return The function returns a climindvis_index object with an additonal entry <index_fcst>.
 #'@section Details:
 #'The SPI calculation is based on the SCI package from Lukas Gudmundsson & James Stagge. For integrating forecasts into the SPI plot, the timeseries of forecast and historical data are checked for the overlapping period. For this period a mean
 #'@references
@@ -85,12 +85,12 @@ calculate_index.spi_forecast <- function(climindvis,aggt,...){
   d=dim(climindvis$data[[iargs$var]])
   ld=length(d)
 
-  sel_timefcst<-get_date_factors(arguments$forecast,args$aggt)$tfactor
-  fcst <- arguments$forecast$data[[iargs$var]]
+  sel_timefcst<-get_date_factors(arguments$fc_p,args$aggt)$tfactor
+  fcst <- arguments$fc_p$data[[iargs$var]]
   d_fcst=dim(fcst)
   ld_fcst=length(d_fcst)
 
-  if ((climindvis$time[length(climindvis$time)]+1) == arguments$forecast$time[1]){
+  if ((climindvis$time[length(climindvis$time)]+1) == arguments$fc_p$time[1]){
     #if (is.element(tail(climindvis$time,n=args$timescale),head(arguments$forecast$time,n=args$timescale))){
       if(!iargs$ifunargs$timescale==1){
       levs <-  levels(climindvis$time_factors$yearmons)
