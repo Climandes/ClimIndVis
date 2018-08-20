@@ -46,7 +46,7 @@ autoplot_forecast_map(fc_grid, hc_grid, hc_ref_grid = NULL, obs_grid = NULL,
 
 \item{nocat_col}{Color for marking grid point/stations with no dominant category . Default="grey"}
 
-\item{prob}{Probability thresholds for converting continuous forecasts to category forecasts. If not provided then ncat equidistant categories are calulated: probs= 1:(ncat-1)/ncat.}
+\item{prob}{Probability thresholds for converting continuous forecasts to category forecasts. If not provided then ncat equidistant categories are calulated: (1:(ncat-1))/ncat).}
 
 \item{ncat}{Number of forecast categories. Default = 3.}
 

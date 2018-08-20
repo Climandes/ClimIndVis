@@ -5,7 +5,7 @@
 \title{arguments for min/max of x days}
 \usage{
 \method{index_arguments}{minmax_xdays}(climindvis, var, NAmaxAgg = 20,
-  trend = FALSE, rx, fun = max, NAmaxTrend = 20, ...)
+  trend = FALSE, rx = 3, fun = max, NAmaxTrend = 20, ...)
 }
 \arguments{
 \item{climindvis}{Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable "var".}
@@ -14,7 +14,7 @@
 
 \item{trend}{Logial (or character). Calculates trends with a predefined method for the chosen index. For information on default method, see  \code{\link{trend_methods}}. You can chose to calculate a non-parameteric trend, by setting trend to a character string "MannKendall". This calculates a TheilSen slope and MannKendall test. Default = TRUE.}
 
-\item{rx}{Length of days to be considered. i.e. rx1day, rx5day, etc.}
+\item{rx}{Length of days to be considered. i.e. rx1day, rx5day, etc. Default set to 3.}
 
 \item{fun}{Calculate min or max of rx days? Default = max.}
 

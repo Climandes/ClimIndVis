@@ -55,7 +55,7 @@ single_ts <- function(ind_dat, day_dat_na,tdims, pdims, pinfo, trendplots, outpu
             polygon(c(-10,length(tdims$year)+10,length(tdims$year)+10,0),c(rep(datsh[nsh],2),rep(datsh[nsh+1],2)),col=opargs$col_shading[nsh],border=NA)
           }
         }
-        na_vals <- ifelse(is.na(agg),day_dat_na[[i]][pp],day_dat_na[[i]][pp,agg==nagg])
+        na_vals <- ifelse(is.na(agg),day_dat_na[[i]][selpoints[pp]],day_dat_na[[i]][selpoints[pp],agg==nagg])
         axis(side=1,labels=tdims$year,at=c(1:length(tdims$year)),cex.axis=text_cex)
         year_seq <- c(1:length(tdims$year))
         if(is.null(opargs$shading)){
@@ -416,7 +416,7 @@ multi_dat <- function(ind_dat, day_dat_na,tdims, pdims, pinfo,trendplots, output
       miss_val <- paste0(round(unlist(na_vals)),collapse = "/")
       mtext(paste0("Missing Values: ", miss_val ," [%]"), side=3, line = text_cex, cex=0.8*text_cex, adj=0)
       if (trendplots){
-        trinfo <- t(get_trend_info(ind_dat,agg,pdims$dims,nagg,pp))
+        trinfo <- get_trend_info(ind_dat,agg,pdims$dims,nagg,pp)
         write_trend(trinfo,text_cex, dif=FALSE)
        }
     }
@@ -801,11 +801,6 @@ plot_polyt <- function(tdata,colv,cex,i){
   lines(tdata[[i]]$data[,4],type="l",col=rgb(colv[1],colv[2],colv[3],maxColorValue = 255),lty=2,cex=cex)
 }
 
-get_method <- function(x, dif){
-  y <- switch(dif+1, x[!is.na(x)][1], x[!is.na(x)])
-  z<- ifelse(is.na(y), " ",ifelse(y==1,"Least Squares Fit", ifelse(y==2,"Logit Regression","MannKendall")))
-  return(z)
-}
 
 write_trend<- function(trinfo,text_cex, dif = FALSE){
 

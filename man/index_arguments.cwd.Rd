@@ -5,7 +5,7 @@
 \title{arguments for index cwd}
 \usage{
 \method{index_arguments}{cwd}(climindvis, NAmaxAgg = 20, trend = FALSE,
-  NAmaxTrend = 20, dd_threshold = 1, spells_span_agg = TRUE, ...)
+  NAmaxTrend = 20, dd_threshold = 1, spells_span_agg = FALSE, ...)
 }
 \arguments{
 \item{climindvis}{Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable precipitation (prec)}
@@ -17,6 +17,8 @@
 \item{NAmaxTrend}{Maximum number of years in time series of index which are missing values. Value between 0 (=0\%); no years with missing values allowed) and 100 (=100\%); all years can be missing values). If exceeded, the trend is set to NA for the respective grid point/station. Note that the value is relative to the length of the time series. Default = 20 (20\%).}
 
 \item{dd_threshold}{Precipitation threshold for dry days in mm. Default = 1}
+
+\item{spells_span_agg}{Logical.Should spells starting before the chosen aggregation period be considered? Default=FALSE.}
 }
 \description{
 arguments for index cwd

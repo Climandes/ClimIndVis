@@ -4,7 +4,7 @@
 \alias{autoplot_trend_map}
 \title{Wrapper function to calculate and plot trend of indices.}
 \usage{
-autoplot_trend_map(dat_grid, dat_p, index, index_args = list(), abs = FALSE,
+autoplot_trend_map(dat_grid, dat_p, index, index_args = list(), abs = TRUE,
   sig_lev = 0.95, selyears = NULL, title = "", plot_title = TRUE,
   plot_args = list(), output = NULL, plotdir, plotname = "")
 }

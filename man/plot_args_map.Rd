@@ -14,6 +14,10 @@
 
 \item{NA_col}{Color for values where index is NA (for grid and points). Must be a valid argument to \code{\link[grDevices]{col2rgb}}. Default = "white".}
 
+\item{p_pch:}{pch of the points (see par). Values between 21:25 are implemented. Default is 21.}
+
+\item{p_cex:}{cex of points (number or array). Deefault is 2.}
+
 \item{g_breaks/p_breaks}{User defined breaks for plotting. If gridded data is plotted, g_breaks will be used for both grid and point data. If only point data is provided, p_breaks needs to be specified.}
 
 \item{g_nlev/p_nlev}{Number of levels for calculating breaks. If gridded data is plotted, g_nlev will be used for both grid and point data. If only point data is provided, p_nlev needs to be specified. If breaks are provided, nlev is ignored.}
@@ -31,6 +35,8 @@
 \item{text_cex}{Value with which  default cex of text (e.g. axes,title) is multiplied (important when changing dimensions of plots). Default=1}
 
 \item{graphic_device}{Arguments for graphics devices (in addition to \emph{filename}, \emph{width} and \emph{height} ), depending on the output chosen see \code{\link[grDevices]{png}} or \code{\link[grDevices]{pdf}}. Ignored if  \emph{output} is NULL or "dev.new".}
+
+\item{topo}{A list containing three elements. 1) a matrix with altitude values, 2) the longitudes of 1) and 3) tha latitudes of 1). Note, that longitudes and latitudes need to correspond to the coordinates of the climate data.}
 }
 \description{
 optional arguments to be passed to plotting function.

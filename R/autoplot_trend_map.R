@@ -33,7 +33,7 @@
 #'@export
 autoplot_trend_map <-function(
   dat_grid, dat_p,
-  index, index_args = list(),abs = FALSE,sig_lev = 0.95, selyears=NULL,
+  index, index_args = list(),abs = TRUE,sig_lev = 0.95, selyears=NULL,
   title = "", plot_title = TRUE, plot_args = list(),
   output=NULL, plotdir, plotname = "") {
 
@@ -134,7 +134,7 @@ autoplot_trend_map <-function(
       if (grid==1){
         plot_args$p_breaks <- plot_args$g_breaks
         plot_args$p_col <- plot_args$g_col
-        plot_args$p_pch <- ifelse(pdat$dat_p>=0, p_ch <-24, p_ch <- 25)
+        plot_args$p_pch <- ifelse(is.na(pdat$dat_p),p_ch <-23,ifelse(pdat$dat_p>=0, p_ch <-24, p_ch <- 25))
         plot_args[c("p_col_info","p_legend")] <- list("same")
 
       } else {
@@ -144,7 +144,7 @@ autoplot_trend_map <-function(
           # sonst gibt es Error spaeter im script
           plot_args$p_breaks <- 0
           plot_args$outliers <- FALSE
-          plot_args[c("p_pch_s","p_pch")] <-list(ifelse(pdat$dat_p>=0, p_ch <-24, p_ch <- 25))
+          plot_args[c("p_pch_s","p_pch")] <-list( ifelse(is.na(pdat$dat_p),p_ch <- 23,ifelse(pdat$dat_p>=0, p_ch <-24, p_ch <- 25)))
           plot_args[c("p_col_info","p_legend")] <- "cbar"
 
         } else {
@@ -152,15 +152,17 @@ autoplot_trend_map <-function(
           plot_args$p_breaks <- new_breaks$breaks
           plot_args$outliers <- new_breaks$outliers
           plot_args$p_col <- colorRampPalette(RColorBrewer::brewer.pal(8,"PRGn"))(length(plot_args$p_breaks)-1)
-          plot_args[c("p_pch_s","p_pch")] <-list(ifelse(pdat$dat_p>=0, p_ch <-24, p_ch <- 25))
+          plot_args[c("p_pch_s","p_pch")] <-list( ifelse(is.na(pdat$dat_p),p_ch <- 23,ifelse(pdat$dat_p>=0, p_ch <-24, p_ch <- 25)))
           plot_args[c("p_col_info","p_legend")] <- list("cbar")
         }
       }
       lb<- length(new_breaks$breaks)
       pdat$dat_p[pdat$dat_p>new_breaks$breaks[lb] ]<- new_breaks$breaks[lb]
       pdat$dat_p[pdat$dat_p<new_breaks$breaks[1] ]<- new_breaks$breaks[1]
-      p_dat_size <- (pdat$dat_p-(mean(pdat$dat_p, na.rm=TRUE)))/sd(pdat$dat_p, na.rm=TRUE)
-      plot_args$p_cex <- abs(p_dat_size)+1
+      pdat_help <- abs(pdat$dat_p)
+      p_dat_size <- (pdat_help-min(pdat_help, na.rm=TRUE))/(max(pdat_help, na.rm=TRUE)-min(pdat_help, na.rm=TRUE))
+      plot_args$p_cex <- p_dat_size+1
+      plot_args$p_cex[is.na(plot_args$p_cex)] <- 1
     }
 
     pnames=get_plot_title(titlestring=title,show_title=plot_title,autoplot="trend_map",aa,abs=abs,sig_lev=sig_lev, tmet=tmet)
@@ -192,6 +194,7 @@ get_trend_data<-function(ind_dat,sig_val,abs){
       tsig[tsig>sig_val] <- NA
       tsig[tsig<=sig_val] <- 1
       tval=tdat*tsig
+      tval[tval==-99.9] <- NA
       return(tval=tval)
     } else return(NULL)
   })

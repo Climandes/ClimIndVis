@@ -6,7 +6,7 @@
 \usage{
 \method{index_arguments}{csdi}(climindvis, NAmaxAgg = 20, trend = FALSE,
   NAmaxTrend = 20, q_threshold = 10, min_length = 6,
-  spells_span_agg = TRUE, baseperiod, th_object = NULL, NAmaxbasep = 20,
+  spells_span_agg = FALSE, baseperiod, th_object = NULL, NAmaxbasep = 20,
   qens_all = TRUE, ...)
 }
 \arguments{
@@ -21,6 +21,8 @@
 \item{q_threshold}{Threshold of cold spell quantile. Default to 10th quantile.}
 
 \item{min_length}{Mimimum length of cold spell. Default to 6 days}
+
+\item{spells_span_agg}{Logical.Should spells starting before the chosen aggregation period be considered? Default=FALSE.}
 
 \item{baseperiod}{Vector of start and end year for the calculation of quantiles. If not provided, whole range of years in dataset will be used for the calculation of quantiles.}
 

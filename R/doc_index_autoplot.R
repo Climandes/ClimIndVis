@@ -14,7 +14,11 @@
 #'@name indices_list
 #'@section Threshold Indices:
 #' \tabular{ll}{
-#'   \strong{dd/fd}\tab Dry days (Prec < 1mm)/Frost days (Tmin<0C). For a description of all arguments and default values see \code{\link{index_arguments.dd}} / \code{\link{index_arguments.fd}} \cr
+#'   \strong{dd}\tab Dry days (Prec < 1mm). For a description of all arguments and default values see \code{\link{index_arguments.dd}} \cr
+#'      \tab arguments: \strong{aggt}, dd_threshold,iformat,NAmaxAgg,NAmaxTrend \cr
+#'      \tab example:    index_args=list(aggt="monthly",selagg=c(1:3),dd_threshold=0.1,iformat="days") \cr
+#'  \tab \cr
+#'     \strong{fd}\tab Frost days (Tmin<0C). For a description of all arguments and default values see  \code{\link{index_arguments.fd}} \cr
 #'      \tab arguments: \strong{aggt}, iformat,NAmaxAgg,NAmaxTrend \cr
 #'      \tab example:    index_args=list(aggt="monthly",selagg=c(1:3),iformat="days") \cr
 #'  \tab \cr
@@ -62,7 +66,7 @@
 #'
 #' @section Spell-Duration Indices:
 #' \tabular{ll}{
-#'   \strong{cwd / cdd} \tab Consecutive wet/dry days. For a description of all arguments and default values see  \code{\link{index_arguments.cwd}} /  \code{\link{index_arguments.cwd}} \cr
+#'   \strong{cwd / cdd} \tab Consecutive wet/dry days. For a description of all arguments and default values see  \code{\link{index_arguments.cdd}} /  \code{\link{index_arguments.cwd}} \cr
 #'   \tab arguments: \strong{aggt},NAmaxAgg, NAmaxTrend, dd_threshold, spells_span_agg \cr
 #'   \tab example:    index_args=list(aggt="annual") \cr
 #'\tab \cr
@@ -84,8 +88,8 @@
 #'   \tab example:    index_args=list(aggt="dates", start_days="0000-01-15", end_days = "0000-04-15", baseperiod=c(1981,2010)) \cr
 #'\tab \cr
 #'   \strong{qth} \tab Number of days above/below threshold. (works for precip and temperature data).  For a description of all arguments and default values see  \code{\link{index_arguments.qth}} \cr
-#'    \tab arguments: \strong{aggt, thvar, q_threshold}, NAmaxAgg, NAmaxTrend, baseperiod, NAmaxbasep, iformat,th_object, qens_all\cr
-#'   \tab example:    index_args=list(aggt="other", aggmons=c(6:9), thvar = "tavg", threshold=90) \cr
+#'    \tab arguments: \strong{aggt, thvar, q_threshold,operator}, NAmaxAgg, NAmaxTrend, baseperiod, NAmaxbasep, iformat,th_object, qens_all\cr
+#'   \tab example:    index_args=list(aggt="other", aggmons=c(6:9), thvar = "tavg", threshold=90,operator=">=") \cr
 #'\tab \cr
 #'
 #'   \strong{rXptot} \tab Total precipitation when RR > Xp, e.g. (r95ptot). For a description of all arguments and default values see  \code{\link{index_arguments.rXptot}} \cr

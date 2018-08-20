@@ -18,7 +18,11 @@ Note that the trend argument which you can specify for the \code{\link{calc_inde
 \section{Threshold Indices}{
 
 \tabular{ll}{
-  \strong{dd/fd}\tab Dry days (Prec < 1mm)/Frost days (Tmin<0C). For a description of all arguments and default values see \code{\link{index_arguments.dd}} / \code{\link{index_arguments.fd}} \cr
+  \strong{dd}\tab Dry days (Prec < 1mm). For a description of all arguments and default values see \code{\link{index_arguments.dd}} \cr
+     \tab arguments: \strong{aggt}, dd_threshold,iformat,NAmaxAgg,NAmaxTrend \cr
+     \tab example:    index_args=list(aggt="monthly",selagg=c(1:3),dd_threshold=0.1,iformat="days") \cr
+ \tab \cr
+    \strong{fd}\tab Frost days (Tmin<0C). For a description of all arguments and default values see  \code{\link{index_arguments.fd}} \cr
      \tab arguments: \strong{aggt}, iformat,NAmaxAgg,NAmaxTrend \cr
      \tab example:    index_args=list(aggt="monthly",selagg=c(1:3),iformat="days") \cr
  \tab \cr
@@ -70,7 +74,7 @@ Note that the trend argument which you can specify for the \code{\link{calc_inde
 \section{Spell-Duration Indices}{
 
 \tabular{ll}{
-  \strong{cwd / cdd} \tab Consecutive wet/dry days. For a description of all arguments and default values see  \code{\link{index_arguments.cwd}} /  \code{\link{index_arguments.cwd}} \cr
+  \strong{cwd / cdd} \tab Consecutive wet/dry days. For a description of all arguments and default values see  \code{\link{index_arguments.cdd}} /  \code{\link{index_arguments.cwd}} \cr
   \tab arguments: \strong{aggt},NAmaxAgg, NAmaxTrend, dd_threshold, spells_span_agg \cr
   \tab example:    index_args=list(aggt="annual") \cr
 \tab \cr

@@ -201,7 +201,7 @@ check_fcmon<-function(data){
 #checks in make object funcion if fcmon is integer/chracter and corresponds to first month of data
 check_fmon_object <- function(dates, fmon){
   tryCatch({
-    if(is.integer(fmon)) {fmon <- as.character(fmon)}
+    if(is.numeric(fmon)) {fmon <- stringr::str_pad(as.character(fmon),2,pad="0")}
     if(is.character(fmon)) {if(suppressWarnings(is.na(as.numeric(fmon)))) {stop("<fmon> is not set correctly.")}}
 
     if(!is.list(dates)){dates <- list(dates)}

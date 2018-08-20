@@ -5,7 +5,7 @@
 \title{arguments for index cxd}
 \usage{
 \method{index_arguments}{cxd}(climindvis, NAmaxAgg = 20, trend = FALSE,
-  NAmaxTrend = 20, thvar, threshold, operator, spells_span_agg = TRUE, ...)
+  NAmaxTrend = 20, thvar, threshold, operator, spells_span_agg = FALSE, ...)
 }
 \arguments{
 \item{climindvis}{Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable "thvar".}
@@ -21,6 +21,8 @@
 \item{threshold}{Threshold (numerical). Thresholds need to be provided in mm for precipitation and in degrees C for temperature.}
 
 \item{operator}{One of ">",">=","<","<="}
+
+\item{spells_span_agg}{Logical.Should spells starting before the chosen aggregation period be considered? Default=FALSE.}
 }
 \description{
 arguments for index cxd

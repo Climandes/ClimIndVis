@@ -6,7 +6,7 @@
 \arguments{
 \item{ncat}{Number of equidistant categories to divide forecast into (if probs is specified not used). Default=3 (=tercile forecasts).}
 
-\item{prob}{Probability thresholds for converting continuous forecasts to category forecasts. If not provided then ncat equidistant categories are calulated: probs= 1:(ncat-1)/ncat.}
+\item{prob}{Probability thresholds for converting continuous forecasts to category forecasts. If not provided then ncat equidistant categories are calulated: (1:(ncat-1))/ncat).}
 
 \item{cat_names}{Names of forecast categorys to be used for plot. Default = paste0("cat",1:ncat)}
 

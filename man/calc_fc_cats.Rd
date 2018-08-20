@@ -18,7 +18,7 @@ calc_fc_cats(fc, hc, index, index_args = list(), selyears = NULL, prob,
 
 \item{selyears}{Integer array of years to be selected from data. For indices with quantiles, years as defined in index_args are used for quantile calculation, but only selected years are plotted. For functions using seasonal forecast data, selyears is only applied to hindcasts.}
 
-\item{prob}{Probability thresholds for converting continuous forecasts to category forecasts. If not provided then ncat equidistant categories are calulated: probs= 1:(ncat-1)/ncat.}
+\item{prob}{Probability thresholds for converting continuous forecasts to category forecasts. If not provided then ncat equidistant categories are calulated: (1:(ncat-1))/ncat).}
 
 \item{ncat}{Number of forecast categories. Default = 3.}
 

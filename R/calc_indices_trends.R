@@ -87,7 +87,7 @@ calc_trend <- function(data,time ,targs){
       p.value = trd1$pval,
       trend.rel = (trd1$trend.rel*100),
       trend.abs = trd1$trend.rel*mean(dat.final[1,], na.rm=TRUE)/dim(DAT)[1]*10,
-      method = 3)
+      method = 2)
   }
 
   #########################################################################################
@@ -320,7 +320,11 @@ trend.logit <-  function (dat.df,type="counts",cor.overdisp=TRUE,
       ncol=2)
 
     # trend magnitude as fractional change of average
-    trd <- (alogit(coef[1]+t2*coef[2])-alogit(coef[1]+t1*coef[2]))/p0
+
+    ###### modified imn #### no relativ trend for low values middle values
+    test <- p0 < 0.0001 & p0 > -0.0001
+    switch(test+1,trd <- (alogit(coef[1]+t2*coef[2])-alogit(coef[1]+t1*coef[2]))/p0, trd <- NA)
+    ######
 
     # trend magnitude and confidence interval as odds-ratio
     trd.or <- exp(coef[2]*(t2-t1))

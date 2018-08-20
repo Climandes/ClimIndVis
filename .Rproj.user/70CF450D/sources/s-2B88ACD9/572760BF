@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1534769312662.000,
+    "dirty" : false,
+    "encoding" : "ISO8859-1",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "572760BF",
+    "lastKnownWriteTime" : 1534491389,
+    "last_content_update" : 1534491389,
+    "path" : "/prod/zue/climate/comm_serv/CLIMANDES_Data/src_C2/Rclimandes_2/imn_code/climandes-2/src/ClimIndVis/R/calc_indices_get_arguments.R",
+    "project_path" : "R/calc_indices_get_arguments.R",
+    "properties" : {
+        "cursorPosition" : "339,104",
+        "scrollLine" : "796"
+    },
+    "relative_order" : 6,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

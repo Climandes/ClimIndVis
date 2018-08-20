@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "check_dims<- function(data,dates,var,lon,lat,data_info){\n\n  if (is.null(dates)) {\n    stop(paste0(\"time dimension for \",var,\" is missing\") ) }\n\n  if (is.element(data_info$type, c(\"p\",\"p_hc\",\"p_fc\"))){\n    if(is.null(dim(data)[1])){ if(!length(data)==length(dates)) stop(\"data dimension does not fit time dimension\") }\n    else if (dim(data)[1] == length(lon)) { if (dim(data)[1] == length(lat)){\n      if(is.element(data_info$date_format, \"t1d\")){\n      if(!tail(dim(data),1) == length(dates)) {stop(\"data dimension does not fit time dimension\")}\n      }  }\n      else  stop(\"data dimension does not fit lat/lon dimensions\") }\n    }\n  else if (is.element(data_info$type, c(\"grid\",\"grid_hc\",\"grid_fc\"))){\n    if (dim(data)[1] == length(lon)){ if(dim(data)[2] == length(lat)){\n      if(is.element(data_info$date_format, \"t1d\")){\n      if (!dim(data)[3] == length(dates)) {stop(\"data dimension does not fit time dimension\")}\n    }\n      else if(dim(data)[3]*dim(data)[4] == length(dates)) stop(\"data dimension does not fit lat/lon dimensions\")\n    } else stop(\"data dimension does not fit lat/lon dimensions\")}\n  }\n  else stop(\"<<type>> is not set correctly\")\n}\n\n#object list: list of objects of type climandes, climandes_index, climandes_verification\ncheck_spatial_dims<-function(object_list){\n  for (i in 1:(length(object_list)-1)) {\n    compare_value(substring(object_list[[i]]$data_info$type,1,1),substring(object_list[[i+1]]$data_info$type,1,1),valname=\"spatial dimensions\")\n  }\n\n  mlon<-  Reduce(intersect,lapply(object_list, function(x) round(array(x$lon),3)))\n  mlat<-  Reduce(intersect,lapply(object_list, function(x) round(array(x$lat),3)))\n\n  for (o in object_list){\n    if (length(o$lon) != length(mlon)) stop(\"longitudes do not match for all objects\")\n    if (length(o$lat) != length(mlat)) stop(\"latitudes do not match for all objects\")\n    }\n}\n\ncheck_var<-function(dat,varnames){\n  for (vv in seq_along(varnames)){\n    if (is.null(dat$data[[varnames[vv]]]) )stop(paste0(\"variable \",varnames[vv],\" needed for calculation of index is missing\"))\n  }\n\n}\n\ncheck_entries_of_list<-function(entry_names,list){\n  for (a in entry_names) if(is.null(list[[a]])) stop (\"entry for argument <<\", a, \">> is needed for chosen index\")\n}\n\ncheck_arguments_function<-function(argument_list){\n\n  for (a in 1:length(argument_list)) if(is.null(argument_list[[a]])) stop (paste0(\"mandatory argument <<\",names(argument_list)[a],\">> is missing\"))\n\n}\n\ncheck_class<-function(objects,class){\n  if(!is.null(objects$lon)) objects<-list(objects)\n  for (o in 1:length(objects)) if(!is.element(class,class(objects[[o]]))) stop (paste0(\"at least one inpout object is not of type \",class))\n}\n\ncompare_class<-function(obj1,obj2){\n  if (!all(class(obj1)==class(obj2))) stop(\"inputs not of same class\")\n}\n\ncompare_value<-function(a,b,valname=\"values\"){\n  if (!all(a==b)) stop(paste0(valname,\" are not the same\"))\n}\n\n\n",
+    "created" : 1516710707579.000,
+    "dirty" : true,
+    "encoding" : "ISO8859-1",
+    "folds" : "",
+    "hash" : "356707497",
+    "id" : "10CC0F53",
+    "lastKnownWriteTime" : 1516710750,
+    "last_content_update" : 1516711016418,
+    "path" : "/prod/zue/climate/comm_serv/CLIMANDES_Data/src_C2/Rclimandes_2/imn_code/climandes-2/src/ClimIndVis/R/check_functions.R",
+    "project_path" : "R/check_functions.R",
+    "properties" : {
+    },
+    "relative_order" : 6,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

@@ -42,6 +42,7 @@ get_date_factors<-function(climindvis,agg,aggmons=NULL,selagg=NULL,start_days=NA
       aggnames="user_dates"
     } else  aggnames=paste0(gsub("-","",substring(start_days,6,10)),"-",gsub("-","",substring(end_days,6,10)))
   }
+  if (all(is.na(r))) stop("selected time period is not available in data")
   return(list(tfactor=r,aggnames=aggnames))
 }
 #help functions for get_date_factors
@@ -87,18 +88,21 @@ select_date_factors<-function(times,start_days,end_days){
     if ((fs !="0" | fe !="0" ) & length(years!=1)) stop("start and end string have to be of type 0000-mm-dd, eg 0000-08-01")
     addy<-ifelse(end_days-start_days <0,1,0)
     beg_dates<-sapply(years, function(x) {
-      if (as.Date(paste0(x,"-",format(start_days,"%m-%d")))-head(times,1)>=0 & as.Date(paste0(x,"-",format(start_days,"%m-%d")))-tail(times,1)<=0  ) {
-        return(which(times == paste0(x,"-",format(start_days,"%m-%d"))))
+      bd=paste0(x,"-",format(start_days,"%m-%d"))
+      if (is.element(as.Date(bd),times) & as.Date(bd)-head(times,1)>=0 & as.Date(bd)-tail(times,1)<=0  ) {
+        return(which(times == bd))
         } else return(NA)})
     end_dates<-sapply(years, function(x) {
-      if (as.Date(paste0(x+addy,"-",format(end_days,"%m-%d")))-head(times,1)>=0 & as.Date(paste0(x+addy,"-",format(end_days,"%m-%d")))-tail(times,1)<=0 ) {
-        return(which(times == paste0(x+addy,"-",format(end_days,"%m-%d"))))
+      ed=paste0(x+addy,"-",format(end_days,"%m-%d"))
+      if (is.element(as.Date(ed),times) & as.Date(ed)-head(times,1)>=0 & as.Date(ed)-tail(times,1)<=0 ) {
+        return(which(times == ed))
     }else return(NA)})
 
-    #if(addy==1){
+
       end_dates[is.na(beg_dates)]=NA
       beg_dates[is.na(end_dates)]=NA
     #}
+      if(sum(is.na(end_dates) > 2)) stop("dates are not available for all years, please check input data.")
     vals=years
 
   } else {
@@ -328,7 +332,7 @@ check_agg_complete<-function(r,agg){
         stop_quietly()
       }
     } else if (agg == "monthly"){
-      years=unique(as.integer(substring(aa,1,4)))
+      years=unique(as.integer(substring(cut,1,4)))
       if(length(years)>2){
       chelp=cut
       cut=NULL

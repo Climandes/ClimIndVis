@@ -99,7 +99,7 @@ autoplot_climatology_map <-function(
     pdat=lapply((names(phelp)), function(ii){
       if(!is.null(phelp[[ii]])){
         if(aggl){
-          cd=ifelse(ind_dat[[ii]]$data_info$type=="p",1,2)
+          cd=ifelse(grepl("p",ind_dat[[ii]]$data_info$type),1,2)
           ret=index_array(phelp[[ii]],cd+1,list(aa),drop=TRUE)
         } else ret=phelp[[ii]]
       } else ret=NULL

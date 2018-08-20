@@ -309,7 +309,7 @@ calc_index_special_autoplot<- function(data,index,index_args, selyears){
     ind_dat=list()
     ind_dat[(1:length(data))[-fc]]<-lapply(data[-fc], function(dd) do.call("calc_index",c(list(dd,index=index),index_args)))
     ind_dat[fc]<-lapply(fc, function (ff){
-      index_args$th_object=ind_dat[[which(names(data)==gsub("fc","hc",names(dat)[ff]))]]
+      index_args$th_object=ind_dat[[which(names(data)==gsub("fc","hc",names(data)[ff]))]]
       do.call("calc_index",c(list(data[[ff]],index=index),index_args))})
   }
   names(ind_dat)=names(data)
@@ -353,3 +353,9 @@ return_m <- function(x){
 return(x)
   }
 
+
+get_method <- function(x, dif){
+  y <- switch(dif+1, x[!is.na(x)][1], x[!is.na(x)])
+  z<- ifelse(is.na(y), " ",ifelse(y==1,"Least Squares Fit", ifelse(y==2,"Logit Regression",ifelse(y==3,"MannKendall"," "))))
+  return(z)
+}

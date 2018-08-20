@@ -10,7 +10,7 @@
 
 \item{ncat}{Number of equidistant categories for converting continous forecast into category forecasts (only for category skill scores). Default=3}
 
-\item{prob}{Optional parameters passed to \code{\link{easyVerification}{veriApply}} for user defined probability thresholds for converting continuous forecasts to category forecasts(only for category skill scores). Default=NULL (in this case prob is set to c(1:((ncat-1)/ncat))).}
+\item{prob}{Optional parameters passed to \code{\link{easyVerification}{veriApply}} for user defined probability thresholds for converting continuous forecasts to category forecasts(only for category skill scores). Default=NULL (in this case prob is set to (1:(ncat-1))/ncat).}
 }
 \description{
 optional arguments for verification function

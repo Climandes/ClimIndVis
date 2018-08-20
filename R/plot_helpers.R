@@ -7,8 +7,8 @@
 get_indexvar<-function(index,index_args){
 
   preci<-c("dd" ,"cdd","prcptot","rx","cwd","sdii","rXptot","spi","spi_forecast","rainy_season_start","rainy_season_end","rainy_season_length")
-  tmini<-c("fd","tn10p","tnn","tn90p","tnx","th_tmin")
-  tmaxi<-c("tx10p","txn","txx","tx90p","th_tmax")
+  tmini<-c("fd","tn10p","tnn","tn90p","tnx","th_tmin","csdi")
+  tmaxi<-c("tx10p","txn","txx","tx90p","th_tmax","wsdi")
   tavgi<-c("th_topt")
 
  tryCatch({
@@ -64,7 +64,7 @@ get_default_color<-function(index,iname,fc=FALSE){
   center=FALSE # color scale centered around 0?
   if (is.element(index,c("dd" ,"cdd")) | (index=="cxd" & grepl("prec<",iname))){
     col=dry
-  } else if (is.element(index,c("fd","tn10p","th_tmin")) | (index=="cxd" & grepl("tmin<",iname))) {
+  } else if (is.element(index,c("fd","tn10p","th_tmin","csdi")) | (index=="cxd" & grepl("tmin<",iname))) {
     col = cold
   } else if (is.element(index,c("tnn"))  |(index=="cxd" & grepl("tmin>",iname))) {
     col = rev(cold)
@@ -94,7 +94,7 @@ get_default_color<-function(index,iname,fc=FALSE){
     if (grepl("min",iname)){
       col(ifelse(grepl("prec",iname)),prec,cold)
     } else if (grepl("max",iname)){
-      col(ifelse(grepl("prec",iname)),prec,sun)
+      col=ifelse(grepl("prec",iname),prec,sun)
     }
   } else if (is.element(index,c("th","qth"))){
     if (grepl("prec>",iname) ){

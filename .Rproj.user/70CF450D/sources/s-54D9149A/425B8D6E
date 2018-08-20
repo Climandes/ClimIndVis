@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1533016984208.000,
+    "dirty" : false,
+    "encoding" : "ISO8859-1",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "425B8D6E",
+    "lastKnownWriteTime" : 1533209454,
+    "last_content_update" : 1533209455119,
+    "path" : "/prod/zue/climate/comm_serv/CLIMANDES_Data/src_C2/Rclimandes_2/imn_code/climandes-2/experiments/imn/new.R",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "62,25",
+        "scrollLine" : "45",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 5,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

@@ -5,7 +5,7 @@
 \title{arguments for index dd}
 \usage{
 \method{index_arguments}{dd}(climindvis, iformat = "perc", NAmaxAgg = 20,
-  trend = FALSE, NAmaxTrend = 20, ...)
+  trend = FALSE, NAmaxTrend = 20, dd_threshold = 1, ...)
 }
 \arguments{
 \item{climindvis}{Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable precipitation (prec)}
@@ -17,6 +17,8 @@
 \item{trend}{Logial (or character). Calculates trends with a predefined method for the chosen index. For information on default method, see  \code{\link{trend_methods}}. You can chose to calculate a non-parameteric trend, by setting trend to a character string "MannKendall". This calculates a TheilSen slope and MannKendall test. Default = TRUE.}
 
 \item{NAmaxTrend}{Maximum number of years in time series of index which are missing values. Value between 0 (=0\%); no years with missing values allowed) and 100 (=100\%); all years can be missing values). If exceeded, the trend is set to NA for the respective grid point/station. Note that the value is relative to the length of the time series. Default = 20 (20\%).}
+
+\item{dd_threshold}{Precipitation threshold for dry days in mm. Default = 1}
 }
 \description{
 arguments for index dd

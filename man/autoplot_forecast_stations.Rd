@@ -43,7 +43,7 @@ autoplot_forecast_stations(fc_p, hc_p, hc_ref_p = NULL, obs_p = NULL, index,
 
 \item{col}{Plot colors, array of same length as ncat. If not provided, package default colors for index are used.}
 
-\item{prob}{Probability thresholds for converting continuous forecasts to category forecasts. If not provided then ncat equidistant categories are calulated: probs= 1:(ncat-1)/ncat.}
+\item{prob}{Probability thresholds for converting continuous forecasts to category forecasts. If not provided then ncat equidistant categories are calulated: (1:(ncat-1))/ncat).}
 
 \item{ncat}{Number of forecast categories. Default = 3.}
 
