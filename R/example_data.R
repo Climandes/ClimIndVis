@@ -1,0 +1,44 @@
+#' Example data for make_object
+#'
+#' Test data for creating climindvis objects using the function \code{\link{make_object}}. The data contains daily values of tmin,tmax and prec data for 1981-2010.
+#'
+#' @docType data
+#' @name example_data
+#'
+#' @usage data("data type")
+#'
+#' @format A list with 7 elements:
+#' \itemize{
+#'   \item tmin Daily Minimum temperature data in degrees Celsius. Dimensions depend on data type (see section data types)
+#'   \item tmax Daily Maximum temperature data in degrees Celsius. Dimensions depend on data type (see section data types)
+#'   \item prec Daily Precipitation in mm. Dimensions depend on data type (see section data types)
+#'   \item lon Array of longitudes
+#'   \item lat Array of latitudes
+#'   \item time Dimension depends on data_type:
+#' \itemize{
+#'   \item data_st/data_grid Array of time steps (time_format=t1d)
+#'   \item data_hc_... /data_fc_... Named list containing an array of time steps of class "Date" for each hindcast year /the forecast year (time_format=t2d)}
+#'
+#'   \item data_info List <<data_info>> for point data containing type, date_format and data_name as needed by make_object
+#'  }
+#'
+#'@section data types:
+#'\itemize{
+#'\item data_st Station data for 4 stations. Tmin/tmax/prec are arrays of dimension:  \cr[stations] x [timesteps]
+#'\item data_grid Gridded data for a 3x4 grid. Tmin/tmax/prec are arrays of dimension:  \cr [longitudes] x [latitudes] x [timesteps
+#'\item data_hc_st Hindcast data for 4 stations for a 15 member ensemble. The hindcasts are initialized 1.January for the years 1981-2010 and are issued for the following 214 days. Tmin/tmax/prec are arrays of dimension: \cr [stations] x [ensemble members] x [forecast days] x [forecast years]
+#'\item data_hc_grid Hindcast data for a 3x4 grid for a 15 member ensemble. The hindcasts are initialized 1.January for the years 1981-2010 and are issued for the following 214 days.Tmin/tmax/prec are arrays of dimension:  \cr [longitudes] x [latitudes] x [ensemble members] x [forecast days] x [forecast years]
+#'\item data fc_st Forecast data for 4 stations for a 15 member ensemble. The forecasts are initialized 1.January 2010 and are issued for the following 214 days. Tmin/tmax/prec are arrays of dimension: \cr [stations] x [ensemble members] x [forecast days]
+#'\item data_fc_grid Forecast data for 3x4 grid for a 15 member ensemble. The forecasts are initialized 1.January 2010 and are issued for the following 214 days. Tmin/tmax/prec are arrays of dimension: \cr [longitudes] x [latitudes] x [ensemble members] x [forecast days]
+#'}
+#'
+#'@examples
+#' ## To use the example data you first have to load it using data()
+#' data(data_grid)
+#'
+#' # use example data to make climindvis object:
+#' make_object(tmin=data_grid$tmin,dates_tmin=data_grid$time,lon=data_grid$lon,lat=data_grid$lat,data_info=data_grid$data_info)
+#' @family data_examples
+#' @source artificial datasets based on SENAMHI station data \url{www.senamhi.gob.pe} and ECMWF seasonal forecast data  \url{www.ecmwf.int}
+NULL
+

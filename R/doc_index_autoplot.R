@@ -1,0 +1,130 @@
+#'indices and index_args for forecast and autoplot functions
+#'
+#'Below you find a list of the indices implemented in the ClimIndVis package as well as their arguments (\emph{index_args}) (mandatory arguments are in bold font) and an example of index_args. For a detailed description of the arguments and their default values you can click on the links index_arguments.\emph{index}.
+#' One argument which has to be provided for all indices is the aggregation type (\emph{aggt}). Here you can choose between the following:
+#' \itemize{
+#' \item "annual": annual aggregation
+#' \item "seasonal": seasonal aggregation ("MAM","JJA","SON","DJF"), define subset as character array using parameter \strong{selagg}, e.g. selagg=("DJF","MAM") for selecting seasons DJF and MAM only.
+#' \item "monthly": Monthly aggregation. For subset of months, define subset as integer array using parameter \strong{selagg}, e.g. c(1:3) for monthly aggregation of Jan,Feb and March
+#' \item "other": aggregation over all months defined as integer array in \strong{aggmons}, e.g. c(1:4) aggregates over Jan-Apri.
+#' \item "dates": Aggregation of user defined dates defined in \strong{start_days} and \strong{end_days}. start_days and end days are arrays of format date or character(yyyy-mm-dd). If start and end dates are the same for all years they can also be specified as "0000-mm-dd", e.g. "0000-01-01".
+#' }
+#' Note that the trend argument which you can specify for the \code{\link{calc_index}} function is automatically set in the autoplot functions as well as verify_index and calc_fc_cats and will be ignored if set in the index_args. NAmaxTrend only applies if the trend is calculated, this is true for \code{\link{autoplot_trend_map}} and \code{\link{autoplot_ts_stations}} if \emph{trendplots} = TRUE.
+#'
+#'@name indices_list
+#'@section Threshold Indices:
+#' \tabular{ll}{
+#'   \strong{dd}\tab Dry days (Prec < 1mm). For a description of all arguments and default values see \code{\link{index_arguments.dd}} \cr
+#'      \tab arguments: \strong{aggt}, dd_threshold,iformat,NAmaxAgg,NAmaxTrend \cr
+#'      \tab example:    index_args=list(aggt="monthly",selagg=c(1:3),dd_threshold=0.1,iformat="days") \cr
+#'  \tab \cr
+#'     \strong{fd}\tab Frost days (Tmin<0C). For a description of all arguments and default values see  \code{\link{index_arguments.fd}} \cr
+#'      \tab arguments: \strong{aggt}, iformat,NAmaxAgg,NAmaxTrend \cr
+#'      \tab example:    index_args=list(aggt="monthly",selagg=c(1:3),iformat="days") \cr
+#'  \tab \cr
+#'
+#'      \strong{th_tmin/} \tab Days with minimum/maximum temperature below a user defined threshold (Tmin < threshold, Tmax > threshold). For a description of all arguments and default values see  \code{\link{index_arguments.th_tmin}} / \code{\link{index_arguments.th_tmax}} \cr
+#'     \strong{th_tmax}  \tab arguments: \strong{aggt, threshold}, iformat, NAmaxAgg, NAmaxTrend \cr
+#'      \tab example:    index_args=list(aggt= seasonal, threshold=25 )\cr
+#'\tab \cr
+#'
+#'       \strong{th_topt}\tab Days with average temperature within a user defined temperature range (threshold <= Tavg <= threshold2). For a description of all arguments and default values see  \code{\link{index_arguments.th_topt}}\cr
+#'      \tab arguments: \strong{aggt, threshold, threshold2}, iformat, NAmaxAgg, NAmaxTrend \cr
+#'      \tab example:    index_args=list(aggt="other",aggmons=c(1:3),threshold=10,threshold2=20)\cr
+#'\tab \cr
+#'
+#'      \strong{th} \tab Threshold function for days below/above a user defined threshold (Variable >/>=/</<= threshold). For a description of all arguments and default values see \code{\link{index_arguments.th}}\cr
+#'      \tab arguments: \strong{aggt, threshold, operator, thvar}, iformat, NAmaxAgg, NAmaxTrend \cr
+#'      \tab example:    index_args=list(aggt="monthly", threshold=-5, operator="<", thvar="tmin"  )\cr
+#'\tab \cr
+#'
+#'       \strong{th_range} \tab Threshold function for days within a user defined range  (threshold >/>=/</<= variable >/>=/</<= threshold2). For a description of all arguments and default values see \code{\link{index_arguments.th_range}}\cr
+#'        \tab arguments: \strong{aggt, threshold, operator, threshold2, operator2, thvar}, iformat, NAmaxAgg, NAmaxTrend \cr
+#'       \tab example:    index_args=list(aggt="other",aggmons=c(5:10), threshold=-5, operator=">=", threshold2=0, operator2="<=", thvar="tmin")\cr
+#'}
+#'
+#'@section Minimum-Maximum Indices:
+#'\tabular{ll}{
+#'   \strong{tnn/tnx} \tab Minimum/Maximum value of daily minimum temperature. \cr
+#'   \strong{txn,txx} \tab Minimum/Maximum value of daily maximum temperature. For a description of all arguments and default values see  \code{\link{index_arguments.tnn}} / \code{\link{index_arguments.tnx}} / \code{\link{index_arguments.txn}} / \code{\link{index_arguments.txx}} \cr
+#'      \tab arguments: \strong{aggt}, NAmaxAgg, NAmaxTrend \cr
+#'      \tab example:    index_args=list(aggt="seasonal") \cr
+#'      \tab \cr
+#'   \strong{varmin/varmax}\tab  Minimum/maximum value of user defined variable. For a description of all arguments and default values see  \code{\link{index_arguments.varmin}} / \code{\link{index_arguments.varmin}} \cr
+#'   \tab arguments: \strong{aggt, var}, NAmaxAgg, NAmaxTrend \cr
+#'   \tab example:    index_args=list(aggt="monthly", var="tavg",selagg=c(1,6)) \cr
+#'\tab \cr
+#'   \strong{rx} \tab Maximum rx-day precipitation? \code{\link{index_arguments.rx}} \cr
+#'   \tab arguments: \strong{aggt, rx}, NAmaxAgg, NAmaxTrend \cr
+#'   \tab example:    index_args=list(aggt="monthly", rx=5, selagg=c(1:3)) \cr
+#'\tab \cr
+#'   \strong{minmax_xdays} \tab Maximum/minimum rx-day value of variable. For a description of all arguments and default values see  \code{\link{index_arguments.minmax_xdays}} \cr
+#'   \tab arguments: \strong{aggt, var, rx, fun}, NAmaxAgg, NAmaxTrend \cr
+#'   \tab example:    index_args=list(aggt="monthly", var="tmin", rx=7, fun = min, selagg=c(1:3)) \cr
+#'\tab \cr
+#'   }
+#'
+#' @section Spell-Duration Indices:
+#' \tabular{ll}{
+#'   \strong{cwd / cdd} \tab Consecutive wet/dry days. For a description of all arguments and default values see  \code{\link{index_arguments.cdd}} /  \code{\link{index_arguments.cwd}} \cr
+#'   \tab arguments: \strong{aggt},NAmaxAgg, NAmaxTrend, dd_threshold, spells_span_agg \cr
+#'   \tab example:    index_args=list(aggt="annual") \cr
+#'\tab \cr
+#'   \strong{cxd}\tab Consecutive days of variable above/below a threshold. For a description of all arguments and default values see  \code{\link{index_arguments.cxd}} \cr
+#'   \tab arguments: \strong{aggt, thvar, threshold, operator}, NAmaxAgg, NAmaxTrend, spells_span_agg \cr
+#'   \tab example:    index_args=list(aggt="annual", thvar="tmin", threshold=0, operator="<=") \cr
+#'\tab \cr
+#'   \strong{csdi/wsdi} \tab Cold/Warm spell duration index. Count of days with at least 6 consecutive days when TN < 10th / TX > 90th percentile. For a description of all arguments and default values see  \code{\link{index_arguments.csdi}} / \code{\link{index_arguments.wsdi}} \cr
+#'   \tab arguments: \strong{aggt}, q_threshold, min_length, spells_span_agg, baseperiod, th_object, qens_all, NAmaxAgg,NAmaxTrend, NAmaxbasep \cr
+#'   \tab example:    index_args=list(aggt="annual") \cr
+#'
+#'   }
+#'
+#'@section Quantile Indices:
+#'\tabular{ll}{
+#'   \strong{tn10p / tn90p} \tab Percentage of days when TN < 10th /TN > 90th percentile.  \cr
+#'   \strong{tx10p / tx90p} \tab Percentage of days when TX < 10th / TX> 90th percentile. For a description of all arguments and default values see  \code{\link{index_arguments.tn10p}} / \code{\link{index_arguments.tn90p}} / \code{\link{index_arguments.tx10p}} / \code{\link{index_arguments.tx90p}} \cr
+#'    \tab arguments: \strong{aggt}, NAmaxAgg, NAmaxTrend, baseperiod, NAmaxbasep, iformat,th_object, qens_all\cr
+#'   \tab example:    index_args=list(aggt="dates", start_days="0000-01-15", end_days = "0000-04-15", baseperiod=c(1981,2010)) \cr
+#'\tab \cr
+#'   \strong{qth} \tab Number of days above/below threshold. (works for precip and temperature data).  For a description of all arguments and default values see  \code{\link{index_arguments.qth}} \cr
+#'    \tab arguments: \strong{aggt, thvar, q_threshold,operator}, NAmaxAgg, NAmaxTrend, baseperiod, NAmaxbasep, iformat,th_object, qens_all\cr
+#'   \tab example:    index_args=list(aggt="other", aggmons=c(6:9), thvar = "tavg", threshold=90,operator=">=") \cr
+#'\tab \cr
+#'
+#'   \strong{rXptot} \tab Total precipitation when RR > Xp, e.g. (r95ptot). For a description of all arguments and default values see  \code{\link{index_arguments.rXptot}} \cr
+#'   \tab arguments: \strong{aggt}, q_threshold=95, operator=">",NAmaxAgg, NAmaxTrend, baseperiod, NAmaxbasep, iformat,th_object, qens_all\cr
+#'   \tab example:    index_args=list(aggt="seasonal") \cr
+#
+#'   }
+#'
+#'@section further Indices:
+#'   \tabular{ll}{
+#'  \strong{mean / sum}\tab For a description of all arguments and default values see  \code{\link{index_arguments.mean}} / \code{\link{index_arguments.sum}} \cr
+#'   \tab arguments: \strong{aggt, var}, NAmaxAgg, NAmaxTrend\cr
+#'   \tab example:    index_args=list(aggt="monthly", var="tmin") \cr
+#'\tab \cr
+#'
+#'   \strong{spi} \tab Standard precipitation index. Argument \emph{aggt} needs to be set to \emph{monthly} for this index.For more arguments and default values see  \code{\link{index_arguments.spi}} \cr
+#'  \tab arguments: \strong{aggt="monthly"}, timescale, ref, distribution, limit, forecast NAmaxAgg, NAmaxTrend\cr
+#'   \tab example:    index_args=list(aggt="monthly", timescale=3) \cr
+#'\tab \cr
+#'   \strong{spi_forecast} \tab  Forecast of SPI. Argument \emph{aggt} needs to be set to \emph{monthly} for this index.  For more arguments and default values see  \code{\link{index_arguments.spi_forecast}} \cr
+#'   \tab arguments: \strong{aggt="monthly", fc_p}, timescale, param, ref, distribution, NAmaxAgg, NAmaxTrend\cr
+#'   \tab example:    index_args=list(aggt="monthly", fc_p = object_fc_st) \cr
+#'\tab \cr
+#'   \strong{sdii} \tab Simple precipitation intensity index. Ratio of total rainfall to the number of days when precipitation is higher than a dry day threshold. For a description of all arguments and default values see  \code{\link{index_arguments.sdii}} \cr
+#'   \tab arguments: \strong{aggt}, dd_threshold, NAmaxAgg, NAmaxTrend\cr
+#'   \tab example:    index_args=list(aggt="sseasonal",dd_threshold=0.1) \cr
+#'\tab \cr
+#'   \strong{prcptot} \tab Total precipitation on wet days. For a description of all arguments and default values see  \code{\link{index_arguments.prcptot}} \cr
+#'   \tab arguments: \strong{aggt}, dd_threshold, NAmaxAgg, NAmaxTrend\cr
+#'   \tab example:    index_args=list(aggt="seasonal") \cr
+#'\tab \cr
+#'   \strong{rainy_season_start} \tab Start of the rainy season. Argument \emph{aggt} needs to be set to \emph{dates} and \emph{start_days} and \emph{end_days} additionally provided for this index.  For more arguments and default values see  \code{\link{index_arguments.rainy_season_start}} \cr
+#'   \tab arguments: \strong{aggt="dates"}, rs_method, days, th, dd_th, nval, mdays, mcdd, NAmaxAgg, NAmaxTrend\cr
+#'   \tab example:    index_args=list(aggt="dates", start_days="0000-08-01", end_days = "0000-07-31",rs_method="gurgiser") \cr
+
+#'     }
+#'     @keywords internal
+NULL
