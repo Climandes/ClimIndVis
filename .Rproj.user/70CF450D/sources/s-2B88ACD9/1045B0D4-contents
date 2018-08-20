@@ -1,0 +1,126 @@
+##### calc_index
+
+library(ClimIndVis)
+
+###### Autoplot
+#######################
+### autoplot_stations_overview
+#######################
+
+?autoplot_ts_stations
+
+
+(dir <- "//zuehnas200/prod_oslw/os/6/2/0/2/607/Climandes_2/03_Module_1/R-Paket/Moodle-Kurs/")
+setwd("/prod/zue/climate/comm_serv/CLIMANDES_Data/src_C2/Rclimandes_2/imn_code/moodle_climindvis/")
+
+
+dir <- getwd()
+source(paste0(dir, "/Carpeta/Unidad1/help_fun.R"))
+
+path <- paste0(dir, "/Carpeta/Unidad1/estaciones/")
+statlist <-"stations.txt"
+stat_all <-read.table(paste0(path, statlist),sep='\t')
+stat_sur <- stat_all[stat_all[,2]< -12,]
+variables <- c("tmin","tmax","tavg","tp")
+
+climindvis_obs <- get_st_object(path = path, stat_list = stat_sur, variables = variables, ys = 1981, ye = 2010, data_name = "Peru sur")
+
+dat_p <- climindvis_obs
+index <- "rx"
+index_args <- list(aggt= "seasonal", selagg=c("DJF"), rx=5)
+
+# Estos tres argumentos son obligatorios.
+# Además, elegimos el tipo de gráfico y decidimos trazar sólo una estación (con selpoints). En general, el comando tiene el siguiente aspecto:
+autoplot_ts_stations(climindvis_obs, index=index, index_args = index_args,
+                     ts_type = "single_ts", selpoints = c(2))
+
+
+?indices_list
+index <- "dd"
+index_args <- list(aggt= "other", aggmons=c(8,9), dd_threshold=0.1, iformat="days")
+index_args <- list(aggt= "other", aggmons=c(8,9), dd_threshold=1)
+
+# Estos tres argumentos son obligatorios.
+# Además, elegimos el tipo de gráfico y decidimos trazar sólo una estación (con selpoints). En general, el comando tiene el siguiente aspecto:
+
+autoplot_ts_stations(climindvis_obs, index=index, index_args = index_args,
+                     ts_type = "single_ts", selpoints = c(5))
+
+
+
+# En el título del gráfico se ve diversa información sobre las series cronológicas (1er indicador, nombre, lugar, 2º período, 3º valores que faltan de los datos diarios).
+# ¿Cuántos valores faltantes tiene su serie temporal?
+
+# ¿Qué puede hacer si no desea que esta información aparezca en su gráfico?
+
+# También podemos guardar el gráfico directamente en una carpeta. Para ello, debe introducir los argumentos siguientes.
+output <- "png"  # formate de su gráfico. Puede leer en la documentacion cual otros formatos de graficos existen.
+plotdir <- paste0(dir,"/Figures/")
+
+# Estos dos son obligatorios. Además puede elegir un nombre para recordar tu imagen y un titulo, además de los valores prefijados:
+plotname <- "Test01"
+title <- "StationSur"
+index_args <- list(aggt= "other", aggmons=c(8,9), dd_threshold=0.1)
+autoplot_ts_stations(climindvis_obs, index=index, index_args = index_args,
+                     ts_type = "single_ts",output=output, plotdir=plotdir, plotname=plotname, title=title, selpoints = c(5))
+
+
+# Quizas queremos ver no solo una estacion en el gráfico, pero varios. Podemos cambiar selpoints a c(2:5) y cambiar ts_type:
+index_args <- list(aggt= "other", aggmons=c(8,9), dd_threshold=1)
+autoplot_ts_stations(climindvis_obs, index=index, index_args = index_args,
+                     ts_type = "multi_point",output=output, plotdir=plotdir, plotname=plotname, title=title, selpoints = c(15:19))
+
+# Así que ya hemos llegado a conocer el segundo tipo gráfico, "multi_point".
+# Hay quatro tipos de graficos más. "multi_agg", "multi_ind", "multi_dat" y "spi_barplot".
+# Algunos de los argumentos para estos gráficos son ligeramente diferentes. Para esto miramos a ts_type="multi_agg".
+# Con esta función se pueden visualizar diferentes agregaciones en el mismo gráfico.
+
+# insert question here!!!
+
+# La documentación describe cómo especificar index y index_arguments. Léalos cuidadosamente.
+#¿Cuál es la forma correcta de especificar index_args?
+
+
+?indices_list
+######## question
+
+# Perfecto! Ahora hacemos una visualización.
+index <- "fd"
+index_args <- list(list(aggt= "seasonal", selagg=c("DJF","SON")), list(aggt= "other", aggmons=c(9:12)))
+autoplot_ts_stations(climindvis_obs, index=index, index_args = index_args,
+                     ts_type = "multi_agg",output=output, plotdir=plotdir, plotname=plotname, title=title, selpoints = c(15:19))
+
+# Con la selecion de varios estaciones en selpoints recibimos con esta funcion quatro graficos. Para cada estacion un grafico.
+
+# Todavía no ha visto ninguna tendencia en los gráficos.
+# En la documentación puedes leer, que trendplots por defecto es trendplots = FALSE.
+# Tenemos que cambiar esto si queremos presentar tendencias.
+# Usamos la misma función para visualizar la tendencia. Pero cambiamos el argumento trendplots.
+
+index <- "fd"
+index_args <- list(list(aggt= "seasonal", selagg=c("DJF","SON"), iformat="days"), list(aggt= "other", aggmons=c(9:12), iformat="days"))
+plotname <- "Trends"
+autoplot_ts_stations(climindvis_obs, index=index, index_args = index_args, trendplots = TRUE,
+                     ts_type = "multi_agg",output=output, plotdir=plotdir, plotname=plotname, title=title, selpoints = c(15))
+
+
+# Tómese su tiempo para probar las otras dos funciones también.
+# Por ejemplo, intente hacer un gráfico SPI, o, si tiene datos de reanálisis interpolados a estaciones, también puede crear un gráfico con ts_type="multi_dat".
+
+
+### multi-dat
+source(paste0(dir,"/help_fun_nn.R"))
+
+climindvis_nn <- get_nn_object(climindvis_grid=climindvis_grid,lonp=climindvis_obs$lon,latp=climindvis_obs$lat,data_name="PISCO", pnames = climindvis_obs$data_info$pnames)
+index <- "dd"
+index_args <- list(aggt= "seasonal", selagg=c("DJF"))
+autoplot_ts_stations(list(climindvis_obs, climindvis_nn), index=index, index_args = index_args, trendplots = TRUE,
+                     ts_type = "multi_dat",output=output, plotdir=plotdir, plotname=plotname, title=title, selpoints = c(15:17))
+
+
+index <- "spi"
+index_args <- list(aggt= "monthly")
+
+autoplot_ts_stations(climindvis_obs, index=index, index_args = index_args,
+                     ts_type = "spi_barplot",output=output, plotdir=plotdir, selpoints = c(15:17))
+

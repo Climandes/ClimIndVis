@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1534756934848.000,
+    "dirty" : false,
+    "encoding" : "ISO8859-1",
+    "folds" : "",
+    "hash" : "3141455012",
+    "id" : "7D244667",
+    "lastKnownWriteTime" : 1534769436,
+    "last_content_update" : 1534769436839,
+    "path" : "/prod/zue/climate/comm_serv/CLIMANDES_Data/src_C2/Rclimandes_2/imn_code/climandes-2/experiments/imn/read_obs+pisco_data.R",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "27,0",
+        "scrollLine" : "20"
+    },
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

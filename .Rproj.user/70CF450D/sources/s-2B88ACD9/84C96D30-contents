@@ -1,0 +1,20 @@
+### autoplottrendmap tests
+
+
+# source read_grid_data and station_data
+sig_val <- 0.8
+
+plotdir <-  "/prod/zue/climate/comm_serv/CLIMANDES_Data/src_C2/Rclimandes_2/figures/ClimIndVis/tests/"
+output <- "png"
+
+# data
+?autoplot_trend_map
+
+autoplot_trend_map(dat_grid=climindvis_grid,index="sdii",index_args=
+                     list(aggt="other", aggmons=c(1:2)),sig_lev=sig_val, plot_args = list(topo= topo.list))
+
+
+
+autoplot_climatology_map(dat_grid=climindvis_grid,index="rainy_season_start",index_args=
+                     list(aggt="dates", start_days="0000-07-01",end_days="0000-12-31",rs_method="gurgiser", plot_args = list(topo= topo.list)))
+?indices_list

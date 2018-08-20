@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "#shortcut function for str_pad(x,2,pad=\"0\")\npad2<- function(x){\n  stringr::str_pad(x,2,pad=\"0\")\n}\n\n\n#make array of months from start month to end month, e.g. 11:2 -> c(11,12,1,2)\nmonlist <- function(start_mon,end_mon){\n  help=c(1:12,1:12)\n  a<-which(help==start_mon)[1]\n  b<-which(help == end_mon)\n  x<-help[a:b[which(b>a)[1]]]\n  return(x)\n}\n\n#make array of months from start month to start month+ nmon, e.g. 11,3 -> c(11,12,1,2)\nmonlist2 <- function(start_mon,nmon){\n  help=c(1:12,1:12)\n  a<-which(help==start_mon)[1]\n  b<-a+nmon\n  x<-help[a:b]\n  return(x)\n}\n\n#function to get first day of months from start month and number of months (for plotting ticks)\nmonlength2<- function(smon,nmon,msum=FALSE){\n  help<-c(1:12,1:12)\n  x<-help[smon:(smon+nmon-1)]\n  ml<-c(31,28,31,30,31,30,31,31,30,31,30,31)\n  if (msum==TRUE){\n    help2<-c(1,ml[x])\n    names(help2)<-month.abb[help[smon:(smon+nmon)]]\n    return (cumsum(help2))\n  } else return(ml[x])\n\n}\n\n#function to get lenght of months in array x\nmonlength<- function(x,msum=FALSE){\n  ml<-c(31,28,31,30,31,30,31,31,30,31,30,31)\n  names(ml)=month.abb[1:12]\n  if (msum==TRUE){\n    return (cumsum(ml[x]))\n  } else return(ml[x])\n\n}\n\n#maximum number of consecutive same days\n#nas are removed\nmax_consec<-function(d) {\n  r<-max((d) * unlist(lapply(rle(d)$lengths, seq_len)),na.rm=TRUE)\n  return(r)\n}\n\n\n#from https://stackoverflow.com/questions/14500707/select-along-one-of-n-dimensions-in-array\nindex_array <- function(x, dim, value, drop = FALSE) {\n indices <- rep(list(bquote()), length(dim(x)))\n  if (length(dim)>1){\n    if(!is.list(value)) stop(\"for multiple dimensions, value has to be of type list\")\n    if(length(dim)!=length(value)) stop(\"length of <<dim>> and <<value>> do not match\")\n    for (dd in 1:length(dim)){\n      indices[[dim[dd]]]<-value[[dd]]\n    }\n  } else indices[[dim]] <- unlist(value)\n\n   call <- as.call(c(\n    list(as.name(\"[\"), quote(x)),\n    indices,\n    list(drop = drop)))\n  eval(call)\n}\n\n\n\n## adaption von tapply.fast für aggregierete quantil berechnung\nmapply_fast <- function (X,Y, INDEX, FUN = NULL,z ,  simplify = TRUE)\n{\n  FUN <- if (!is.null(FUN))\n    match.fun(FUN)\n  if (!is.factor(INDEX))\n    stop(\"INDEX must be a factor.\")\n  if (length(INDEX) != length(X))\n    stop(\"arguments must have same length\")\n  if (is.null(FUN))\n    return(INDEX)\n  namelist <- levels(INDEX)\n  ans <- mapply(FUN,split(X, INDEX),split(Y, INDEX), z)\n  ans <- unlist(ans, recursive = FALSE)\n  names(ans) <- levels(INDEX)\n  return(ans)\n}\n\n",
+    "created" : 1516700217527.000,
+    "dirty" : false,
+    "encoding" : "ISO8859-1",
+    "folds" : "",
+    "hash" : "1797436162",
+    "id" : "9D9010AE",
+    "lastKnownWriteTime" : 1516612946,
+    "last_content_update" : 1516612946,
+    "path" : "/prod/zue/climate/comm_serv/CLIMANDES_Data/src_C2/Rclimandes_2/imn_code/climandes-2/src/ClimIndVis/R/help_functions.R",
+    "project_path" : "R/help_functions.R",
+    "properties" : {
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

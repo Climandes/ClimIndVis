@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1534768573393.000,
+    "dirty" : false,
+    "encoding" : "ISO8859-1",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "BF752F31",
+    "lastKnownWriteTime" : 1533022025,
+    "last_content_update" : 1533022025,
+    "path" : "/prod/zue/climate/comm_serv/CLIMANDES_Data/src_C2/Rclimandes_2/imn_code/climandes-2/src/ClimIndVis/R/help_functions.R",
+    "project_path" : "R/help_functions.R",
+    "properties" : {
+        "cursorPosition" : "146,1",
+        "scrollLine" : "138"
+    },
+    "relative_order" : 5,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

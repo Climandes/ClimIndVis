@@ -1,0 +1,149 @@
+### autoplot test script
+
+library(ClimIndVis)
+
+hc_example <- TRUE
+p_orig<- FALSE
+source("/prod/zue/climate/comm_serv/CLIMANDES_Data/src_C2/Rclimandes_2/imn_code/climandes-2/experiments/imn/read_obs+pisco_data.R")
+plotdir <- "/prod/zue/climate/comm_serv/CLIMANDES_Data/src_C2/Rclimandes_2/figures/ClimIndVis/tests/autoplot_ts_stations/"
+
+
+# Check errors in input data------
+autoplot_ts_stations(climandes_obs_test,list("txn", "txx","tnx"), index_args=list(aggt="annual"), ts_type = "single_ts", trendplots = TRUE,
+                     output = "png", plotdir = plotdir, plotname = Sys.Date())
+autoplot_ts_stations(list(climandes_obs, climandes_hc),list("txn", "txx","tnx"), index_args=list(aggt="annual"), trendplots = TRUE,
+                     output = "png", plotdir = plotdir, plotname = Sys.Date(), ts_type = "single_ts")
+autoplot_ts_stations(climandes_obs,list("txn", "txx","tnx"), aggt=list(aggt="annual"), trendplots = TRUE,
+                     output = "png", plotdir=plotdir,plotname = Sys.Date(), ts_type = "single_ts")
+
+# single check!------
+spi <- calc_index(climandes_obs_test, "spi", aggt="annual")
+calc_index(climandes_obs, "dd", aggt="seasonal")
+autoplot_ts_stations(climandes_obs_test,"spi", index_args=list(aggt="monthly"), trendplots = TRUE,
+                     type = "single_ts")
+
+autoplot_ts_stations(climandes_obs_test, "sdii", index_args=list(aggt="other", aggmons=c(2)),
+                     output = "png", plotdir = plotdir, plotname = paste0(Sys.Date(),"new"), ts_type = "single_ts",
+                     pcols = "royalblue", trendplots = TRUE)
+autoplot_ts_stations(climandes_obs_test, "prcptot", index_args=list(aggt="monthly"),
+                     output = "png", plotdir = plotdir, plotname = paste0(Sys.Date(),"check"),
+                     ts_type = "single_ts", pcols = "royalblue", trendplots = TRUE, ylims="ind")
+
+
+autoplot_ts_stations(climandes_obs_test, index="fd", index_args=list(aggt="seasonal",trend=TRUE),
+                     output = "png", plotdir = plotdir, plotname = Sys.Date(), type = "single_ts", pcols = "royalblue", trendplots=TRUE)
+autoplot_ts_stations(climandes_obs_test, "tnx", index_args=list(aggt="annual", trend="MannKendall"), trendplots = TRUE,
+                     output = "png", plotdir = plotdir, plotname = Sys.Date(), type = "single_ts")
+autoplot_ts_stations(climandes_obs, "tnn", index_args=list(aggt="annual"), trendplots = TRUE,
+                     output = "png", plotdir = plotdir, plotname = Sys.Date(), ts_type = "single_ts", ylims ="ind")
+autoplot_ts_stations(climandes_obs, "tnn", index_args=list(aggt="other",aggmons=c(1:4),trend=TRUE), trendplots = TRUE,selpoints=c(1:3),
+                     output = "png", plotdir = plotdir, plotname = Sys.Date(), ts_type = "single_ts", ylims ="ind")
+autoplot_ts_stations(climandes_obs, "tnn", index_args=list(aggt="other",aggmons=c(1:4),trend=TRUE), trendplots = TRUE,selpoints=c(1:3),
+                     output = "png", plotdir = plotdir, plotname = Sys.Date(), ts_type = "single_ts", ylims ="ind")
+
+# multi_ind check!------
+autoplot_ts_stations(climandes_obs, c("txx","tnx"), index_args=list(list(aggt="other",aggmons=c(1:3),trend=TRUE),
+                                                                                list(aggt="other",aggmons=c(1:3),trend=TRUE)), trendplots = TRUE,
+                     output = "png", plotdir = plotdir, plotname = Sys.Date(), ts_type = "multi_ind",selpoints=c(10:11))
+
+autoplot_ts_stations(climandes_obs_test, c("txn", "txx","tnx"), index_args=list(list(aggt="seasonal"),
+                                                                                list(aggt="seasonal"),
+                                                                                list(aggt="seasonal")), trendplots = TRUE,
+                     output = "png", plotdir = plotdir, plotname = Sys.Date(), ts_type = "multi_ind", pcols = c("royalblue","darkblue","lightblue"))
+
+# multi_ind 2 axis check!
+autoplot_ts_stations(climandes_obs, c("dd","tnx"), index_args=list(list(aggt="annual"),list(aggt="annual")), trendplots = TRUE,ts_type = "multi_ind", selpoints=c(1:10))
+autoplot_ts_stations(climandes_obs_test, c("dd", "txx","tnx"), index_args=list(list(aggt="seasonal"), list(aggt="seasonal"),list(aggt="seasonal")), trendplots = TRUE,
+                     ts_type = "multi_ind", text_cex=0.8)
+
+autoplot_ts_stations(climandes_obs_test, c("dd", "txx","tnx"), index_args=list(list(aggt="seasonal"), list(aggt="seasonal"),list(aggt="seasonal")), trendplots = TRUE,
+                     ts_type = "multi_ind", text_cex=0.8)
+
+
+# multi agg check!-------
+# multi agg title zu richtiger aggregation ändern-----
+autoplot_ts_stations(climandes_obs_test, index = "txn", index_args=list(list(aggt="monthly"), list(aggt="annual")),
+                     trendplots = TRUE, ts_type = "multi_agg")
+
+autoplot_ts_stations(climandes_obs_test, index = "txn", index_args=list(list(aggt="seasonal",selagg=c("DJF","MAM")), list(aggt="annual")),
+                     trendplots = TRUE,   ts_type = "multi_agg")
+
+autoplot_ts_stations(climandes_obs_test, index = "txn", index_args=list(list(aggt="annual"), list(aggt="seasonal",selagg=c("DJF","SON"))), trendplots = TRUE,
+                      ts_type = "multi_agg")
+autoplot_ts_stations(climandes_obs_test, index = "txn", index_args=list(list(aggt="annual"), list(aggt="monthly", selagg=c("5","6","8"))), trendplots = TRUE,
+                     output = "png", plotdir = plotdir, plotname = Sys.Date(), ts_type = "multi_agg")
+autoplot_ts_stations(climandes_obs_test, index = list("txn"), index_args=list(list(aggt="seasonal",selagg=c("MAM","JJA")), list(aggt="monthly", selagg=c("1","2","3"))), trendplots = FALSE,
+                     output = "png", plotdir = plotdir, plotname = "tests", ts_type = "multi_agg")
+autoplot_ts_stations(climandes_obs_test, index = "txn", index_args=list(list(aggt="seasonal"), list(aggt="monthly")), trendplots = FALSE,
+                     output = "png", plotdir = plotdir, plotname = "tests", ts_type = "multi_agg")
+
+autoplot_ts_stations(climandes_obs_test, index = "txn", index_args=list(list(aggt="seasonal"), list(aggt="other", aggmons=c(1:5))), trendplots = FALSE,
+                     output = "png", plotdir = plotdir, plotname = "", ts_type = "multi_agg")
+
+
+autoplot_ts_stations(climandes_obs_test, index = "txn", index_args=list(list(aggt="seasonal",selagg=c("DJF")), list(aggt="annual")),
+                     trendplots = TRUE,  output = "png", plotdir = plotdir, plotname = Sys.Date(), ts_type = "multi_agg")
+
+autoplot_ts_stations(climandes_obs_test, index = "txn", index_args=list(list(aggt="seasonal",selagg=c("DJF")), list(aggt="annual")),
+                     trendplots = TRUE,  output = "png", plotdir = plotdir, plotname = Sys.Date(), type = "multi_agg")
+
+
+# multi_point check!------
+#check errors
+autoplot_ts_stations(climandes_obs, "dd", index_args=list(list(aggt="annual"),list(aggt="seasonal")), trendplots = TRUE,selpoints=c("CHIVAY","LAMPA"), output = "png",
+                     plotdir = plotdir, plotname = Sys.Date(),
+                     type = "multi_point")
+autoplot_ts_stations(climandes_obs, c("dd","tnn"), index_args=list(aggt="annual"), trendplots = TRUE,selpoints=c("CHIVAY","LAMPA"), output = "png",
+                     plotdir = plotdir, plotname = Sys.Date(),
+                     type = "multi_point")
+autoplot_ts_stations(list(climandes_obs,climandes_hc), c("dd"), index_args=list(aggt="annual"), trendplots = TRUE,selpoints=c("CHIVAY","LAMPA"), output = "png",
+                     plotdir = plotdir, plotname = Sys.Date(),
+                     type = "multi_point")
+
+autoplot_ts_stations(climandes_obs, "dd", index_args=list(aggt="other", aggmons=c(1:2)), trendplots = TRUE,selpoints=c("CHIVAY","LAMPA"), output = "png",
+                     plotdir = plotdir, plotname = Sys.Date(),plot_title = FALSE,
+                     ts_type = "multi_point", ylims = c(0,100))
+
+
+# multi_dat check!------
+autoplot_ts_stations(list(climandes_obs, climandes_hc), index = "fd", index_args=list(aggt="seasonal"),
+                     trendplots = FALSE, output = "png", plotdir = plotdir, plotname = Sys.Date(),ts_type = "multi_dat")
+
+autoplot_ts_stations(list(climandes_obs, climandes_hc), index = "txn", index_args=list(aggt="other", aggmons=c(1:2)),
+                     trendplots = FALSE,  output = "png", plotdir = plotdir, plotname = Sys.Date(), ts_type = "multi_dat")
+
+autoplot_ts_stations(list(climandes_obs, climandes_hc), index = "txn", index_args=list(aggt="other", aggmons=c(12)),
+                     trendplots = FALSE,  output = "png", plotdir = plotdir, plotname = Sys.Date(), ts_type = "multi_dat")
+
+autoplot_ts_stations(list(climandes_obs, climandes_hc), index = c("txn"), index_args=list(aggt="dates", start_days="0000-01-01", end_days="0000-01-15"),
+                     trendplots = TRUE,  output = "png", plotdir = plotdir, plotname = Sys.Date(), ts_type = "multi_dat")
+
+autoplot_ts_stations(list(climandes_obs, climandes_hc), index = c("txn"), index_args=list(aggt="seasonal"),
+                     trendplots = FALSE,  output = "png", plotdir = plotdir, plotname = Sys.Date(), ts_type = "multi_dat", ylims = c(0,30))
+#multi_dat errors!
+autoplot_ts_stations(list(climandes_obs, climandes_hc), index = c("txn","tnn"), index_args=list(aggt="annual"),
+                     trendplots = FALSE,  output = "png", plotdir = plotdir, plotname = Sys.Date(), ts_type = "multi_dat")
+autoplot_ts_stations(list(climandes_obs, climandes_hc), index = "tnn", index_args=list(list(aggt="annual"),list(aggt="annual")),
+                     trendplots = FALSE,  output = "png", plotdir = plotdir, plotname = Sys.Date(), ts_type = "multi_dat")
+
+
+
+# spi check!------
+autoplot_ts_stations(climandes_obs_test, index = "spi", index_args=list(aggt="monthly"), plot_title = TRUE,
+                      type = "spi_barplot")
+autoplot_ts_stations(climandes_obs_test, "spi", index_args=list(aggt="monthly"),
+                     output = "png", plotdir = plotdir, plotname = Sys.Date(), type = "single_ts")
+autoplot_ts_stations(list(climandes_obs,climandes_hc), "spi", index_args=list(aggt="monthly"),
+                     output = "png", plotdir = plotdir, plotname = Sys.Date(), type = "multi_dat")
+
+# spi_forecast
+autoplot_spiforecast(climandes_obs_test, index = list("spi_forecast"), index_args=list(list(aggt="monthly")), trendplots = TRUE,
+                     output = "png", plotdir = plotdir, plotname = Sys.Date())
+
+# name checks-----
+autoplot_ts_stations(dat_p=climandes_obs,index="tnn",index_args=
+                       list(list(aggt=agg,aggmons=c(1:4))),abs=FALSE, output="png",plotdir=plotdir,plotname=paste0("hoy",Sys.Date()), type="multi_point",selpoints = c("PUNO", "IMATA"))
+autoplot_ts_stations(dat_p=climandes_obs,index=list("tnn","tnx"),index_args=
+                       list(list(aggt=agg,aggmons=c(1:4)), list(aggt=agg,aggmons=c(1:4))),abs=FALSE, output="png",plotdir=plotdir,plotname=paste0("hoy",Sys.Date()), type="multi_ind")
+
+
