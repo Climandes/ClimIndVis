@@ -1,6 +1,6 @@
 #shortcut function for str_pad(x,2,pad="0")
-pad2<- function(x){
-  stringr::str_pad(x,2,pad="0")
+pad2<- function(x, width=2){
+  stringr::str_pad(x,width,pad="0")
 }
 
 #make array of months from start month to end month, e.g. 11:2 -> c(11,12,1,2)

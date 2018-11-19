@@ -6,8 +6,10 @@
 #'
 #' @inheritParams plot_doc
 #' @param col Plot colors for colorscale of index. If not provided, package default colors for skill metric are used.
+#'@param sep_folder Logical. Should output for different verification metrics be saved in different folders (TRUE) or all in one folder(FALSE). Default=TRUE
 #' @section Output:
-#' This function returns one plot per verification metric (and category in the case of the ROCSS and year in the case of e.g. the RPS) and all temporal aggregations which are covered by the hindcasts  e.g. if aggt="seasonal" and the forecast is issued in Jan for 7 months it would return one graphic for "MAM"). The function creates folders for each verification metric in the output directory.
+#' This function returns one plot per verification metric (and category in the case of the ROCSS and year in the case of e.g. the RPS) and all temporal aggregations which are covered by the hindcasts  e.g. if aggt="seasonal" and the forecast is issued in Jan for 7 months it would return one graphic for "MAM"). The function creates folders for each verification metric in the output directory if sep_folder=TRUE.
+#' Gridpoints/stations where the index values are NA or where there is no variability on the climatology and the boundaries of the forecast categories are equal are colored in grey. This color can be changed by changing the argument NA_col in the argument plot_args.
 #'
 #' If output is not NULL or "dev.new" the graphics are directly saved in the user specified directory (\emph{plotdir}) with the following filename structure: \cr
 #'
@@ -41,14 +43,14 @@ autoplot_verification_map <-function(
   index, index_args = list(), selyears = NULL,
   veri_metrics, veri_args = list(),
   col = "default", ncat=3,
-  output = NULL, plotdir, plot_title = TRUE, plotname = "", title = "", plot_args = list()) {
+  output = NULL, plotdir, plot_title = TRUE, plotname = "", sep_folder=TRUE,title = "", plot_args = list()) {
 
 
   # 1. check if point or grid --------------------------------------------------
   grid <- ifelse(missing(obs_grid) | missing (hc_grid),0,1)
   points <- ifelse (missing(obs_p) | missing (hc_p),0,1)
   if(grid==0 & points==0) stop("either grid or point data have to be provided as input")
-
+  if (index_args$aggt=="xdays") stop("aggt=xdays is not implemented for forecasts")
 
   #2. check input--------------------------------------------------
   check_dir(plotdir,output)
@@ -95,7 +97,7 @@ autoplot_verification_map <-function(
 
   #   4. Plotten --------------------------------------------------
 
-  #1 Plot pro Metrik + Aggregation -> dimnames evtl in Verifikationfunktion dazufuegen
+
 
   zlims_in=plot_args$zlims
   pzlims_in=plot_args$p_zlims
@@ -113,10 +115,20 @@ autoplot_verification_map <-function(
     if(grid==1 & all(is.null(zlims_in))& !all(is.na(zlims))) plot_args$zlims=zlims
     if(grid==0 & all(is.null(pzlims_in))& !all(is.na(zlims))) plot_args$p_zlims=zlims
 
-    if(col=="default"){
-      vcol=switch(any(is.na(zlims))+1,gplots::bluered(10),gplots::greenred(10))
+
+    nlev=unlist(plot_args[c("g_nlev","p_nlev")])[1]
+    if (is.null(nlev)){
+      plot_args[c("g_nlev","p_nlev")]<-c(list(10),list(10))
+      nlev=10
+    } else plot_args[c("g_nlev","p_nlev")]<-c(list(nlev),list(nlev))
+
+
+    if(is.null(plot_args$NA_col)) plot_args$NA_col="grey"
+
+    if(col[1]=="default"){
+      vcol=switch(any(is.na(zlims))+1,gplots::bluered(nlev),gplots::greenred(nlev))
     } else vcol=col
-    vcol[which(vcol=="#FFFFFF")]="#BFBFBF"
+    #vcol[which(vcol=="#FFFFFF")]="#BFBFBF"
 
 
     aggl<-ifelse(is.element("agg",ind_dat[[1]]$index_info$idims),TRUE,FALSE)
@@ -127,7 +139,12 @@ autoplot_verification_map <-function(
           cname=switch((nout>1)+1,NULL,paste0("cat",cc))
           pskill=get_skill_data(veri_dat,vv,aa,tt,cc,aggl,nout,tdims)
 
-          pnames=get_plot_title(titlestring=title,show_title=plot_title,autoplot="verification_map",aa=aa,vv=vv,cname=cname,tname=tname)
+          if (grid==1){
+            plot_args$mask_NA <- array(NA,dim=dim(pskill$grid))
+            plot_args$mask_NA[is.na(pskill$grid)] <- 1
+          }
+
+          pnames=get_plot_title(titlestring=title,show_title=plot_title,autoplot="verification_map",aa=aa,vv=vv,cname=cname,tname=tname,sep_folder=sep_folder)
           plot_args[c("output","outfile","plot_title")]<-list(output,pnames$f,pnames$t)
           # verallgemeinern!!!
           if (grid==1 & points==1 ){

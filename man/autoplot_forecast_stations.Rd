@@ -113,7 +113,9 @@ autoplot_forecast_stations(
 
 }
 \seealso{
-Other autoplot_functions: \code{\link{autoplot_climatology_map}},
+Other autoplot_functions: \code{\link{autoplot_anomaly_map}},
+  \code{\link{autoplot_anomaly_ts}},
+  \code{\link{autoplot_climatology_map}},
   \code{\link{autoplot_forecast_map}},
   \code{\link{autoplot_forecast_spi}},
   \code{\link{autoplot_overview_stations}},

@@ -73,6 +73,7 @@ autoplot_forecast_stations<-function(
     if (verify & missing(obs_p)) stop("if <<verify>>=TRUE obs_p is needed for verification")
     if (!is.null(skillmin) & !verify) warning("if <<verify>> =FALSE, skillmin is ignored and skill won't be plottet")
     if (plot_climatology & missing(obs_p)) stop("observations <<obs_p>> need to be provided for climatology")
+    if (index_args$aggt=="xdays") stop("aggt=xdays is not implemented for forecasts")
   }, error=function(cond){
     message("error(s) in input data:")
     message(cond)

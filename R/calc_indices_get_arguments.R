@@ -56,7 +56,7 @@ NULL
 NULL
 
 #'trend
-#'@param trend Logial (or character). Calculates trends with a predefined method for the chosen index. For information on default method, see  \code{\link{trend_methods}}. You can chose to calculate a non-parameteric trend, by setting trend to a character string "MannKendall". This calculates a TheilSen slope and MannKendall test. Default = TRUE.
+#'@param trend Logial (or character). Calculates trends with a predefined method for the chosen index. For information on default method, see  \code{\link{trend_methods}}. You can chose to calculate a non-parameteric trend, by setting trend to a character string "MannKendall". This calculates a TheilSen slope and MannKendall test. Default = FALSE.
 #'@param NAmaxTrend Maximum number of years in time series of index which are missing values. Value between 0 (=0\%); no years with missing values allowed) and 100 (=100\%); all years can be missing values). If exceeded, the trend is set to NA for the respective grid point/station. Note that the value is relative to the length of the time series. Default = 20 (20\%).
 #'@name trend_doc
 #'@keywords internal
@@ -67,8 +67,18 @@ NULL
 #'@param q Vector of quantiles, default to seq(0,1,by=0.01)
 #'@param th_object Climindvis_index object, default=NULL. if calculating a quantile index for forecast data, a climindvis_index object of hindcasts data for the same spatial dimensions and forecast months has to be provided. Threshold values will then be taken from the hindcast object (object$index_info$quantiles). In this case all other arguments (q, baseperiod, threhold,..) are ignored and taken from the climindvis_index object. In case of autoplot functions, these values are handed over automatically and th_object should be left at default value of NULL..
 #'@param q_threshold Percentile threshold (numerical). Value between 0 and 100.
-#'@param NAmaxbasep Maximum number of NA values in aggregation period for all years (as defined by baseperiod). If exceeded, quantile value will be set to NA. Default = 20
+#'@param n Window size (in days) for running window in temperature quantile calculation. Default =5. See details for further information.
+#'@param inbase For temperature quantiles, calculate quantiles inside baseperiod and outside baseperiod follwoing the boostrapping method of Zhang 2005. Only applicable, when baseperiod is selected. Default = TRUE. For hindcast data, inbase is set to FALSE because boostrapping of ensemble and years is computational intensive.
+#'@param NAmaxQ Minimim number of days needed for calculation of quantiles. Default = 365 [days]. For monthly aggregation of precipitation, consider lowering the threshold or expanding the baseperiod.
+#'@param min_base_fraction Minimum fraction of base data that must be present for quantile to be calculated for a particular day (only applies to temperature quantiles). Default = 0.1.
 #'@param qens_all=TRUE logical. Should quantiles of ensembles be calculated over all ensemble members (TRUE) or for each member individually (FALSE)? Default = TRUE
+#'@section Details:
+#'Quantiles are calculated identically to the calculations performed in the R-package climdex.pcic. For precipitation, quantiles are calculated with the function quantile(..., type = 8) from R stats using all values inside the selceted aggregation.\cr
+#'For temperature, quantiles are calculated for every day of the year independently based on a moving window with default 5 days. Following the suggestiosn of Zhang (2005) it is possible to calculate a bootstrapping for quantile thresholds within the baseperiod by setting inbase=TRUE. If inbase is set to FALSE, the same thresholds are used inside and outside the reference period.\cr
+#'For ensemble data (hindcasts), it is not possible to calculate the boostrapping inside the reference period. Consider therefore using the full period as reference period.
+#'Please note, that the quantile calculation of ensembles stil may be subject to errors. In case you note inconsistencies, please report these to the package authors.
+#'For a detailed description of this method, see:
+#'Zhang, X, Hegerl, G, Zwiers, F.W and Kenyon, J. (2005). Avoiding inhomogeneity in percentile-base indices of temperature extremes. Journal of Climate, 18.
 #'@name quantile_doc
 #'@keywords internal
 NULL
@@ -117,7 +127,7 @@ index_arguments.mean<-function(climindvis,var,NAmaxAgg=20,trend=FALSE,NAmaxTrend
   return(list(ifun="aggregate_var",var=var,ifunargs=list(aggfun="mean",NAmaxAgg=NAmaxAgg),
 
     trend=trend,trendargs=list(method="lin_reg", count=FALSE, log_trans=ifelse(var=="prec",TRUE,FALSE),NAmaxTrend=NAmaxTrend, rel = check_trend(var)),
-    plotargs=list(iname=paste0("mean ",var),iformat=ifelse(var=="prec","mm","degreeC"))))
+    plotargs=list(iname=paste0("mean",ifelse(var=="prec"," daily "," "),var),iformat=ifelse(var=="prec","mm","degreeC"))))
 }
 
 #'arguments for calculating sum
@@ -389,7 +399,7 @@ index_arguments.prcptot<-function(climindvis,NAmaxAgg=20,trend=FALSE,NAmaxTrend=
 #'@keywords internal
 index_arguments.cdd<-function(climindvis,NAmaxAgg=20,trend=FALSE,NAmaxTrend=20,dd_threshold=1,spells_span_agg=FALSE,...){
   check_var(climindvis,"prec")
-  return(list(ifun="spell_length_max",var="prec",ifunargs=list(threshold=dd_threshold,op="<=",NAmaxAgg=NAmaxAgg, spells_span_agg=spells_span_agg),
+  return(list(ifun="spell_length_max",var="prec",ifunargs=list(threshold=dd_threshold,op="<",NAmaxAgg=NAmaxAgg, spells_span_agg=spells_span_agg),
     trend=trend,trendargs=list(method="logit_reg",count=TRUE,  log_trans=FALSE,NAmaxTrend=NAmaxTrend, rel= TRUE),
     plotargs=list(iname="CDD",iformat= "dayscount")))
 }
@@ -515,7 +525,8 @@ check_qth_args<-function(indexname,th=FALSE){
 #' ind_hc<-calc_index(object_hc_st,index="qth",aggt="monthly",thvar="tmin",q_threshold=5,operator=">=")
 #' ind_fc<-calc_index(object_fc_st,index="qth",aggt="monthly",th_object=ind_hc,thvar="tmin",q_threshold=5,operator=">=")
 #'@keywords internal
-index_arguments.qth<-function(climindvis,thvar, NAmaxAgg=20,trend=FALSE ,NAmaxTrend=20,iformat="perc", baseperiod, q_threshold,operator,th_object=NULL,NAmaxbasep=20,qens_all=TRUE,...){
+index_arguments.qth<-function(climindvis,thvar, NAmaxAgg=20,trend=FALSE ,NAmaxTrend=20,iformat="perc", baseperiod, q_threshold,n=5,inbase = TRUE,
+                              min_base_fraction=0.1,operator,th_object=NULL,NAmaxQ=365,qens_all=TRUE,...){
   if(missing(climindvis) || missing(thvar) ||missing(q_threshold)|| missing(operator)) stop("Not all mandatory arguments provided for calculation of index.")
   check_var(climindvis,thvar)
   if (!is.null(th_object)){
@@ -525,12 +536,16 @@ index_arguments.qth<-function(climindvis,thvar, NAmaxAgg=20,trend=FALSE ,NAmaxTr
     if (missing(baseperiod)) {
       baseperiod = c(as.numeric(substr(range(climindvis$time),1,4)))
       message("Baseperiod is missing. Full period used as baseperiod") }
+    else {
+      check_bp(climindvis,baseperiod)
+      }
   }
   if(q_threshold<0 || q_threshold >100) stop("q_threshold value has to be between 0 and 100")
+  if(thvar=="prec") {inbase <- FALSE}
 
   return(list(ifun="ndays_op_threshold",var=thvar,
     ifunargs=list(op=operator,iformat=iformat,NAmaxAgg=NAmaxAgg),
-    qargs=list(qth=q_threshold/100,baseperiod = baseperiod, th_quantiles=th_object$index_info$th_quantiles,NAmaxbasep=NAmaxbasep,qens_all=qens_all),
+    qargs=list(qth=q_threshold/100,n=n,inbase=inbase,min_base_fraction=min_base_fraction,baseperiod = baseperiod, th_quantiles=th_object$index_info$th_quantiles,NAmaxQ=NAmaxQ,qens_all=qens_all),
     trend=trend,trendargs=list(method="logit_reg",count=FALSE,  log_trans=TRUE,NAmaxTrend=NAmaxTrend, rel= TRUE),
     plotargs=list(iname=paste0(thvar,operator,q_threshold,"th percentile"))))
 }
@@ -550,7 +565,7 @@ index_arguments.qth<-function(climindvis,thvar, NAmaxAgg=20,trend=FALSE ,NAmaxTr
 #' ind_hc<-calc_index(object_hc_st,index="tn10p",aggt="monthly")
 #' ind_fc<-calc_index(object_fc_st,index="tn10p",aggt="monthly",th_object=ind_hc)
 #'@keywords internal
-index_arguments.tn10p<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=20, iformat="perc", baseperiod,th_object=NULL,NAmaxbasep=20,qens_all=TRUE,...){
+index_arguments.tn10p<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=20, iformat="perc",n=5 ,baseperiod,inbase = TRUE, min_base_fraction=0.1,th_object=NULL,NAmaxQ=365,qens_all=TRUE,...){
   if(missing(climindvis)) stop("climindvis object has to be provided for calculation of index")
   check_var(climindvis,"tmin")
   if (!is.null(th_object)){
@@ -560,10 +575,11 @@ index_arguments.tn10p<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=2
     if (missing(baseperiod)) {
       baseperiod = c(as.numeric(substr(range(climindvis$time),1,4)))
       message("Baseperiod is missing. Full period used as baseperiod") }
+    else {check_bp(climindvis,baseperiod)}
   }
     return(list(ifun="ndays_op_threshold",var="tmin",
     ifunargs=list(op="<",iformat=iformat,NAmaxAgg=NAmaxAgg),
-    qargs=list(qth=(10/100),baseperiod = baseperiod, th_quantiles=th_object$index_info$th_quantiles,NAmaxbasep=NAmaxbasep,qens_all=qens_all),
+    qargs=list(qth=(10/100),n=n,baseperiod = baseperiod, inbase=inbase, min_base_fraction = min_base_fraction,th_quantiles=th_object$index_info$th_quantiles,NAmaxQ=NAmaxQ,qens_all=qens_all),
     trend=trend,trendargs=list(method="logit_reg",count=FALSE,  log_trans=TRUE,NAmaxTrend=NAmaxTrend, rel= TRUE),
     plotargs=list(iname="TN10p")))
 }
@@ -583,7 +599,7 @@ index_arguments.tn10p<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=2
 #' ind_hc<-calc_index(object_hc_st,index="tx90p",aggt="monthly")
 #' ind_fc<-calc_index(object_fc_st,index="tx90p",aggt="monthly",th_object=ind_hc)
 #'@keywords internal
-index_arguments.tn90p<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=20,iformat="perc", baseperiod, th_object=NULL,NAmaxbasep=20,qens_all=TRUE,...){
+index_arguments.tn90p<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=20,iformat="perc",n=5, baseperiod,inbase = TRUE, min_base_fraction=0.1, th_object=NULL,NAmaxQ=365,qens_all=TRUE,...){
   if(missing(climindvis)) stop("climindvis object has to be provided for calculation of index")
   check_var(climindvis,"tmin")
   if (!is.null(th_object)){
@@ -593,11 +609,12 @@ index_arguments.tn90p<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=2
     if (missing(baseperiod)) {
       baseperiod = c(as.numeric(substr(range(climindvis$time),1,4)))
       message("Baseperiod is missing. Full period used as baseperiod") }
+    else {check_bp(climindvis,baseperiod)}
   }
 
   return(list(ifun="ndays_op_threshold",var="tmin",
     ifunargs=list(op=">",iformat=iformat,NAmaxAgg=NAmaxAgg),
-    qargs=list(qth=(90/100),baseperiod = baseperiod, th_quantiles=th_object$index_info$th_quantiles,NAmaxbasep=NAmaxbasep,qens_all=qens_all),
+    qargs=list(qth=(90/100),n=n,baseperiod = baseperiod, inbase=inbase, min_base_fraction = min_base_fraction,th_quantiles=th_object$index_info$th_quantiles,NAmaxQ=NAmaxQ,qens_all=qens_all),
     trend=trend,trendargs=list(method="logit_reg",count=FALSE,  log_trans=TRUE,NAmaxTrend=NAmaxTrend, rel= TRUE),
     plotargs=list(iname="TN90p")))
 }
@@ -617,7 +634,7 @@ index_arguments.tn90p<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=2
 #' ind_hc<-calc_index(object_hc_st,index="tx10p",aggt="monthly")
 #' ind_fc<-calc_index(object_fc_st,index="tx10p",aggt="monthly",th_object=ind_hc)
 #'@keywords internal
-index_arguments.tx10p<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=20,iformat="perc", baseperiod,th_object=NULL,NAmaxbasep=20,qens_all=TRUE,...){
+index_arguments.tx10p<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=20,iformat="perc",n=5, baseperiod,inbase = TRUE, min_base_fraction=0.1, th_object=NULL,NAmaxQ=365,qens_all=TRUE,...){
   check_var(climindvis,"tmax")
   if (!is.null(th_object)){
     check_qth_args(indexname="tx10p",th=FALSE)
@@ -626,11 +643,12 @@ index_arguments.tx10p<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=2
     if (missing(baseperiod)) {
       baseperiod = c(as.numeric(substr(range(climindvis$time),1,4)))
       message("Baseperiod is missing. Full period used as baseperiod") }
+    else {check_bp(climindvis,baseperiod)}
   }
 
   return(list(ifun="ndays_op_threshold",var="tmax",
     ifunargs=list(op="<",iformat=iformat,NAmaxAgg=NAmaxAgg),
-    qargs=list(qth=(10/100),baseperiod = baseperiod, th_quantiles=th_object$index_info$th_quantiles,NAmaxbasep=NAmaxbasep,qens_all=qens_all),
+    qargs=list(qth=(10/100),n=n,baseperiod = baseperiod, inbase=inbase, min_base_fraction = min_base_fraction, th_quantiles=th_object$index_info$th_quantiles,NAmaxQ=NAmaxQ,qens_all=qens_all),
     trend=trend,trendargs=list(method="logit_reg",count=FALSE,  log_trans=TRUE,NAmaxTrend=NAmaxTrend, rel= TRUE),
     plotargs=list(iname="TX10p")))
 }
@@ -650,7 +668,7 @@ index_arguments.tx10p<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=2
 #' ind_hc<-calc_index(object_hc_st,index="tx90p",aggt="monthly")
 #' ind_fc<-calc_index(object_fc_st,index="tx90p",aggt="monthly",th_object=ind_hc)
 #'@keywords internal
-index_arguments.tx90p<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=20,iformat="perc", baseperiod,th_object=NULL,NAmaxbasep=20,qens_all=TRUE,...){
+index_arguments.tx90p<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=20,iformat="perc",n=5, baseperiod,inbase = TRUE, min_base_fraction=0.1, th_object=NULL,NAmaxQ=365,qens_all=TRUE,...){
   check_var(climindvis,"tmax")
   if (!is.null(th_object)){
     check_qth_args(indexname="tx90p",th=FALSE)
@@ -659,11 +677,12 @@ index_arguments.tx90p<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=2
     if (missing(baseperiod)) {
       baseperiod = c(as.numeric(substr(range(climindvis$time),1,4)))
       message("Baseperiod is missing. Full period used as baseperiod") }
+    else {check_bp(climindvis,baseperiod)}
   }
 
   return(list(ifun="ndays_op_threshold",var="tmax",
     ifunargs=list(op=">",iformat=iformat,NAmaxAgg=NAmaxAgg),
-    qargs=list(qth=(90/100),baseperiod = baseperiod,th_quantiles=th_object$index_info$th_quantiles,NAmaxbasep=NAmaxbasep,qens_all=qens_all),
+    qargs=list(qth=(90/100),n=n,baseperiod = baseperiod,inbase=inbase, min_base_fraction= min_base_fraction,th_quantiles=th_object$index_info$th_quantiles,NAmaxQ=NAmaxQ,qens_all=qens_all),
     trend=trend,trendargs=list(method="logit_reg",count=FALSE,  log_trans=TRUE,NAmaxTrend=NAmaxTrend, rel= TRUE),
     plotargs=list(iname="TX90p")))
 }
@@ -683,7 +702,7 @@ index_arguments.tx90p<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=2
 #' ind_hc<-calc_index(object_hc_st,index="rXptot",aggt="monthly")
 #' ind_fc<-calc_index(object_fc_st,index="rXptot",aggt="monthly",th_object=ind_hc)
 #'@keywords internal
-index_arguments.rXptot<-function(climindvis,NAmaxAgg=20,trend=FALSE , NAmaxTrend=20, q_threshold=95, operator=">",baseperiod, th_object=NULL,NAmaxbasep=20,qens_all=TRUE,...){
+index_arguments.rXptot<-function(climindvis,NAmaxAgg=20,trend=FALSE , NAmaxTrend=20, q_threshold=95, operator=">", dd_threshold=1,baseperiod, th_object=NULL,NAmaxQ=365,qens_all=TRUE,...){
 
   check_var(climindvis,"prec")
   if (!is.null(th_object)){
@@ -693,12 +712,13 @@ index_arguments.rXptot<-function(climindvis,NAmaxAgg=20,trend=FALSE , NAmaxTrend
     if (missing(baseperiod)) {
       baseperiod = c(as.numeric(substr(range(climindvis$time),1,4)))
       message("Baseperiod is missing. Full period used as baseperiod") }
+    else {check_bp(climindvis,baseperiod)}
   }
   if(q_threshold<0 || q_threshold >100) stop("q_threshold value has to be between 0 and 100")
   return(list(ifun="total_precip_op_threshold",var="prec",ifunargs=list(op=operator,NAmaxAgg=NAmaxAgg),
-    qargs=list(qth=(q_threshold/100),baseperiod = baseperiod,th_quantiles=th_object$index_info$th_quantiles,NAmaxbasep=NAmaxbasep,qens_all=qens_all),
+    qargs=list(qth=(q_threshold/100),dd_threshold = dd_threshold, baseperiod = baseperiod,inbase =FALSE,th_quantiles=th_object$index_info$th_quantiles,NAmaxQ=NAmaxQ,qens_all=qens_all),
     trend=trend,trendargs=list(method="lin_reg",count=FALSE,  log_trans=TRUE,NAmaxTrend=NAmaxTrend, rel= TRUE),
-    plotargs=list(iname=paste0("r",q_threshold,"ptot",iformat="mm"),iformat="mm")))
+    plotargs=list(iname=paste0("r",q_threshold,"ptot"),iformat="mm")))
 
 }
 
@@ -719,7 +739,7 @@ index_arguments.rXptot<-function(climindvis,NAmaxAgg=20,trend=FALSE , NAmaxTrend
 #' ind_hc<-calc_index(object_hc_st,index="csdi",aggt="monthly")
 #' ind_fc<-calc_index(object_fc_st,index="csdi",aggt="monthly",th_object=ind_hc)
 #'@keywords internal
-index_arguments.csdi<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=20, q_threshold=10,min_length=6,spells_span_agg=FALSE,baseperiod, th_object=NULL,NAmaxbasep=20,qens_all=TRUE,...){
+index_arguments.csdi<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=20, q_threshold=10,n=5,min_length=6,spells_span_agg=FALSE,baseperiod,inbase=FALSE,min_base_fraction=0.1, th_object=NULL,NAmaxQ=365,qens_all=TRUE,...){
   check_var(climindvis,"tmin")
   if (!is.null(th_object)){
     check_qth_args(indexname="csdi",th=TRUE)
@@ -728,11 +748,12 @@ index_arguments.csdi<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=20
     if (missing(baseperiod)) {
       baseperiod = c(as.numeric(substr(range(climindvis$time),1,4)))
       message("Baseperiod is missing. Full period used as baseperiod") }
+    else {check_bp(climindvis,baseperiod)}
   }
   if(q_threshold<0 || q_threshold >100) stop("q_threshold value has to be between 0 and 100")
   return(list(ifun="spell_duration",var="tmin",
     ifunargs=list(func="min", op="<",min_length=6,spells_span_agg=spells_span_agg, NAmaxAgg=NAmaxAgg),
-    qargs=list(qth=(q_threshold/100), baseperiod = baseperiod,th_quantiles=th_object$index_info$th_quantiles,NAmaxbasep=NAmaxbasep,qens_all=qens_all),
+    qargs=list(qth=(q_threshold/100),n=n, baseperiod = baseperiod,inbase=inbase, min_base_fraction=min_base_fraction, th_quantiles=th_object$index_info$th_quantiles,NAmaxQ=NAmaxQ,qens_all=qens_all),
     trend=trend,trendargs=list(method="logit_reg",count=FALSE,  log_trans=FALSE,NAmaxTrend=NAmaxTrend, rel= TRUE),
     plotargs=list(iname="CSDI",iformat="dayscount")))
 }
@@ -754,7 +775,7 @@ index_arguments.csdi<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=20
 #' ind_hc<-calc_index(object_hc_st,index="wsdi",aggt="monthly")
 #' ind_fc<-calc_index(object_fc_st,index="wsdi",aggt="monthly",th_object=ind_hc)
 #'@keywords internal
-index_arguments.wsdi<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=20, q_threshold=90,min_length=6,spells_span_agg=FALSE,baseperiod, th_object=NULL,NAmaxbasep=20,qens_all=TRUE,...){
+index_arguments.wsdi<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=20, q_threshold=90,n=5,min_length=6,spells_span_agg=FALSE,baseperiod,inbase=FALSE,min_base_fraction=0.1, th_object=NULL,NAmaxQ=365,qens_all=TRUE,...){
   check_var(climindvis,"tmax")
   if (!is.null(th_object)){
     check_qth_args(indexname="wsdi",th=TRUE)
@@ -763,11 +784,12 @@ index_arguments.wsdi<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=20
     if (missing(baseperiod)) {
       baseperiod = c(as.numeric(substr(range(climindvis$time),1,4)))
       message("Baseperiod is missing. Full period used as baseperiod") }
+    else {check_bp(climindvis,baseperiod)}
   }
   if(q_threshold<0 || q_threshold >100) stop("threshold value has to be between 0 and 100")
   return(list(ifun="spell_duration",var="tmax",
     ifunargs=list( func="max", op=">",min_length=6,spells_span_agg=spells_span_agg,NAmaxAgg=NAmaxAgg),
-    qargs=list(qth=(q_threshold/100),baseperiod = baseperiod,th_quantiles=th_object$index_info$th_quantiles,NAmaxbasep=NAmaxbasep,qens_all=qens_all),
+    qargs=list(qth=(q_threshold/100),n=n, baseperiod = baseperiod,inbase=inbase, min_base_fraction=min_base_fraction, th_quantiles=th_object$index_info$th_quantiles,NAmaxQ=NAmaxQ,qens_all=qens_all),
     trend=trend,trendargs=list(method="logit_reg",count=FALSE,  log_trans=FALSE,NAmaxTrend=NAmaxTrend, rel= TRUE),
     plotargs=list(iname="WSDI",iformat="dayscount")))
 }
@@ -860,7 +882,7 @@ index_arguments.spi<-function(climindvis,timescale=6,ref=NULL,distribution="gamm
 #'@references
 #'Stagee, J.H. ; Tallaksen, L.M.; Gudmundsson, L.; van Loon, A.; Stahl, K.: Candidate Distributions for Climatological Drought Indices (SPI and SPEI), 2015, International Journal of Climatology, 35, 4027-4040, doi:10.1002/joc.4267.
 #'@keywords internal
-index_arguments.spi_forecast<-function(climindvis,fc_p, timescale=6,param=TRUE,ref=NULL,distribution="gamma", trend=FALSE,trendargs, NAmaxAgg=20,...){
+index_arguments.spi_forecast<-function(climindvis,fc_p, timescale=6,ref=NULL,distribution="gamma", trend=FALSE,trendargs, NAmaxAgg=20,...){
   if(missing(climindvis)) stop("Not all mandatory arguments provided")
   check_var(climindvis,"prec")
   check_var(fc_p,"prec")

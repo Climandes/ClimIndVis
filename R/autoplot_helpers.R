@@ -153,15 +153,18 @@ is_index_special<-function(index){
 get_leg_units<-function(ind_dat,trend=FALSE){
 
   units=Reduce(union,lapply(ind_dat[!sapply(ind_dat,is.null)], function(id) id$index_info$iformat))
-  if (length(units)>1) stop("the units of the different indices should be the same")
-  if(units=="dayscount") units="days"
-  if(units=="perc") units = "%"
-  if(units=="degreeC") units="C"
-  if(units=="days_since") {
-    nc=nchar(ind_dat[[1]]$index_info$start_days)
-    units = ifelse(trend,"days",paste0("days since ",substring(ind_dat[[1]]$index_info$start_days,nc-4,nc)))
+  #if (length(units)>1) stop("the units of the different indices should be the same")
+
+  units[units%in%"dayscount"] <- "days"
+  units[units%in%"perc"] <- "%"
+  units[units%in%"degreeC"] <- "C"
+  if(any(units%in%"days_since")) {
+    indu <- units%in%"days_since"
+    nc=nchar(ind_dat[[indu]]$index_info$start_days)
+    units[indu] = ifelse(trend,"days",paste0("days since ",substring(ind_dat[[indu]]$index_info$start_days,nc-4,nc)))
   } else units=units
-  ret=ifelse(trend,units,paste0("[",units,"]"))
+
+  ret=switch(trend+1,units,paste0("[",units,"]"))
   return(ret)
 }
 
@@ -169,7 +172,7 @@ get_leg_units<-function(ind_dat,trend=FALSE){
 get_plot_args<-function(autoplot){
   env=parent.frame()
   if(autoplot=="forecast_map"){
-    ifelse(env$col == "default",ch <- colorRampPalette(get_default_color(env$index, env$ind_dat$fc_p$index_info$iname,fc=TRUE)$col)(env$ncat),ch <- colorRampPalette(col)(env$ncat))
+    ifelse(env$col == "default",ch <- colorRampPalette(get_default_color(env$index, env$ind_dat[[ifelse(env$points==1,"fc_p","fc_grid")]]$index_info$iname,fc=TRUE)$col)(env$ncat),ch <- colorRampPalette(col)(env$ncat))
     breaks=c(0,100,110,sapply(1:env$ncat*100 , function(n) n+ seq(40 ,110,10)),(env$ncat+1.55)*100)
     if(is.null(env$skillmin)) breaks=breaks[1:(length(breaks)-2)]
     env$plot_args[c("p_breaks","g_breaks")] <-list(breaks)
@@ -183,6 +186,7 @@ get_plot_args<-function(autoplot){
     env$plot_args[c("p_zlims","zlims")]=list(range(env$plot_args[c("p_breaks","g_breaks")]))
 
   } else if (autoplot=="climatology_map"){
+    env$plot_args["plot_scale"]= Reduce(union,lapply(env$ind_dat, function(id) !all(id$index[!is.na(id$index)] == 0)))
     iname=Reduce(union,lapply(env$ind_dat, function(id) id$index_info$iname))
     env$plot_args["units"] = get_leg_units(env$ind_dat) #paste0("[",Reduce(union,lapply(env$ind_dat, function(id) id$index_info$iformat)),"]")
 
@@ -199,13 +203,99 @@ get_plot_args<-function(autoplot){
       env$plot_args[c("p_col_center", "g_col_center")] = FALSE
     }
 
-  } else if (autoplot=="trend_map"){
+  } else if (autoplot=="anomaly_map"){
+    iname=Reduce(union,lapply(env$ind_dat, function(id) id$index_info$iname))
+    env$plot_args["units"] = get_leg_units(env$ind_dat) #paste0("[",Reduce(union,lapply(env$ind_dat, function(id) id$index_info$iformat)),"]")
+
+    if (env$col == "default"){
+        def_col = get_default_color_anom(env$index, iname)
+        env$plot_args[c("p_col", "g_col")] <- list(def_col$col)
+        env$plot_args[c("p_col_center", "g_col_center")] = list(def_col$center)
+    } else {
+      env$plot_args[c("p_col", "g_col")] = list(env$col)
+      env$plot_args[c("p_col_center", "g_col_center")] = TRUE
+    }
+
+  }else if (autoplot=="trend_map"){
+
+
+
+#
+#     if (grid==1){
+#       plot_args$mask_NA <- array(NA,dim=dim(pdat$dat_grid))
+#       plot_args$mask_NA[is.na(pdat$dat_grid)] <- 1
+#       if(!all(unlist(lapply(pdat, is.na)))) {
+#         # define limit as q80 of trend distribution
+#         if(is.null(plot_args$g_breaks)){
+#           new_breaks<-get_breaks(pdat, center=TRUE, plot_args$zlims) #Farbe fuer Stationen und Grid immer dieselbe
+#           plot_args$g_breaks <- new_breaks$breaks
+#           plot_args$outliers <- new_breaks$outliers
+#
+#           lb<- length(new_breaks$breaks)
+#           pdat$dat_grid[pdat$dat_grid>new_breaks$breaks[lb] ]<- new_breaks$breaks[lb]
+#           pdat$dat_grid[pdat$dat_grid<new_breaks$breaks[1] ]<- new_breaks$breaks[1]
+#
+#         } else {plot_args$outliers <- c(FALSE,FALSE)} # falls die huettchen bei g_breaks auch angepasst werden sollen, dann hier
+#
+#         plot_args$g_col <- colorRampPalette(RColorBrewer::brewer.pal(8,"PRGn"))(length(plot_args$g_breaks)-1)
+#
+#       } else {
+#         plot_args$g_breaks <- 0
+#         message("No significant trends for grid at this significance level.")
+#
+#       }
+#
+#
+#
+#     }
+#     if(points==1){
+#       if (grid==1){
+#         plot_args$p_breaks <- plot_args$g_breaks
+#         plot_args$p_col <- plot_args$g_col
+#         plot_args$p_pch <- ifelse(is.na(pdat$dat_p),p_ch <-21,ifelse(pdat$dat_p>=0, p_ch <-24, p_ch <- 25))
+#         plot_args[c("p_col_info","p_legend")] <- list("same")
+#
+#       } else {
+#         if (all(is.na(pdat$dat_p))) {
+#           message("No significant trends for stations at this significance level")
+#           upper_lim<-0
+#           # sonst gibt es Error spaeter im script
+#           plot_args$p_breaks <- 0
+#           plot_args$outliers <- c(FALSE,FALSE)
+#           plot_args[c("p_pch_s","p_pch")] <-list( ifelse(is.na(pdat$dat_p),p_ch <- 21,ifelse(pdat$dat_p>=0, p_ch <-24, p_ch <- 25)))
+#           plot_args[c("p_col_info","p_legend")] <- "cbar"
+#
+#         } else {
+#           if (is.null(plot_args$p_breaks)){
+#             new_breaks<-get_breaks(pdat$dat_p,center = TRUE, plot_args$zlims)
+#             plot_args$p_breaks <- new_breaks$breaks
+#             plot_args$outliers <- new_breaks$outliers
+#
+#             lb<- length(new_breaks$breaks)
+#             pdat$dat_p[pdat$dat_p>new_breaks$breaks[lb] ]<- new_breaks$breaks[lb]
+#             pdat$dat_p[pdat$dat_p<new_breaks$breaks[1] ]<- new_breaks$breaks[1]
+#
+#           } else {plot_args$outliers <- c(FALSE,FALSE)}
+#           plot_args$p_col <- colorRampPalette(RColorBrewer::brewer.pal(8,"PRGn"))(length(plot_args$p_breaks)-1)
+#           plot_args[c("p_pch_s","p_pch")] <-list( ifelse(is.na(pdat$dat_p),p_ch <- 21,ifelse(pdat$dat_p>=0, p_ch <-24, p_ch <- 25)))
+#           plot_args[c("p_col_info","p_legend")] <- list("cbar")
+#
+#         }
+#
+#       }
+#       pdat_help <- abs(pdat$dat_p)
+#       p_dat_size <- (pdat_help-min(pdat_help, na.rm=TRUE))/(max(pdat_help, na.rm=TRUE)-min(pdat_help, na.rm=TRUE))
+#       plot_args$p_cex <- p_dat_size+1
+#       plot_args$p_cex[is.na(plot_args$p_cex)] <- 1
+#     }
+
+
 
     }
 }
 
 
-get_plot_title<-function(titlestring,show_title=TRUE,autoplot,aa=NULL,yy=NULL,pp=NULL,vv=NULL,cname=NULL,tname=NULL,abs=FALSE,sig_lev,tmet){
+get_plot_title<-function(titlestring,show_title=TRUE,autoplot,aa=NULL,yy=NULL,pp=NULL,vv=NULL,cname=NULL,tname=NULL,abs=FALSE,sig_lev,tmet,sep_folder=TRUE){
   env=parent.frame()
   iinfo=lapply(env$ind_dat, function(i) i$index_info)
   dnames=lapply(env$ind_dat, function(i) i$data_info$data_name )
@@ -215,7 +305,7 @@ get_plot_title<-function(titlestring,show_title=TRUE,autoplot,aa=NULL,yy=NULL,pp
     fcmon=env$ind_dat[[c(fc,hc)[1]]]$data_info$fmon
   }
   st=which(grepl("p",names(iinfo)))
-  stn<-iinfo[[st[1]]]$pname
+  stn<-iinfo[[st[1]]]$pnames
   if(length(fc)==0){
     years=as.integer(iinfo[[1]]$years)
   } else if(length (hc)>0){
@@ -243,7 +333,19 @@ get_plot_title<-function(titlestring,show_title=TRUE,autoplot,aa=NULL,yy=NULL,pp
 
      f=ifelse(!is.null(env$output),paste0(env$plotdir, env$plotname, ifelse(env$plotname == "", "", "_"), "forecast_", replace_operator_name(iinfo[[1]]$iname), ifelse(!is.null(env$skillmin),paste0("_",env$veri_metric,"_gt_",env$skillmin),""), "_", iinfo[[1]]$aggnames[aa],"_",iinfo[[fc[1]]]$years[yy],"_fcmon",fcmon,"_hc",yearnames),"")
 
-  } else if (autoplot=="forecast_point"){
+  } else if (autoplot=="forecast_map_clim"){
+    perc=round(env$prob[env$i]*100,dig=1)
+    if(show_title){
+      t <- list(utitle=switch((titlestring != "")+1, NULL,titlestring),
+        title=paste0(iinfo[[1]]$iname," forecast ",iinfo[[1]]$aggnames[aa]," ", iinfo[[fc[1]]]$years[yy]),
+        period = paste0(perc,".percentile ",yearnames),
+        datap = switch(env$points==1,paste0("Stations: ",dnames$obs_p),NULL),
+        datag = switch(env$grid==1,paste0("Grid: ",dnames$obs_grid),NULL))
+
+    } else {t <- NA}
+
+    f=ifelse(!is.null(env$output),paste0(env$plotdir,env$plotname, ifelse(env$plotname == "", "", "_") ,"climatology",replace_operator_name(iinfo[[1]]$iname),"_",perc,"perc_ ", iinfo[[1]]$aggnames[aa],"_",yearnames),"")
+    } else if (autoplot=="forecast_point"){
     if(show_title){
       t <- list(utitle=switch((titlestring != "")+1, NULL,titlestring),
                 title=paste0(iinfo[[1]]$iname," forecast ",iinfo[[1]]$aggnames[aa]," ", iinfo[[fc[1]]]$years[yy]),
@@ -256,9 +358,8 @@ get_plot_title<-function(titlestring,show_title=TRUE,autoplot,aa=NULL,yy=NULL,pp
 
   } else if (autoplot=="verification_map"){
     if (!is.null(env$output)) {
-      if(!file.exists(paste0(env$plotdir,vv,"/"))){
-      dir.create(paste0(env$plotdir,vv,"/"))
-      }
+    vfolder= ifelse (sep_folder==TRUE,paste0(env$plotdir,vv,"/"),env$plotdir)
+      if(!dir.exists(vfolder)) dir.create(vfolder)
     }
     if(show_title){
       t <- list(utitle=switch((titlestring != "")+1, NULL,titlestring),
@@ -268,7 +369,7 @@ get_plot_title<-function(titlestring,show_title=TRUE,autoplot,aa=NULL,yy=NULL,pp
                 datag = switch(env$grid==1,paste0("Grid: ",paste0(unique(dnames[grepl("grid",names(env$ind_dat))]),collapse=",")),NULL))
     } else {t <- NA}
 
-    f=ifelse(!is.null(env$output),paste0(env$plotdir,vv,"/", env$plotname,ifelse(env$plotname == "", "", "_"), vv,ifelse(is.null(cname),"",paste0("_",cname)),ifelse(is.null(tname),"_",paste0("_",tname,"_")), replace_operator_name(iinfo[[1]]$iname), "_", iinfo[[1]]$aggnames[aa],"_fcmon",fcmon,"_hc",yearnames),"")
+    f=ifelse(!is.null(env$output),paste0(vfolder, env$plotname,ifelse(env$plotname == "", "", "_"), vv,ifelse(is.null(cname),"",paste0("_",cname)),ifelse(is.null(tname),"_",paste0("_",tname,"_")), replace_operator_name(iinfo[[1]]$iname), "_", iinfo[[1]]$aggnames[aa],"_fcmon",fcmon,"_hc",yearnames),"")
 
   } else if (autoplot=="climatology_map"){
     if(show_title){
@@ -281,7 +382,18 @@ get_plot_title<-function(titlestring,show_title=TRUE,autoplot,aa=NULL,yy=NULL,pp
 
     f=ifelse(!is.null(env$output),paste0(env$plotdir, env$plotname, ifelse(env$plotname == "", "", "_"), replace_operator_name(iinfo[[1]]$iname),"_",env$plot_value, "_", iinfo[[1]]$aggnames[aa],"_",yearnames),"")
 
-  } else if (autoplot=="trend_map"){
+  } else if (autoplot=="anomaly_map"){
+    if(show_title){
+      t <- list(utitle=switch((titlestring != "")+1, NULL,titlestring),
+        title=paste0(iinfo[[1]]$iname," ",iinfo[[1]]$aggnames[aa]),
+        period = paste0(ifelse (all(diff(env$anomyears)==1) & length(env$anomyears)>1,paste0(env$anomyears[1],"-",tail(env$anomyears,1)),paste(env$anomyears,collapse="/") ),"(reference:",ifelse (all(diff(env$refyears)==1) & length(env$refyears)>1,paste0(env$refyears[1],"-",tail(env$refyears,1)),paste(env$refyears,collapse="/") ),")"),
+        data = paste0(ifelse(env$points==1,paste0("Stations: ",paste0(unique(dnames[grepl("p",names(env$ind_dat))]),collapse=","),ifelse(env$grid==1 & env$points==1," | ","")),"") ,
+          ifelse(env$grid==1,paste0("Grid: ",paste0(unique(dnames[grepl("grid",names(env$ind_dat))]),collapse=",")),"")))
+    } else {t <- NA}
+
+    f=ifelse(!is.null(env$output),paste0(env$plotdir, env$plotname, ifelse(env$plotname == "", "", "_"), "Anomaly_",replace_operator_name(iinfo[[1]]$iname),"_",env$plot_value, "_", iinfo[[1]]$aggnames[aa],"_",ifelse (all(diff(env$anomyears)==1) & length(env$anomyears)>1,paste0(env$anomyears[1],"-",tail(env$anomyears,1)),paste(env$anomyears,collapse="-")),"_refyears_",ifelse (all(diff(env$refyears)==1) & length(env$refyears)>1,paste0(env$refyears[1],"-",tail(env$refyears,1)),paste(env$refyears,collapse="-"))),"")
+
+  }else if (autoplot=="trend_map"){
     if(show_title){
       t <- list(utitle=switch((titlestring != "")+1, NULL,titlestring),
                 title=paste0(iinfo[[1]]$iname," ",iinfo[[1]]$aggnames[aa]),
@@ -292,7 +404,7 @@ get_plot_title<-function(titlestring,show_title=TRUE,autoplot,aa=NULL,yy=NULL,pp
     } else {t <- NA}
 
     f=ifelse(!is.null(env$output),paste0(env$plotdir, env$plotname, ifelse(env$plotname == "", "", "_"), replace_operator_name(iinfo[[1]]$iname), "_",
-                                         iinfo[[1]]$aggnames[aa],"_",ifelse(abs==TRUE,"abs-", "rel-"),"trend_",yearnames),"")
+                                         iinfo[[1]]$aggnames[aa],"_",ifelse(abs==TRUE,"abs-", "rel-"),"trend_",sig_lev*100,"_",yearnames),"")
 
 
     }
@@ -344,6 +456,8 @@ get_skill_data<-function(veri_dat,vv,aa,tt,cc,aggl,nout,tdims){
     return(ret)
   })
 }
+
+
 
 is.even <- function(x) x %% 2 == 0
 

@@ -5,25 +5,32 @@
 \title{arguments for index tn10p}
 \usage{
 \method{index_arguments}{tn10p}(climindvis, NAmaxAgg = 20, trend = FALSE,
-  NAmaxTrend = 20, iformat = "perc", baseperiod, th_object = NULL,
-  NAmaxbasep = 20, qens_all = TRUE, ...)
+  NAmaxTrend = 20, iformat = "perc", n = 5, baseperiod, inbase = TRUE,
+  min_base_fraction = 0.1, th_object = NULL, NAmaxQ = 365,
+  qens_all = TRUE, ...)
 }
 \arguments{
 \item{climindvis}{Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable minimum temperature (tmin)}
 
 \item{NAmaxAgg}{Maximum number of missing values in daily data of each aggregation period (e.g. in all January values for the whole time series). Value between 0 (=0\%; no missing values allowed) and 100 (=100\%; all values can be missing values). If the number of missing values is higher than NAmaxAgg the index value for the respective grid point/station is set to NA. Default = 20 (20\%).}
 
-\item{trend}{Logial (or character). Calculates trends with a predefined method for the chosen index. For information on default method, see  \code{\link{trend_methods}}. You can chose to calculate a non-parameteric trend, by setting trend to a character string "MannKendall". This calculates a TheilSen slope and MannKendall test. Default = TRUE.}
+\item{trend}{Logial (or character). Calculates trends with a predefined method for the chosen index. For information on default method, see  \code{\link{trend_methods}}. You can chose to calculate a non-parameteric trend, by setting trend to a character string "MannKendall". This calculates a TheilSen slope and MannKendall test. Default = FALSE.}
 
 \item{NAmaxTrend}{Maximum number of years in time series of index which are missing values. Value between 0 (=0\%); no years with missing values allowed) and 100 (=100\%); all years can be missing values). If exceeded, the trend is set to NA for the respective grid point/station. Note that the value is relative to the length of the time series. Default = 20 (20\%).}
 
 \item{iformat}{Format for indicator "perc"(default)/"days"}
 
+\item{n}{Window size (in days) for running window in temperature quantile calculation. Default =5. See details for further information.}
+
 \item{baseperiod}{Vector of start and end year for the calculation of quantiles. If not provided, whole range of years in dataset will be used for the calculation of quantiles.}
+
+\item{inbase}{For temperature quantiles, calculate quantiles inside baseperiod and outside baseperiod follwoing the boostrapping method of Zhang 2005. Only applicable, when baseperiod is selected. Default = TRUE. For hindcast data, inbase is set to FALSE because boostrapping of ensemble and years is computational intensive.}
+
+\item{min_base_fraction}{Minimum fraction of base data that must be present for quantile to be calculated for a particular day (only applies to temperature quantiles). Default = 0.1.}
 
 \item{th_object}{Climindvis_index object, default=NULL. if calculating a quantile index for forecast data, a climindvis_index object of hindcasts data for the same spatial dimensions and forecast months has to be provided. Threshold values will then be taken from the hindcast object (object$index_info$quantiles). In this case all other arguments (q, baseperiod, threhold,..) are ignored and taken from the climindvis_index object. In case of autoplot functions, these values are handed over automatically and th_object should be left at default value of NULL..}
 
-\item{NAmaxbasep}{Maximum number of NA values in aggregation period for all years (as defined by baseperiod). If exceeded, quantile value will be set to NA. Default = 20}
+\item{NAmaxQ}{Minimim number of days needed for calculation of quantiles. Default = 365 [days]. For monthly aggregation of precipitation, consider lowering the threshold or expanding the baseperiod.}
 }
 \description{
 arguments for index tn10p

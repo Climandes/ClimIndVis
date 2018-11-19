@@ -47,7 +47,6 @@ autoplot_forecast_spi<-function(obs_p, fc_p,
   check_class(dat[!sapply(dat,is.null)],"climindvis")
   if(any(is.element(sapply(dat,function(x) x$data_info$type),c("grid","grid_hc")))) stop ("Function only works for point data.")
   if(any(is.element(sapply(dat,function(x) x$data_info$type),"p_hc"))) stop ("Function does not work for hindcast data.")
-
   # 3. calculate spi hist and spi forecast
   index_args$fc_p <- dat[["fc_p"]]
   ind_dat <-    list(do.call("calc_index", c(list(dat[["obs_p"]],index),index_args)))

@@ -104,13 +104,13 @@ knitr::include_graphics("Figs/climatology_map1-2_SDII_mean_NDJFMA_1981-2009.png"
 ## ----trend_map_code,eval=FALSE,echo=TRUE---------------------------------
 #  plot_args=list(p_cex=2,topo=list(alt=g_dat,lat=g_lat,lon=g_lon),ylims=c(y2,y1), xlims=c(x1,x2),mask_col="lightblue",NA_col="grey")
 #  autoplot_trend_map(dat_grid=object_grid,
-#    index="mean",index_args = list(aggt="seasonal", selagg=c("DJF","JJA"),var="tmin"),plot_args=plot_args,
+#    index="fd",index_args = list(aggt="annual"),plot_args=plot_args,
 #      output="png",plotdir=plotdir)
 
-## ----trend_map_plots, fig.width=3.3, fig.height=2.5,fig.show='hold',echo=FALSE----
+## ----trend_map_plots, fig.align='center',echo=FALSE----------------------
 
-knitr::include_graphics("Figs/trend_map1-1_mean_tmin_DJF_abs-trend_1981-2010.png",dpi=400)
-knitr::include_graphics("Figs/trend_map1-1_mean_tmin_JJA_abs-trend_1981-2010.png",dpi=400)
+knitr::include_graphics("Figs/pisco+obs_frost_days_annual_abs-trend_1981-2010.png",dpi=400)
+
 
 ## ----overview_stations, fig.width=5, fig.height=7,fig.align='center'-----
 data("object_st")
@@ -127,6 +127,55 @@ indices_args=list(dd=common_args,
 autoplot_overview_stations(dat_p=object_st,indices=indices,indices_args=indices_args,
   addyears=c(1983,1998),yearcols=c("orange","red"), selpoints = 2)
 
+
+## ----veri_map, eval=FALSE,echo=TRUE--------------------------------------
+#  autoplot_verification_map(hc_p = object_hc_st,obs_p=object_st,
+#                            hc_grid=object_hc_grid,obs_grid=object_grid,
+#                            index="dd" , index_args=list(aggt="other",aggmons=c(10:12)),
+#                            plot_args = list(p_cex=3,topo=topo_list),
+#                            veri_metrics = c("EnsCorr","EnsRocss","EnsRpss"),
+#                            output="png",plotdir=plotdir)
+
+## ----veri_map_plot, fig.width=3.3, fig.height=2.5,fig.show='hold',echo=FALSE----
+
+knitr::include_graphics("Figs/vignette_EnsRocss_cat1_dry_days_OND_fcmon07_hc1981-2010.png",dpi=400)
+knitr::include_graphics("Figs/vignette_EnsRocss_cat3_dry_days_OND_fcmon07_hc1981-2010.png",dpi=400)
+
+## ----fc_map, eval=FALSE,echo=TRUE----------------------------------------
+#  autoplot_forecast_map(fc_p=object_fc_st, hc_p = object_hc_st,
+#                        index="tnn" , index_args=list(aggt="other",aggmons=10:11),
+#                        plot_args = list(p_cex=3,topo=topo_list),
+#                        output="png",plotdir=plotdir)
+
+## ----fc_map2, eval=FALSE,echo=TRUE---------------------------------------
+#  autoplot_forecast_map(fc_p=object_fc_st, hc_p = object_hc_st,
+#                        index="tnn" , index_args=list(aggt="other",aggmons=10:11),
+#                        plot_args = list(p_cex=3,topo=topo_list),
+#                        veri_metric = "EnsRocss",skillmin=0.3,
+#                        output="png",plotdir=plotdir)
+
+## ----fc_map_plot, fig.width=3.3, fig.height=2.5,fig.show='hold',echo=FALSE----
+
+knitr::include_graphics("Figs/vignette_forecast_TNN_ON_2018_fcmon07_hc1981-2016.png",dpi=400)
+knitr::include_graphics("Figs/vignette_forecast_TNN_EnsRocss_gt_0.3_ON_2018_fcmon07_hc1981-2010.png",dpi=400)
+
+## ----fc_station_code,eval=FALSE,echo=TRUE--------------------------------
+#  autoplot_forecast_stations(fc_p=object_fc_st,hc_p=object_hc_st,obs_p=object_st,
+#      index="sdii",index_args=list(aggt="seasonal"),verify=FALSE,
+#      output="png",plotdir=plotdir)
+
+## ----fc_station_plots, fig.align='center',echo=FALSE---------------------
+
+knitr::include_graphics("Figs/fc_st3.png",dpi=300)
+
+## ----fc_station_skill_code,eval=FALSE,echo=TRUE--------------------------
+#  autoplot_forecast_stations(fc_p=object_fc_st,hc_p=object_hc_st,obs_p=object_st,
+#      index="sdii",index_args=list(aggt="seasonal"),verify=TRUE,
+#      veri_metric = "EnsCorr",skillmin=0.5,
+#      output="png",plotdir=plotdir)
+
+## ----fc_station_skill_plots, fig.align='center',echo=FALSE---------------
+knitr::include_graphics("Figs/fc_st3_skill2.png",dpi=400)
 
 ## ----forecast_spi_plots,fig.width=6.3, fig.height=4.5, fig.align="center"----
 data(object_st, object_fc_st)

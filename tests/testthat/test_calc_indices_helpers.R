@@ -31,7 +31,7 @@ test_that("get_date_factors return correct output",{
   #errors
   data("object_hc_st",package="ClimIndVis")
   testthat::expect_error(ClimIndVis:::get_date_factors(object_hc_st,"annual"))
-
+  data("data_hc_st",package="ClimIndVis")
   t_miss<-data_hc_st$time
   t_miss[["1982"]]<-seq(as.Date("1982-02-15"),as.Date("1982-02-15")+213,by="days")
   object_miss<-testthat::expect_error(make_object(prec=data_hc_st$prec[],dates_prec=t_miss,lon=data_hc_st$lon,lat=data_hc_st$lat,data_info=data_hc_st$data_info))

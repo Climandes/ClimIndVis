@@ -14,10 +14,11 @@
 #'
 #'For count data (e.g dd, cdd, cwd) by default a logistic regression is calculated with time as predictor for the trend estimation and applying a students-t test for significance testing. In the calculation, a correction for overdispersion is applied. \cr
 #'
-#' If you set trend = "MannKendall" inside the list of index arguments (index_args), the non-parametric Mann-Kendall test based on the relative ranking in the series is applied and a Theil-Sen slope is estimated. See e.g. Yue et al. 2002 or Mann (1945), Kendall (1975) for further references.
+#'If you set trend = "MannKendall" inside the list of index arguments (index_args), the non-parametric Mann-Kendall test based on the relative ranking in the series is applied and a Theil-Sen slope is estimated. See e.g. Yue et al. 2002 or Mann (1945), Kendall (1975) for further references.
 #' @section Output:
 #' This function returns one plot per temporal aggregation which is covered by the data( e.g. aggt="seasonal" returns 4 graphics, one for each season).
 #'
+#' Trends of station data are depicted as ascending and descending triangles. The size of the triangles depends on the range of trends available.
 #' If output is not NULL or "X11" the graphics are saved in the user specified directory (\emph{plotdir}) with the following filename structure: \cr
 #'
 #'     \emph{plotname} // index name // aggregation // "abs-/rel_trend" // years // \emph{output} \cr e.g.: \cr
@@ -42,7 +43,7 @@ autoplot_trend_map <-function(
   grid <- ifelse(missing(dat_grid), 0, 1)
   points <- ifelse (missing(dat_p), 0, 1)
   check_input(grid,points)
-
+  if (index_args$aggt=="xdays") stop("aggt=xdays is not implemented yet for autoplot functions")
   #2. check input--------------------------------------------------
   check_dir(plotdir,output)
   check_SPI(index)
@@ -108,59 +109,77 @@ autoplot_trend_map <-function(
     })
     names(pdat)=names(tdat)
 
+
+    #get_plot_args(autoplot="trend_map")
+
     if (grid==1){
       plot_args$mask_NA <- array(NA,dim=dim(pdat$dat_grid))
       plot_args$mask_NA[is.na(pdat$dat_grid)] <- 1
       if(!all(unlist(lapply(pdat, is.na)))) {
         # define limit as q80 of trend distribution
-        new_breaks<-get_breaks(pdat, center=TRUE) #Farbe fuer Stationen und Grid immer dieselbe
-        plot_args$g_breaks <- new_breaks$breaks
-        plot_args$outliers <- new_breaks$outliers
+        if(is.null(plot_args$g_breaks)){
+          new_breaks<-get_breaks(pdat, center=TRUE, zlims= plot_args$zlims, nlev=plot_args$g_nlev) #Farbe fuer Stationen und Grid immer dieselbe
+          plot_args$g_breaks <- new_breaks$breaks
+          plot_args$outliers <- new_breaks$outliers
+
+          lb<- length(new_breaks$breaks)
+          pdat$dat_grid[pdat$dat_grid>new_breaks$breaks[lb] ]<- new_breaks$breaks[lb]
+          pdat$dat_grid[pdat$dat_grid<new_breaks$breaks[1] ]<- new_breaks$breaks[1]
+
+        } else {plot_args$outliers <- c(FALSE,FALSE)} # falls die huettchen bei g_breaks auch angepasst werden sollen, dann hier
+
         plot_args$g_col <- colorRampPalette(RColorBrewer::brewer.pal(8,"PRGn"))(length(plot_args$g_breaks)-1)
 
-        lb<- length(new_breaks$breaks)
-        pdat$dat_grid[pdat$dat_grid>new_breaks$breaks[lb] ]<- new_breaks$breaks[lb]
-        pdat$dat_grid[pdat$dat_grid<new_breaks$breaks[1] ]<- new_breaks$breaks[1]
-      } else {
+          } else {
         plot_args$g_breaks <- 0
         message("No significant trends for grid at this significance level.")
 
       }
-
-
 
     }
     if(points==1){
       if (grid==1){
         plot_args$p_breaks <- plot_args$g_breaks
         plot_args$p_col <- plot_args$g_col
-        plot_args$p_pch <- ifelse(is.na(pdat$dat_p),p_ch <-23,ifelse(pdat$dat_p>=0, p_ch <-24, p_ch <- 25))
+        plot_args$p_pch <- ifelse(is.na(pdat$dat_p),p_ch <-21,ifelse(pdat$dat_p>=0, p_ch <-24, p_ch <- 25))
         plot_args[c("p_col_info","p_legend")] <- list("same")
 
       } else {
         if (all(is.na(pdat$dat_p))) {
-          message("No significant trends for stations this significance level")
+          message("No significant trends for stations at this significance level")
           upper_lim<-0
           # sonst gibt es Error spaeter im script
           plot_args$p_breaks <- 0
-          plot_args$outliers <- FALSE
-          plot_args[c("p_pch_s","p_pch")] <-list( ifelse(is.na(pdat$dat_p),p_ch <- 23,ifelse(pdat$dat_p>=0, p_ch <-24, p_ch <- 25)))
+          plot_args$outliers <- c(FALSE,FALSE)
+          plot_args[c("p_pch_s","p_pch")] <-list( ifelse(is.na(pdat$dat_p),p_ch <- 21,ifelse(pdat$dat_p>=0, p_ch <-24, p_ch <- 25)))
           plot_args[c("p_col_info","p_legend")] <- "cbar"
 
         } else {
-          new_breaks<-get_breaks(pdat$dat_p,center = TRUE)
-          plot_args$p_breaks <- new_breaks$breaks
-          plot_args$outliers <- new_breaks$outliers
+          if (is.null(plot_args$p_breaks)){
+            new_breaks<-get_breaks(pdat$dat_p,center = TRUE,zlims= plot_args$zlims, nlev=plot_args$p_nlev)
+            plot_args$p_breaks <- new_breaks$breaks
+            plot_args$outliers <- new_breaks$outliers
+
+            lb<- length(new_breaks$breaks)
+            pdat$dat_p[pdat$dat_p>new_breaks$breaks[lb] ]<- new_breaks$breaks[lb]
+            pdat$dat_p[pdat$dat_p<new_breaks$breaks[1] ]<- new_breaks$breaks[1]
+
+          } else {
+
+            lb <- length(plot_args$p_breaks)
+            plot_args$outliers[1]<- ifelse(min(pdat$dat_p, na.rm=TRUE)<plot_args$p_breaks[1],TRUE,FALSE)
+            plot_args$outliers[2]<- ifelse(max(pdat$dat_p, na.rm = TRUE)>plot_args$p_breaks[lb],TRUE,FALSE)
+            }
           plot_args$p_col <- colorRampPalette(RColorBrewer::brewer.pal(8,"PRGn"))(length(plot_args$p_breaks)-1)
-          plot_args[c("p_pch_s","p_pch")] <-list( ifelse(is.na(pdat$dat_p),p_ch <- 23,ifelse(pdat$dat_p>=0, p_ch <-24, p_ch <- 25)))
+          plot_args[c("p_pch_s","p_pch")] <-list( ifelse(is.na(pdat$dat_p),p_ch <- 21,ifelse(pdat$dat_p>=0, p_ch <-24, p_ch <- 25)))
           plot_args[c("p_col_info","p_legend")] <- list("cbar")
+
         }
+
       }
-      lb<- length(new_breaks$breaks)
-      pdat$dat_p[pdat$dat_p>new_breaks$breaks[lb] ]<- new_breaks$breaks[lb]
-      pdat$dat_p[pdat$dat_p<new_breaks$breaks[1] ]<- new_breaks$breaks[1]
       pdat_help <- abs(pdat$dat_p)
       p_dat_size <- (pdat_help-min(pdat_help, na.rm=TRUE))/(max(pdat_help, na.rm=TRUE)-min(pdat_help, na.rm=TRUE))
+      plot_args$p_cex <- get_p_cex(pdat$dat_p)
       plot_args$p_cex <- p_dat_size+1
       plot_args$p_cex[is.na(plot_args$p_cex)] <- 1
     }

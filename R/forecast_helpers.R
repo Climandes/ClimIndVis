@@ -54,6 +54,23 @@ get_cats_fc<-function(ind_dat,grid,points,probs,prob=TRUE,ret_th=FALSE){
   return(cat)
 }
 
+get_cth_obs<-function(ind_dat,grid,points,probs){
+
+  cth= lapply(list("points","grid"), function(x) {
+    if(get(x)==1){
+      suffix=ifelse(x=="points","p",x)
+      ifelse(suffix=="p",cd<-1,cd<-c(1,2))
+      ad=which(ind_dat[[paste0("obs_",suffix)]]$index_info$idims=="agg")
+      q_obs<- apply(ind_dat[[paste0("obs_",suffix)]]$index,c(cd,ad),function(x) quantile(x,probs,na.rm = TRUE , type=8))
+      return(q_obs)
+    } else return(NULL)
+  })
+  names(cth)=c("points","grid")
+  return(cth)
+}
+
+
+
 sel_maxcat<- function(dat){
   if(all(is.na(dat))){
     mc<-NA
@@ -84,13 +101,16 @@ sel_maxcat_value<- function(dat){
 
 get_skill_maxcat<-function(veri_dat,maxcat,veri_metric){
   skill=mapply(function(vd,mc){
+
     if(!is.null(vd) & !is.null(mc)){
       hvd=vd$verification[[veri_metric]]
+      same=vd$same
       res=array(NA,dim=dim(mc))
       for (i in 1:length(hvd)) {
         res[mc==i & !is.na(mc)]=hvd[[i]][mc==i & !is.na(mc)]
       }
       res[mc==0 & !is.na(mc)]=0
+      res[same]=NA
       return(res)
     } else return(NULL)
   },veri_dat,maxcat,SIMPLIFY = FALSE)
@@ -125,7 +145,7 @@ skill_scores_only<-function(data,veri_metrics){
   tryCatch({
     if(any(grepl("hc_ref",names(data)))){
       if(any(sapply(which(grepl("hc_ref",names(data))),function(d) !is.null(data[[d]])))){
-        sel<-sapply(veri_metrics, function(x) str_sub(x,-2)=="ss")
+        sel<-sapply(veri_metrics, function(x) stringr::str_sub(x,-2)=="ss")
         if(is.element("EnsRocss",veri_metrics)) sel[which(veri_metrics=="EnsRocss")]=FALSE
         veri_metrics<-veri_metrics[sel]
         if(length(veri_metrics)==0) {

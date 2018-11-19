@@ -26,7 +26,7 @@
 #'  \item date_format  [character] (see NOTES)
 #'   \itemize{
 #'       \item t1d: time is a vector (1d), applies to data provided as single time series.
-#'       \item t2d: time is a named list, applies to data provided in form of time slices (list elements being the individual time slices). The names of the list elements correspond to the begin years of the time slices.
+#'       \item t2d: time is a named list, applies to data provided in form of time slices (list elements being the individual time slices). The names of the list elements correspond to the  years of the first entry of each time slice.
 #'     }
 #'  \item data_name: Name of dataset (e.g. "Station data" or "ECMWF S4 hindcasts"). Nessesary for plot functions
 #'
@@ -37,8 +37,8 @@
 #' \itemize{
 #' \item data: Named list containing an array of data (tmin/tmax/prec/tavg) of dimension: spatial dimensions x (ensemble dimensions) x no of timesteps
 #' \item time: Array of timesteps which are common for all input data.
-#' \item lon: Array of longitudes common for all input data.
-#' \item lat: Array of latitudes common for all input data.
+#' \item lon: Array of longitudes common for all input data. For gridded data, longitudes need to be in ascending order.
+#' \item lat: Array of latitudes common for all input data. For gridded data, latitudes need to be in ascending order.
 #' \item data_info: data_info as assed to function.
 #' \item time_factors: time factors used for calculation of temporal aggregation of indices.
 #' \item mask: (only for gridded data) list containing a mask for each variable with mask=1 for gridpoints where all time steps are NA
@@ -111,13 +111,18 @@ make_object<- function(tmin = NULL, tmax = NULL, prec = NULL, tavg = NULL, dates
 
       check_dims(get(var), get(paste0("dates_",var)),var,lon,lat,data_info)
       check_dates(get(paste0("dates_",var)),var)
+      check_temp(get(var), var)
     }
     }
   data<-list()
   dates_list <- list(dates_tmin,dates_tmax,dates_tavg,dates_prec)
 
   if(data_info$date_format=="t2d"){
+
+
+
     if (length(unique(dates_list[!sapply(dates_list,is.null)])) != 1) stop("for date_format=t2d input dates of all variables need to be equal." )
+    if (grepl("hc",data_info$type) & length(dates_list[[which(!is.null(dates_list))[1]]])==1) stop("number of hindcast years should be greater than 1.")
 
     for (var in c("tavg","prec","tmin","tmax")){
       if (!is.null(get(var))){
@@ -138,9 +143,10 @@ make_object<- function(tmin = NULL, tmax = NULL, prec = NULL, tavg = NULL, dates
           stop(paste0("time input does not match time dimensions of data for var = ",var))
 
         if(!is.list(get(paste0("dates_",var)))) assign(paste0("dates_",var), list(get(paste0("dates_",var))))
-
+        hh=get(paste0("dates_",var))
+        if (is.null(names(hh)))  names(hh) =sapply(hh,function(hh) return(substring(hh[1],1,4)),simplify = TRUE)
       data[[var]] <- convert_data_to_1d(get(var))
-      time <- convert_time_to_1d(get(paste0("dates_",var)))
+      time <- convert_time_to_1d(hh)
       }
     }
 
@@ -169,7 +175,7 @@ make_object<- function(tmin = NULL, tmax = NULL, prec = NULL, tavg = NULL, dates
     time <- new_time$time_format
   }
 
-  time_factors <- get_date_factors_obj(time)
+  time_factors <- switch(((tail(time,1)-time[1]+1)!=length(time) | length(time)<365)+1,get_date_factors_obj(time),get_date_factors_obj_timeslice(time))
   if (grepl("grid",data_info$type)){
     climindvis<- list("data"=data,"time"=time,"lon"=lon,"lat"=lat,"data_info"=data_info,"time_factors"=time_factors,"mask"=get_mask_data(data))
   } else climindvis<- list("data"=data,"time"=time,"lon"=lon,"lat"=lat,"data_info"=data_info,"time_factors"=time_factors)
@@ -227,10 +233,41 @@ get_date_factors_obj<-function(t1d){
   factors<-list()
   factors$years<-factor(format(t1d,"%Y"))
   factors$yearmons<-factor(format(t1d,"%Y-%m"))
-  factors$jdays<-factor(format(t1d,"%j"))
+  jdays<-format(t1d,"%j")
+  jdays<-replace_jday_29feb(jdays)
+  factors$jdays=factor(jdays)
+
   return(factors)
 
 }
+
+
+get_date_factors_obj_timeslice<-function(t1d){
+  factors<-list()
+  factors$years<-factor(format(t1d,"%Y"))
+  factors$yearmons<-factor(format(t1d,"%Y-%m"))
+  jdays<-format(t1d,"%j")
+  sel29=which(substring(t1d,6,10)=="02-29")
+  end29=sapply(sel29, function(ll) tail(which(substring(names(t1d),1,4)==substring(names(t1d[ll]),1,4)),1))
+  sel366=which(jdays == 366)
+  start366=sapply(sel366, function(ll) head(which(substring(names(t1d),1,4)==substring(names(t1d[ll]),1,4)),1))
+  if (length(sel29) >0 ) for (i in 1:length(sel29)) jdays[sel29[i]:end29[i]] = pad2(59:(59+end29[i]-sel29[i]), width=3)
+  if (length(sel366) >0 )for (i in 1:length(sel366)) jdays[start366[i]:sel366[i]] =  pad2((360-(sel366[i]-start366[i])):360,width=3)
+  factors$jdays=factor(jdays)
+
+  return(factors)
+
+}
+
+
+replace_jday_29feb <- function(jdays){
+    indices <- which(jdays == 366)
+    if (length(indices) > 0)
+      jdays[rep(indices, each = 366) + -365:0] <- pad2(c(1:59,59,60:365), width=3)
+    return(jdays)
+  }
+
+
 
 get_mask_data<-function(data){
   mask=lapply(data, function(dd){

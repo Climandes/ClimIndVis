@@ -18,6 +18,7 @@ calc_index(climindvis, index, aggt, ...)
 \item "monthly": Monthly aggregation. For subset of months, define subset as integer array using parameter \strong{selagg}, e.g. c(1:3) for monthly aggregation of Jan,Feb and March
 \item "other": aggregation over all months defined as integer array in \strong{aggmons}, e.g. c(1:4) aggregates over Jan-Apri.
 \item "dates": Aggregation of user defined dates defined in \strong{start_days} and \strong{end_days}. start_days and end days are arrays of format date or character(yyyy-mm-dd). If start and end dates are the same for all years they can also be specified as "0000-mm-dd", e.g. "0000-01-01".
+\item "xdays": Aggregations over time slices of \strong{xday} days, e.g. for xday=7, weekly aggregation. If the parameters  \strong{start}  and/or  \strong{end} are provided, time slices are only calculated between the two dates. If you want weekly aggregations you thus have to set the starting date to a Monday. This aggregation is not implemented for seasonal forecast data and if small xdays are chosen (e.g. 7 or 10) we recommend to use it only for short time periods. Please note that at the moment the autoplot functions do not work with this aggregation type.
 }}
 
 \item{...}{for  index specific arguments see links in section "indices" below.}

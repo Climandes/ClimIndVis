@@ -8,6 +8,7 @@
 #' @param addyears Optional array of years (integer or character) to add as points to the plot. Default=NULL.
 #' @param yearcols Optional array of same length as addyears with colors for marking selected years. Entries have to be valid arguments to \code{\link[grDevices]{col2rgb}}. Default=1:length(addyears)
 #' @param yearpchs Optional array of pch for each year. Default= 18
+#' @param yearcex Optional magnification to be used for year symbols. Default=3
 #' @param selpoints Optional integer array of stations to select for plotting. Default= NULL (all stations are plottet).
 #' @section Output:
 #' This function returns one plot per station and temporal aggregation whch is covered by the data( e.g. if aggt="seasonal" it would return 4 graphics, one for each season).
@@ -45,7 +46,7 @@
 
 autoplot_overview_stations<-function(dat_p,
                                     indices, indices_args, selpoints = NULL,
-                                    addyears = NULL, yearcols = 1:length(addyears), yearpchs = 18, NAmaxClim = 20,
+                                    addyears = NULL, yearcols = 1:length(addyears), yearpchs = 18, yearcex=3,NAmaxClim = 20,
                                     output = NULL, plotdir, plotname = "", plot_title = TRUE, title = "", graphic_device) {
 
   check_class(dat_p,"climindvis")
@@ -56,7 +57,8 @@ autoplot_overview_stations<-function(dat_p,
     message("No station names provided in object <<dat_p>> for plot title, numbers will be used")
     pnames=NULL
   } else pnames=dat_p$data_info$pnames
-  # check if aggregation is the same if index is not rainy season start, wenn Index keine Aggregation hat dann extra behandeln, selagg-> alles ausserdiese Indikatoren
+  lapply(indices_args, function(ii) if (ii$aggt=="xdays") stop("aggt=xdays is not implemented yet for autoplot functions"))
+  # check if aggregation is the same if index is not rainy season start, wenn Index keine Aggregation hat dann extra behandeln, selagg
   years=as.character(addyears)
   dyears=range(levels(dat_p$time_factors$years))
     ilist<- lapply(1:length(indices), function(ii) do.call("calc_index", c(list(dat_p,indices[ii]),indices_args[[ii]])))
@@ -151,7 +153,7 @@ autoplot_overview_stations<-function(dat_p,
             if (!is.null(years)){
               for (x in 1:lsels[ff]) {
                 if (nn[x]){
-                  points(pdath[[x]][years],rep(((sum(lsels[0:(ff-1)])+1):sum(lsels[1:ff]) +(ff-1)*0.75+0.25)[x],length(years)),pch=yearpchs,col=yearcols,cex=3)
+                  points(pdath[[x]][years],rep(((sum(lsels[0:(ff-1)])+1):sum(lsels[1:ff]) +(ff-1)*0.75+0.25)[x],length(years)),pch=yearpchs,col=yearcols,cex=yearcex)
                   NAyears=is.na(pdath[[x]][years])
                   if(any(NAyears)){
                     text((1:length(years)*3-1)[is.na(pdath[[x]][years])],((sum(lsels[0:(ff-1)])+1):sum(lsels[1:ff]) +(ff-1)*0.75)[x],

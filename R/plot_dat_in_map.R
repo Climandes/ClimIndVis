@@ -44,7 +44,7 @@
 plot_map_grid_points <- function(g_dat=NULL,g_lon=NULL,g_lat=NULL,g_col=rainbow(10),g_col_center=FALSE,g_breaks,g_nlev=10,
   p_lon=NULL,p_lat=NULL,p_col_info="same",p_col=rainbow(10),p_col_center=FALSE,p_dat,p_legend=0,legend_center=FALSE,
   xlims,ylims,zlims=NULL,p_zlims,mask=NULL,mask_NA=NULL,ratio=1.0,p_nlev=10,p_breaks=NA,p_text,p_pch=21,p_cex=1,p_pch_s=NA,p_col_sig,
-  output=NULL,outfile,pwidth=5,graphic_device,plot_title,lwidth=1,plwidth=1,trend=FALSE,topo=NULL,text_cex=1,mask_col="lightgrey",NA_col="white",fc_plot=FALSE,outliers=c(FALSE,FALSE),units="",...) {
+  output=NULL,outfile,plot_scale=TRUE,pwidth=5,graphic_device,plot_title,lwidth=1,plwidth=1,trend=FALSE,topo=NULL,text_cex=1,mask_col="lightgrey",NA_col="white",fc_plot=FALSE,outliers=c(FALSE,FALSE),units="",...) {
 
 opargs<-list(...)
   # 1.checks ----------------------------------------------------------------
@@ -54,6 +54,10 @@ opargs<-list(...)
   if (grid==1) check_arguments_function(list(g_lon,g_lat))
   if (points==1) check_arguments_function(list(p_lon,p_lat))
 
+  isNA<-lapply(switch(points+1,list(g_dat),list(g_dat,p_dat)), function(x){
+    switch(is.null(x)+1,all(is.na(x)),TRUE)
+  })
+  if (!all(unlist(isNA))){
   #fehlt: checken ob lons und lats die gleiche Groesse haben
 
   if(points==1 & p_col_info=="same" & missing(p_dat)) stop("p_dat needs to be specified if <<p_col_info==same>>")
@@ -121,13 +125,15 @@ opargs<-list(...)
     }
     if (g_col_center){
       if (!is.element(0,g_breaks)){
-        if (!all(g_breaks>0))neg=tail(which(g_breaks<0),1)
-        g_breaks=c(g_breaks[1:neg],0,g_breaks[(neg+1):length(g_breaks)])
+        if (!all(g_breaks>0)){
+          neg=tail(which(g_breaks<0),1)
+          g_breaks=c(g_breaks[1:neg],0,g_breaks[(neg+1):length(g_breaks)])
+        }
       }
       if (all(g_breaks>=0)) {
-        t_col=colorRampPalette(g_col)(length(g_breaks)*2-1)[length(g_breaks): (length(g_breaks)*2-1)]
+        g_col=colorRampPalette(g_col)(length(g_breaks)*2-1)[length(g_breaks): (length(g_breaks)*2-1)]
       } else if (all(g_breaks<=0)){
-        t_col=colorRampPalette(g_col)(length(g_breaks)*2-1)[1:(length(g_breaks)-1)]
+        g_col=colorRampPalette(g_col)(length(g_breaks)*2-1)[1:(length(g_breaks)-1)]
       } else {
         step=diff(zlims_g$lim)/(length(g_breaks)-1)
         nzl=c(max(abs(zlims_g$lim))*c(-1,1))
@@ -163,13 +169,15 @@ opargs<-list(...)
       }
       if (p_col_center){
         if (!is.element(0,p_breaks)){
-          if (!all(p_breaks>0))neg=tail(which(p_breaks<0),1)
-          p_breaks=c(p_breaks[1:neg],0,p_breaks[(neg+1):length(p_breaks)])
+          if (!all(p_breaks>0)) {
+            neg=tail(which(p_breaks<0),1)
+            p_breaks=c(p_breaks[1:neg],0,p_breaks[(neg+1):length(p_breaks)])
+          }
         }
         if (all(p_breaks>=0)) {
-          t_col=colorRampPalette(p_col)(length(p_breaks)*2-1)[length(p_breaks): (length(p_breaks)*2-1)]
+          p_col=colorRampPalette(p_col)(length(p_breaks)*2-1)[length(p_breaks): (length(p_breaks)*2-1)]
         } else if (all(p_breaks<=0)){
-          t_col=colorRampPalette(p_col)(length(p_breaks)*2-1)[1:(length(p_breaks)-1)]
+          p_col=colorRampPalette(p_col)(length(p_breaks)*2-1)[1:(length(p_breaks)-1)]
         } else {
           step=diff(zlims_p$lim)/(length(p_breaks)-1)
           nzl=c(max(abs(zlims_p$lim))*c(-1,1))
@@ -262,7 +270,7 @@ opargs<-list(...)
     if (!all(is.na(mask))) image(g_lon,g_lat,mask,xlim=xlims, ylim=ylims,col=mask_col,add=TRUE)
    }
    maps::map(ifelse(coords==TRUE,'world',"world2"), add=T, lwd=2)
-   maps::map('lakes', add=T, lwd=2)
+   maps::map('lakes', add=T, lwd=2,wrap=switch(coords+1,c(0,360),c(-180,180)))
   #plot a grid on top of the plot
   all_lons <- seq(xlims[1],xlims[2],1)
   all_lats <- seq(ylims[1],ylims[2],1)
@@ -294,7 +302,7 @@ opargs<-list(...)
   par(fig=c(0.8,0.99,0.01,0.95),pty="m",new=TRUE)
 
   if (grid == 1 | p_col_info=="same"){
-    if(!length(g_breaks)==1){
+    if(!length(g_breaks)==1 & plot_scale){
       if(fc_plot){
         image_scale(breaks=g_breaks,col=g_col,axis.pos=4,xlab=opargs$leg_labs,
                     add.axis=FALSE,fc_axis=opargs$fc_catnames,equidist=TRUE)
@@ -315,7 +323,7 @@ opargs<-list(...)
       if (grid==1) par(fig=c(0,1,0,test$fig[3]),new=TRUE)
 
       if (p_legend == "cbar") {
-        if(!length(p_breaks)==1){
+        if(!length(p_breaks)==1 & plot_scale){
           horiz= ifelse(grid==0,4,1)
           if (horiz==1)  {
             par(mar=c(2,1,1,1))
@@ -335,7 +343,7 @@ opargs<-list(...)
 if (!is.null(output)){
   if (output!="dev.new") dev.off()
 }
-
+  } else warning(paste0("all values are NA, the following file is not plotted:",plot_title$title ))
 } #end function
 
 

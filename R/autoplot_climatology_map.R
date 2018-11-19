@@ -4,9 +4,10 @@
 #' To see some example outputs of this function, look at the vignette "autoplot-functions" accesible through the package help main page or by typing \cr
 #'  \emph{vignette("autoplot-functions",package="ClimIndVis")} into the console.
 #'
-#' @param plot_value Climatological value to plot. One of the following character strings: "mean", "median", "min", "max", "sd" (=standard deviation), or "relsd" (sd/abs(mean)), also see NOTES. Default = "mean".
+#' @param plot_value Climatological value to plot. One of the following character strings: "mean", "median", "min", "max", "sd" (=standard deviation), or "relsd" (sd/abs(mean)) and "percentile". For percentile, the parameter perc has to be defined, also see parameter perc. Default = "mean".
 #' @inheritParams plot_doc
 #' @param col Array of colors for plotting of length 3 or longer (must be a valid arguments to \code{\link[grDevices]{col2rgb}}). Length of array is adjusted to number of levels. If not provided, package default colors for index are used. Default="default".
+#' @param perc Integer value between 0 and 100 for percentile to be calculated. Only if plot_value="percentile".
 #' @section Output:
 #' This function returns one plot per temporal aggregation whch is covered by the data( e.g. if aggt="seasonal" it would return 4 graphics, one for each season).
 #'
@@ -19,7 +20,7 @@
 #'
 #' Please note that calculating the mean does not make sense for indices based on the number of days above/below a quantile threshold (e.g. tn10p,tn90p)
 #'
-#' When using ensemble data, the plot value is calculated over the whole ensemble (e.g. ensemble mean over the whole time period).
+#' When using ensemble data, the plot value is calculated over the whole ensemble (i.e. ensemble mean/min/max/... over all ensemble members and the whole time period).
 #' @examples
 #'
 #' data(object_st, object_grid)
@@ -41,7 +42,7 @@
 
 autoplot_climatology_map <-function(
   dat_grid, dat_p,
-  index, index_args = list(),  plot_value = "mean", selyears = NULL, NAmaxClim = 20,
+  index, index_args = list(),  plot_value = "mean", perc=NULL, selyears = NULL, NAmaxClim = 20,
   col = "default",
   title = "", plot_title = TRUE, plot_args = list(),
   output = NULL, plotdir, plotname="") {
@@ -51,10 +52,12 @@ autoplot_climatology_map <-function(
   grid <- ifelse(missing(dat_grid), 0, 1)
   points <- ifelse (missing(dat_p), 0, 1)
   check_input(grid,points)
-
+  if (index_args$aggt=="xdays") stop("aggt=xdays is not implemented yet for autoplot functions")
   ## check input--------------------------------------------------
   check_dir(plotdir,output)
   if(!is.null(plot_args$topo)) check_topo(plot_args$topo)
+  if(plot_value=="percentile" & is.null(perc) ) stop("for plot_value=percentile argument perc has to be provided ")
+  if(plot_value=="percentile")  { if (perc<0 & perc>100) stop("perc needs to be a value between 0 and 100")}
   check_SPI(index)
   dat=get_data_list(c("dat"))
   check_class(dat[!sapply(dat,is.null)],"climindvis")
@@ -75,9 +78,11 @@ autoplot_climatology_map <-function(
   }
   ## 2.2 calculate plot value and  check NAs---------------------------------------------------
   if(plot_value=="relsd"){ plot_fun<-function(x,na.rm=FALSE,...) stats::sd(x,na.rm=na.rm)/abs(mean(x,na.rm=na.rm))*100
-  } else plot_fun=plot_value
+  } else if (plot_value == "percentile") {
+    plot_fun<-function(x,na.rm=TRUE,...) climdex.pcic::climdex.quantile(x,perc/100)
+    }else plot_fun=plot_value
 
-  phelp = lapply(ind_dat, function (ii) apply(ii$index,
+  ppval = lapply(ind_dat, function (ii) apply(ii$index,
     c(1:length(ii$index_info$idims))[-which(is.element(ii$index_info$idims, c("year", "ens")))],
     plot_fun, na.rm = TRUE) )
   pNA = lapply(ind_dat, function (ii) apply(ii$index,
@@ -85,7 +90,7 @@ autoplot_climatology_map <-function(
     function(x) sum(is.na(x))*100/length(x)) )
   # set values with more than NAmaxClim missing values to NA
   phelp = mapply(function (ii, yy) {ii[which(yy>NAmaxClim)] = NA
-  return(ii)}, phelp, pNA, SIMPLIFY = FALSE)
+  return(ii)}, ppval, pNA, SIMPLIFY = FALSE)
 
   # 3. Plot --------------------------------------------------
 
@@ -113,7 +118,8 @@ autoplot_climatology_map <-function(
     }      # define mask
 
     ## call plot function
-
+    if (plot_value=="percentile") plot_value=paste0(perc,"percentile")
+    if (plot_value=="relsd") plot_args$units="%"
     pnames=get_plot_title(titlestring=title,show_title=plot_title,autoplot="climatology_map",aa)
     plot_args[c("output","outfile","plot_title")]<-list(output,pnames$f,pnames$t)
     if(grid == 1 & points == 1){

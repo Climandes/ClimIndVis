@@ -2,6 +2,8 @@
 
 S3method(calculate_index,climindvis)
 S3method(calculate_index,spi_forecast)
+export(autoplot_anomaly_map)
+export(autoplot_anomaly_ts)
 export(autoplot_climatology_map)
 export(autoplot_forecast_map)
 export(autoplot_forecast_spi)

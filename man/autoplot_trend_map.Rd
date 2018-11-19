@@ -55,6 +55,7 @@ If you set trend = "MannKendall" inside the list of index arguments (index_args)
 
 This function returns one plot per temporal aggregation which is covered by the data( e.g. aggt="seasonal" returns 4 graphics, one for each season).
 
+Trends of station data are depicted as ascending and descending triangles. The size of the triangles depends on the range of trends available.
 If output is not NULL or "X11" the graphics are saved in the user specified directory (\emph{plotdir}) with the following filename structure: \cr
 
     \emph{plotname} // index name // aggregation // "abs-/rel_trend" // years // \emph{output} \cr e.g.: \cr
@@ -68,7 +69,9 @@ autoplot_trend_map(dat_grid=object_grid,
 
 }
 \seealso{
-Other autoplot_functions: \code{\link{autoplot_climatology_map}},
+Other autoplot_functions: \code{\link{autoplot_anomaly_map}},
+  \code{\link{autoplot_anomaly_ts}},
+  \code{\link{autoplot_climatology_map}},
   \code{\link{autoplot_forecast_map}},
   \code{\link{autoplot_forecast_spi}},
   \code{\link{autoplot_forecast_stations}},

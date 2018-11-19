@@ -6,7 +6,7 @@
 \usage{
 autoplot_overview_stations(dat_p, indices, indices_args, selpoints = NULL,
   addyears = NULL, yearcols = 1:length(addyears), yearpchs = 18,
-  NAmaxClim = 20, output = NULL, plotdir, plotname = "",
+  yearcex = 3, NAmaxClim = 20, output = NULL, plotdir, plotname = "",
   plot_title = TRUE, title = "", graphic_device)
 }
 \arguments{
@@ -23,6 +23,8 @@ autoplot_overview_stations(dat_p, indices, indices_args, selpoints = NULL,
 \item{yearcols}{Optional array of same length as addyears with colors for marking selected years. Entries have to be valid arguments to \code{\link[grDevices]{col2rgb}}. Default=1:length(addyears)}
 
 \item{yearpchs}{Optional array of pch for each year. Default= 18}
+
+\item{yearcex}{Optional magnification to be used for year symbols. Default=3}
 
 \item{NAmaxClim}{Integer [0,100]. Maximum percentage of years with missing values for calculation of climatology. If exceeded value for respective grid point/station is set to NA. Default = 20 ( = 20"\%").}
 
@@ -76,7 +78,9 @@ autoplot_overview_stations(dat_p = object_st, indices = indices, indices_args = 
 
 }
 \seealso{
-Other autoplot_functions: \code{\link{autoplot_climatology_map}},
+Other autoplot_functions: \code{\link{autoplot_anomaly_map}},
+  \code{\link{autoplot_anomaly_ts}},
+  \code{\link{autoplot_climatology_map}},
   \code{\link{autoplot_forecast_map}},
   \code{\link{autoplot_forecast_spi}},
   \code{\link{autoplot_forecast_stations}},

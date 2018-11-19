@@ -1,3 +1,16 @@
+# check baseperiod fpr quantile indices
+check_bp<- function(climindvis,baseperiod){
+  tryCatch({
+    datrange <- as.numeric(substr(range(climindvis$time),1,4))
+    if(!(datrange[1]<=baseperiod[1] & datrange[2]>=baseperiod[2])) stop("Base period does not cover input data")
+  }, error=function(cond){
+    message("Error in input data:")
+    message(cond)
+    stop_quietly()
+  })
+}
+
+
 check_input<- function(grid,points){
   tryCatch({if(grid == 0 & points == 0) stop("Either grid or point data have to be provided as input")
   }, error=function(cond){
@@ -32,10 +45,11 @@ check_SPI<-function(index){
   })
 }
 
-check_aggt<- function(index,aggt){
+check_aggt<- function(index,aggt,type){
   tryCatch({
     if(!is.character(aggt)) stop("aggt needs to be a character string")
-    if(!is.element(aggt,c("annual","seasonal","monthly","other","dates"))) stop("aggt does not exist (maybe check spelling).")
+    if(!is.element(aggt,c("annual","seasonal","monthly","other","dates","xdays"))) stop("aggt does not exist (maybe check spelling).")
+    if (grepl("hc|fc",type)) if (aggt=="xdays") stop("<<aggt>>==xdays not available for seasonal forecast data")
     if (grepl("spi",index) & aggt!="monthly") {
       aggt="monthly"
       message("Warning:Wrong aggt for SPI calculation, aggt is set to <<monthly>>.")
@@ -77,6 +91,12 @@ check_dims<- function(data,dates,var,lon,lat,data_info){
       }
 
     else if (is.element(data_info$type, c("grid","grid_hc","grid_fc"))){
+
+      ## check ascending order of coordinates
+      if(!all(diff(lon) >= 0)){stop("Longitudes need to be of ascending order.")}
+      if(!all(diff(lat) >= 0)){stop("Latitudes need to be of ascending order.")}
+
+      ## check data dimension
       if (length(dd)<=2) stop("<type> is not set correctly")
       if (!dd[1] == length(lon)){stop("Data dimension does not fit lon dimensions")}
       if (!dd[2] == length(lat)){stop("Data dimension does not fit lat dimensions")}
@@ -172,8 +192,8 @@ check_spatial_dims<-function(object_list){
       mlon_p<-  Reduce(intersect,lapply(object_list[p], function(x) round(array(x$lon),3)))
       mlat_p<-  Reduce(intersect,lapply(object_list[p], function(x) round(array(x$lat),3)))
       invisible(lapply(object_list[p], function(o){
-        if (length(o$lon) != length(mlon_p))  stop("Longitudes do not match for all point objects")
-        if (length(o$lat) != length(mlat_p)) stop("Latitudes do not match for all point objects")
+        if (length(unique(round(array(o$lon),3))) != length(mlon_p))  stop("Longitudes do not match for all point objects")
+        if (length(unique(round(array(o$lat),3))) != length(mlat_p)) stop("Latitudes do not match for all point objects")
       }))
     }
   }, error=function(cond){
@@ -324,3 +344,18 @@ check_dates <- function(dates,var){
 
   })
 }
+
+check_temp<- function(dat,var){
+  tryCatch({
+  if(is.element(var, c("tmin","tmax","tavg"))){
+    if(all(range(dat, na.rm=TRUE)>200)) {stop("Please provide temperture data in degrees Celsius.")}
+
+  } }   , error=function(cond){
+    message("Error in input data:")
+    message(cond)
+    stop_quietly()
+
+  })
+
+}
+

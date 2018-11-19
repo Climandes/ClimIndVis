@@ -120,7 +120,7 @@ calc_trend <- function(data,time ,targs){
   ######Calculo de Tendencia lineal############################
   else if(targs$method == "lin_reg"){
     if(targs$log_trans == T & length(which(DAT[,2]== 0)) == 0){
-      DAT[,3] <- log(DAT[,2])
+      DAT[,3] <- suppressWarnings(log(DAT[,2]))
       trd1<- trend.linreg(DAT[,c(1,3)])
       pred1 <- predict(trd1$mod, data.frame(year = DAT[,1]),
                        interval = "confidence", se.fit = T, level = 0.95)
@@ -135,7 +135,7 @@ calc_trend <- function(data,time ,targs){
     }
     if(targs$log_trans == T & length(which(DAT[,2]== 0)) != 0){
       DAT[which(DAT[,2]==0),2] <- 0.0000001
-      DAT[,3] <- log(DAT[,2])
+      DAT[,3] <- suppressWarnings(log(DAT[,2]))
       trd1<- trend.linreg(DAT[,c(1,3)])
       pred1 <- predict(trd1$mod, data.frame(year = DAT[,1]),
                        interval = "confidence", se.fit = T, level = 0.95)

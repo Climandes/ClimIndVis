@@ -12,11 +12,27 @@
 
 \item{q_threshold}{Percentile threshold (numerical). Value between 0 and 100.}
 
-\item{NAmaxbasep}{Maximum number of NA values in aggregation period for all years (as defined by baseperiod). If exceeded, quantile value will be set to NA. Default = 20}
+\item{n}{Window size (in days) for running window in temperature quantile calculation. Default =5. See details for further information.}
+
+\item{inbase}{For temperature quantiles, calculate quantiles inside baseperiod and outside baseperiod follwoing the boostrapping method of Zhang 2005. Only applicable, when baseperiod is selected. Default = TRUE. For hindcast data, inbase is set to FALSE because boostrapping of ensemble and years is computational intensive.}
+
+\item{NAmaxQ}{Minimim number of days needed for calculation of quantiles. Default = 365 [days]. For monthly aggregation of precipitation, consider lowering the threshold or expanding the baseperiod.}
+
+\item{min_base_fraction}{Minimum fraction of base data that must be present for quantile to be calculated for a particular day (only applies to temperature quantiles). Default = 0.1.}
 
 \item{qens_all=TRUE}{logical. Should quantiles of ensembles be calculated over all ensemble members (TRUE) or for each member individually (FALSE)? Default = TRUE}
 }
 \description{
 quantile
 }
+\section{Details}{
+
+Quantiles are calculated identically to the calculations performed in the R-package climdex.pcic. For precipitation, quantiles are calculated with the function quantile(..., type = 8) from R stats using all values inside the selceted aggregation.\cr
+For temperature, quantiles are calculated for every day of the year independently based on a moving window with default 5 days. Following the suggestiosn of Zhang (2005) it is possible to calculate a bootstrapping for quantile thresholds within the baseperiod by setting inbase=TRUE. If inbase is set to FALSE, the same thresholds are used inside and outside the reference period.\cr
+For ensemble data (hindcasts), it is not possible to calculate the boostrapping inside the reference period. Consider therefore using the full period as reference period.
+Please note, that the quantile calculation of ensembles stil may be subject to errors. In case you note inconsistencies, please report these to the package authors.
+For a detailed description of this method, see:
+Zhang, X, Hegerl, G, Zwiers, F.W and Kenyon, J. (2005). Avoiding inhomogeneity in percentile-base indices of temperature extremes. Journal of Climate, 18.
+}
+
 \keyword{internal}

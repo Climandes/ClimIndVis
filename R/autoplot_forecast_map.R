@@ -8,7 +8,7 @@
 #' @inheritParams plot_doc
 #' @param col Color scale for plotting. Array of same length as ncat/(prob-1) with entries being valid arguments to \code{\link[grDevices]{col2rgb}}. If not provided, package default colors for index are used.
 #' @param nocat_col Color for marking grid point/stations with no dominant category . Default="grey"
-#' @param noskill_col Color for marking grid point/stations without skill (only if skillmin!=NULL). Default="black"
+#' @param noskill_col Color for marking grid point/stations without skill (only if skillmin!=NULL). Default="darkgrey"
 #' @inheritParams veri_doc
 #' @section Output:
 #' This function returns one plot per temporal aggregation for which data is available, e.g. if index_args$aggt="monthly", for all months which are covered by the forecast.
@@ -64,8 +64,8 @@ autoplot_forecast_map<-function(
   fc_p, hc_p, hc_ref_p = NULL, obs_p = NULL,
   index, index_args = list(), selyears = NULL,
   veri_metric, veri_args = list(), skillmin = NULL,
-  col = "default", noskill_col = "black", nocat_col = "grey", prob, ncat = 3, cat_names = paste0("cat", 1:ncat),
-  plot_title = TRUE, plot_args = list(),
+  col = "default", noskill_col = "darkgrey", nocat_col = "grey", prob, ncat = 3, cat_names = paste0("cat", 1:ncat),
+  plot_title = TRUE, plot_args = list(), plot_climatology=FALSE,
   output = NULL, plotdir, plotname = "", title = "") {
 
   # 1. check if point or grid --------------------------------------------------
@@ -73,7 +73,7 @@ autoplot_forecast_map<-function(
   grid <- ifelse(missing(fc_grid) | missing (hc_grid),0,1)
   points <- ifelse (missing(fc_p) | missing (hc_p),0,1)
   check_input(grid,points)
-
+  if (index_args$aggt=="xdays") stop("aggt=xdays is not implemented for forecasts")
   #2. check input--------------------------------------------------
   check_dir(plotdir,output)
   check_SPI(index)
@@ -112,6 +112,7 @@ autoplot_forecast_map<-function(
     ind_dat<-calc_index_special_autoplot(dat,index,index_args, selyears)
   }
 
+
   #5. verify indices ----------------------------------------------------------
   if (!is.null(skillmin)){
     veri_dat<-call_verify_helper_autoplot(ind_dat,veri_metric,veri_args,grid,points)
@@ -121,9 +122,11 @@ autoplot_forecast_map<-function(
     }
     veri_dat[["error"]]=NULL
   }
-  # 4. calc category values -------------------------------------------------
+  # 4. calc category values and climatology if plot_climatology=TRUE------------------------------------------------
   if(missing(prob)) prob= 1:(ncat-1)/ncat
-  cats=get_cats_fc(ind_dat,grid,points,probs=prob,prob=TRUE)
+
+  cats=get_cats_fc(ind_dat,grid,points,probs=prob,prob=TRUE,ret_th=ifelse(plot_climatology,TRUE,FALSE))
+  if (plot_climatology) q_obs<-get_cth_obs(ind_dat,grid,points,probs=prob)
 
   maxcat= lapply(cats, function(x) {
     if(!is.null(x)){
@@ -146,14 +149,18 @@ autoplot_forecast_map<-function(
   },maxcat,maxcat_value)
 
   if(!is.null(skillmin)){
-
-    if((veri_dat[[ifelse(points==1,1,2)]]$veri_info[veri_metric,"nout"]!=1)){ # erweitern auf andere Skillmetriken mit Kategorien
+  # hier noch same einbauen-> dann skill auf NA setzen
+    if((veri_dat[[ifelse(points==1,1,2)]]$veri_info[veri_metric,"nout"]!=1)){
       skill = get_skill_maxcat(veri_dat,maxcat,veri_metric)
-    } else  skill = lapply(veri_dat, function(v) v$verification[[veri_metric]])
+    } else  skill = lapply(veri_dat, function(v) {
+      sk=v$verification[[veri_metric]]
+      sk[v$same]=NA
+      return(sk)})
 
     pval=mapply(function(pv,sk){
+      if (ndims(pv) != ndims(sk)) sk=replicate(tail(dim(pv),1),sk)
       if(!is.null(pv) & !is.null(sk)){
-        pv[sk<skillmin]=(ncat+1.55)*100
+        pv[sk<skillmin & pv!=50]=(ncat+1.55)*100
         pv[is.na(sk)]=50
         return(pv)
       } else return(NULL)
@@ -165,13 +172,12 @@ autoplot_forecast_map<-function(
   get_plot_args(autoplot="forecast_map")
 
   # 5. plot forecasts ---------------------------------------------------------
-
   yl<-ifelse(is.null(cats[[1]]$dims$yd),FALSE,TRUE)
   aggl<-ifelse(is.null(cats[[1]]$dims$aggd),FALSE,TRUE)
 
-  for (yy in 1:ifelse(yl,dim(pval[[1]])[cats[[1]]$dims$yd],1)){
-    for (aa in 1: ifelse(aggl,dim(pval[[1]])[cats[[1]]$dims$aggd],1)){
 
+    for (aa in 1: ifelse(aggl,dim(pval[[1]])[cats[[1]]$dims$aggd],1)){
+      for (yy in 1:ifelse(yl,dim(pval[[1]])[cats[[1]]$dims$yd],1)){
       pdat<-mapply(function(pv,i){
         if (!is.null(pv) & !is.null(i)){
           index_array(pv,dim=c(i$dims$aggd,i$dims$yd),
@@ -186,7 +192,7 @@ autoplot_forecast_map<-function(
 
       error=sum(sapply(pdat, function(pp){
         if (!is.null(pp)){
-          ifelse(all(is.na(pp)),1,0)
+          ifelse(all(pp==50),1,0)
         } else 0}))
 
       if (error==0){
@@ -206,8 +212,71 @@ autoplot_forecast_map<-function(
         }
 
       } #error
+      } #yy
+
+      if (plot_climatology==TRUE){
+        plot_args_clim=plot_args
+        plot_args_clim[c("fc_plot","NA_col","leg_labs","p_breaks","g_breaks")]<-NULL
+        iname=ifelse(points,ind_dat$obs_p$index_info$iname,ind_dat$obs_grid$index_info$iname)
+        def_col = get_default_color(index, iname)
+        plot_args_clim[c("p_col", "g_col")] <- list(def_col$col)
+        plot_args_clim[c("p_col_center", "g_col_center")] = list(def_col$center)
+        plot_args_clim[c("p_nlev", "g_nlev")] = 30
+        plot_args_clim["units"] = get_leg_units(ind_dat)
+
+        pdat_clim=list()
+        for (i in 1:length(prob)){
+          pdat_clim[[i]]=mapply(function(cc,vv){
+            if (!is.null(cc) & !is.null(vv)){
+              cd=ifelse(vv$data_info$obs$type=="p",1,2)
+              if(!aggl){
+                same=vv$same
+              } else same=index_array(vv$same,cd+1,list(aa),drop=TRUE)
+            val=index_array(cc,switch(aggl+1,1,c(1,cd+2)),value=switch(aggl+1,list(i),list(i,aa)),drop=FALSE)
+            val=array(val,dim(val)[2:length(dim(val))])
+            val[same]=NA
+            return(drop(val))
+            } else return(NULL)
+            #wenn same dann irgendwie markieren??? Ein Kreuz oder so?
+          },q_obs,veri_dat)
+        }
+        zlims=range(unlist(pdat_clim),na.rm=TRUE)
+        plot_args_clim[c("zlims","p_zlims")]=list(zlims)
+
+
+        for (i in 1:length(prob)){
+          pnames_clim=get_plot_title(titlestring=title,show_title=plot_title,autoplot="forecast_map_clim",yy)
+          plot_args_clim[c("output","outfile","plot_title")]<-list(output,pnames_clim$f,pnames_clim$t)
+
+          pdatc=pdat_clim[[i]]
+
+          if(grid == 1 & points == 1){
+            do.call("plot_map_grid_points", c(list(g_dat =pdatc$grid, g_lon = ind_dat$fc_grid$lon, g_lat = ind_dat$fc_grid$lat,
+              p_dat =pdatc$p, p_lon = ind_dat$fc_p$lon, p_lat = ind_dat$fc_p$lat, p_col_info = "same"), plot_args_clim))
+          } else if (grid == 1 & points == 0){
+            plot_args[c("p_col", "p_col_center")] = NULL
+            do.call("plot_map_grid_points", c(list(g_dat =pdatc$grid, g_lon = ind_dat$fc_grid$lon, g_lat = ind_dat$fc_grid$lat), plot_args_clim))
+          } else if (grid == 0 & points == 1){
+            do.call("plot_map_grid_points", c(list(p_dat =pdatc$p, p_lon = ind_dat$fc_p$lon, p_lat = ind_dat$fc_p$lat,
+              p_col_info = "cbar", p_legend = "cbar"), plot_args_clim))
+          }
+
+
+        } #prob
+
+
+
+
+
+        } #plot climatology
+
+
+
     } #aa
-  } #yy
+
+
+
+
 }
 
 

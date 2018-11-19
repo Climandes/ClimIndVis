@@ -10,10 +10,11 @@ plot_map_grid_points(g_dat = NULL, g_lon = NULL, g_lat = NULL,
   p_col_center = FALSE, p_dat, p_legend = 0, legend_center = FALSE, xlims,
   ylims, zlims = NULL, p_zlims, mask = NULL, mask_NA = NULL, ratio = 1,
   p_nlev = 10, p_breaks = NA, p_text, p_pch = 21, p_cex = 1,
-  p_pch_s = NA, p_col_sig, output = NULL, outfile, pwidth = 5,
-  graphic_device, plot_title, lwidth = 1, plwidth = 1, trend = FALSE,
-  topo = NULL, text_cex = 1, mask_col = "lightgrey", NA_col = "white",
-  fc_plot = FALSE, outliers = c(FALSE, FALSE), units = "", ...)
+  p_pch_s = NA, p_col_sig, output = NULL, outfile, plot_scale = TRUE,
+  pwidth = 5, graphic_device, plot_title, lwidth = 1, plwidth = 1,
+  trend = FALSE, topo = NULL, text_cex = 1, mask_col = "lightgrey",
+  NA_col = "white", fc_plot = FALSE, outliers = c(FALSE, FALSE),
+  units = "", ...)
 }
 \arguments{
 \item{g_lon, g_lat:}{arrays of longitudes and latidudes  of dimension nx,ny ( or matrix of dim nx x ny if grid is not regular).}

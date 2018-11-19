@@ -16,7 +16,7 @@ verify_climindvis_index<-function(obs, hc, veri_metrics, hc_ref = NULL, na_rm = 
 
   tryCatch({
     if(!is.null(hc_ref)){
-      sel<-sapply(veri_metrics, function(x) str_sub(x,-2) == "ss")
+      sel<-sapply(veri_metrics, function(x) stringr::str_sub(x,-2) == "ss")
       if(is.element("EnsRocss",veri_metrics)) sel[which(veri_metrics == "EnsRocss")]=FALSE
       veri_metrics<-veri_metrics[sel]
       if(length(veri_metrics) == 0){
@@ -79,19 +79,25 @@ verify_climindvis_index<-function(obs, hc, veri_metrics, hc_ref = NULL, na_rm = 
     }
   }
 
+
+  if(is.null(prob))prob= 1:(ncat-1)/ncat
+
   same_obs=apply(help_obs,c(1:ndims(help_obs))[-(tdim-1)], function(x){
-    if (length(unique(quantile(x,probs=1:(ncat-1)/ncat,na.rm=TRUE)))<(ncat-1)){
+    # if (length(unique(quantile(x,probs=1:(ncat-1)/ncat,na.rm=TRUE)))<(ncat-1)){
+    if (length(unique(quantile(x,probs=prob,na.rm=TRUE,type=8)))<(ncat-1)){
       return(TRUE)
     } else return(FALSE)
   })
-  same_hc=apply(help_hc,c(1:ndims(help_hc_ref))[-c(ensdim,tdim)], function(x){
-    if (length(unique(quantile(x,probs=1:(ncat-1)/ncat,na.rm=TRUE)))<(ncat-1)){
+  same_hc=apply(help_hc,c(1:ndims(help_hc))[-c(ensdim,tdim)], function(x){
+    # if (length(unique(quantile(x,probs=1:(ncat-1)/ncat,na.rm=TRUE)))<(ncat-1)){
+    if (length(unique(quantile(x,probs=prob,na.rm=TRUE,type=8)))<(ncat-1)){
       return(TRUE)
     } else return(FALSE)
   })
   if(!is.null(help_hc_ref)){
     same_hc_ref=apply(help_hc_ref,c(1:ndims(help_hc_ref))[-c(ensdim,tdim)], function(x){
-      if (length(unique(quantile(x,probs=1:(ncat-1)/ncat,na.rm=TRUE)))<(ncat-1)){
+      #if (length(unique(quantile(x,probs=1:(ncat-1)/ncat,na.rm=TRUE)))<(ncat-1)){
+        if (length(unique(quantile(x,probs=prob,na.rm=TRUE,type=8)))<(ncat-1)){
         return(TRUE)
       } else return(FALSE)
     })

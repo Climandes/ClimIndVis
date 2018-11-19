@@ -68,7 +68,9 @@ autoplot_forecast_spi(
 Stagee, J.H. ; Tallaksen, L.M.; Gudmundsson, L.; van Loon, A.; Stahl, K.: Candidate Distributions for Climatological Drought Indices (SPI and SPEI), 2015, International Journal of Climatology, 35, 4027-4040, doi:10.1002/joc.4267.
 }
 \seealso{
-Other autoplot_functions: \code{\link{autoplot_climatology_map}},
+Other autoplot_functions: \code{\link{autoplot_anomaly_map}},
+  \code{\link{autoplot_anomaly_ts}},
+  \code{\link{autoplot_climatology_map}},
   \code{\link{autoplot_forecast_map}},
   \code{\link{autoplot_forecast_stations}},
   \code{\link{autoplot_overview_stations}},

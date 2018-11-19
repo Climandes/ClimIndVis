@@ -11,6 +11,7 @@
 #' \item "monthly": Monthly aggregation. For subset of months, define subset as integer array using parameter \strong{selagg}, e.g. c(1:3) for monthly aggregation of Jan,Feb and March
 #' \item "other": aggregation over all months defined as integer array in \strong{aggmons}, e.g. c(1:4) aggregates over Jan-Apri.
 #' \item "dates": Aggregation of user defined dates defined in \strong{start_days} and \strong{end_days}. start_days and end days are arrays of format date or character(yyyy-mm-dd). If start and end dates are the same for all years they can also be specified as "0000-mm-dd", e.g. "0000-01-01".
+#'\item "xdays": Aggregations over time slices of \strong{xday} days, e.g. for xday=7, weekly aggregation. If the parameters  \strong{start}  and/or  \strong{end} are provided, time slices are only calculated between the two dates. If you want weekly aggregations you thus have to set the starting date to a Monday. This aggregation is not implemented for seasonal forecast data and if small xdays are chosen (e.g. 7 or 10) we recommend to use it only for short time periods. Please note that at the moment the autoplot functions do not work with this aggregation type.
 #' }
 #'@param ... for  index specific arguments see links in section "indices" below.
 #'
@@ -89,7 +90,7 @@ calc_index <- function(climindvis, index, aggt, ...) {
 
 
     if(missing(aggt)) stop("aggt needs to be provided")
-    aggt=check_aggt(index,aggt)
+    aggt=check_aggt(index,aggt,climindvis$data_info$type)
 
     class(climindvis) <- append(index,"climindvis")
 
@@ -135,7 +136,7 @@ calculate_index.climindvis <- function(climindvis,aggt,...){
   iargs<-do.call(index_arguments,arguments)
 
   #
-  sel_time<-get_date_factors(climindvis,args$aggt,args$aggmons,args$selagg,args$start_days,args$end_days)
+  sel_time<-get_date_factors(climindvis,args$aggt,args$aggmons,args$selagg,args$start_days,args$end_days,args$start,args$end,args$xdays)
 
   d=dim(climindvis$data[[iargs$var]])
   ld=length(d)
@@ -144,22 +145,34 @@ calculate_index.climindvis <- function(climindvis,aggt,...){
 
 
   if(is_index_special(class(climindvis)[1])){
-    quants<-get_quants(climindvis,var=iargs$var,qargs=iargs$qargs,sel_time)
+    if (!is.null(args$th_object)){
+      if (any(args$th_object$index_info$aggnames != sel_time$aggnames)) stop("aggregations of th_object and selected aggregation type do not match or data covers different time steps.")
 
-    iout<-sapply(1:dim(dat_help)[1],
-                function(x) do.call(iargs$ifun,c(list(temp=dat_help[x,],q_temp=quants$quants_help[x,],date_factor=sel_time$tfactor),iargs$ifunargs)))
+    }
+    quants<-get_quants_new(climindvis,var=iargs$var,qargs=iargs$qargs,sel_time)
+    if (grepl("hc|fc",climindvis$data_info$type)) iargs$qargs$inbase=FALSE
+    if(iargs$qargs$inbase){
+      iout<-sapply(1:dim(dat_help)[1],
+                 function(x) do.call(iargs$ifun,c(list(temp=dat_help[x,],jdays=climindvis$time_factors$jdays, q_temp=quants$base[,x],q_temp_inbase=quants$inbase[,,x],
+                                                   date_factor=sel_time$tfactor),iargs$ifunargs, iargs$qargs)))
+    } else {
+      iout<-sapply(1:dim(dat_help)[1],
+                   function(x) do.call(iargs$ifun,c(list(temp=dat_help[x,],jdays=climindvis$time_factors$jdays, q_temp=quants$base[,x],
+                                                         date_factor=sel_time$tfactor),iargs$ifunargs, iargs$qargs)))
+    }
 
-    iargs$qargs$th_quantiles=quants$quants
+    iargs$qargs$th_quantiles=quants$base
   } else {
     iout <- apply(dat_help,1,
                   function(x) do.call(iargs$ifun,c(list(temp=x,date_factor=sel_time$tfactor),iargs$ifunargs)))
   }
 
   ireturn<-list()
-  ireturn$index_info <- c(iargs$ifunargs,iargs$plotargs,iargs$qargs,list(aggt=args$aggt,aggnames=sel_time$aggnames,years=unique(substr(levels(sel_time$tfactor),1,4))))
+  ireturn$index_info <- c(iargs$ifunargs,iargs$plotargs,iargs$qargs,list(aggt=ifelse(args$aggt=="xdays",paste0(args$xdays,"days"),args$aggt),aggnames=sel_time$aggnames,years=unique(substr(levels(sel_time$tfactor),1,4))))
 
-
-  ihelp <-rearange_by_year(iout,levels(sel_time$tfactor))
+  if (args$aggt=="xdays"){
+    ihelp=rearange_time(iout,levels(sel_time$tfactor))
+  } else  ihelp <-rearange_by_year(iout,levels(sel_time$tfactor))
   ireturn$index<-array(ihelp,c(d[1:(ld-1)],dim(ihelp)[-1]),dimnames=c(rep(list(NULL),ld-1),dimnames(ihelp) [-1]))
   ireturn$index_info$idims<-get_idims(climindvis,args)
 

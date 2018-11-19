@@ -1,5 +1,5 @@
 
-single_ts <- function(ind_dat, day_dat_na,tdims, pdims, pinfo, trendplots, output,plotdir,plotname,pwidth,pheight,pres,selpoints,cex,text_cex,plot_title,title,opargs){
+single_ts <- function(ind_dat, day_dat_na,tdims, pdims, pinfo, trendplots, output,plotdir,plotname,pwidth,pheight,pres,selpoints,cex,text_cex,plot_title,title,plot_legend,opargs,anom=FALSE,refyears=NULL){
 
   if(is.null(opargs$shading) & is.null(opargs$yval_shading)){
     if (length(ind_dat)> 1) message(" Shading will be calculated from first data set in <<ind_dat>>")
@@ -8,7 +8,6 @@ single_ts <- function(ind_dat, day_dat_na,tdims, pdims, pinfo, trendplots, outpu
   if (is.null(opargs$pcols)) {
     pcols=RColorBrewer::brewer.pal(3, "Dark2")
   } else pcols=opargs$pcols
-
   aggn <- lapply(ind_dat, function(x){ x$index_info$aggnames})[[1]]
   # start plot loop
   for (pp in 1:pdims$pnumber){
@@ -20,9 +19,9 @@ single_ts <- function(ind_dat, day_dat_na,tdims, pdims, pinfo, trendplots, outpu
       pname<-ifelse(is.null(pdims$pnames[pp]),as.character(pp),pdims$pnames[pp])
 
       if(!is.null(output)) {
-        plotfile<-paste0(plotdir,ifelse(is.null(plotname),"",paste0(plotname,"_")),"single_ts","_",pinfo$index_name,"_",
+        plotfile<-paste0(plotdir,ifelse(is.null(plotname),"",paste0(plotname,"_")),"single_ts","_",pinfo$index_name,ifelse(anom,"_anomaly",""),"_",
                          ifelse(is.na(agg),paste(aggn[1],"_"),paste0(aggn[which(nagg==agg)],"_")),
-                         tdims$year[1],"-",tdims$year[length(tdims$year)],"_",pname,".",output)
+                         tdims$year[1],"-",tdims$year[length(tdims$year)],ifelse(anom,paste0("_refyears",refyears),"_"),pname,".",output)
         if(is.element(output, c("png","jpeg","tiff","bmp"))){
           do.call(output,c(list(filename=plotfile,height=pheight,width=pwidth,res=pres)))
         } else if (output == "pdf"){
@@ -33,24 +32,29 @@ single_ts <- function(ind_dat, day_dat_na,tdims, pdims, pinfo, trendplots, outpu
       for (i in 1:length(ind_dat)){
         if(pinfo$ylims[1]=="ind"){
           ylims <- round(range(pdata[[i]]$data, na.rm=TRUE), digits=2)
+          if(all(is.infinite(ylims))) {
+            ylims <- c(NA,NA)
+            message("No finite values calculated.")
+          }
         } else {ylims <- pinfo$ylims}
 
         ut<-ifelse(title=="",FALSE,TRUE)
         ifelse(plot_title,par(mar=c(2,4*text_cex,(5+ut)*text_cex,1)+0.1,tcl=ifelse(text_cex<1,-0.5+(0.5*text_cex),-0.5)),par(mar=c(2,4*text_cex,1,1)+0.1,tcl=ifelse(text_cex<1,-0.5+(0.5*text_cex),-0.5)))
         plot(0,type="n",xlab="",ylab="",axes=FALSE,xlim=c(1,length(tdims$year)+1),ylim=ylims)
-
+        if (anom) abline(h=0,col="gray66")
         if(!is.null(opargs$shading)){
           if(is.null(opargs$nshading)) {
             stop("number of polygons for shading <<nshadin>> needs to be provided")
           } else nshd=opargs$nshading
           if (is.null(opargs$yval_shading)) {
             datsh=quantile(pdata[[1]]$data,1:(nshd-1)/nshd,na.rm = TRUE , type=8)
+            datsh=c(pinfo$ylims[1]-10,datsh,pinfo$ylims[2]+10)
           } else {
             datsh=opargs$yval_shading
             if (length(datsh)> opargs$nshading+1) stop("<<yval_shading>> should have length <<nshading>>")
           }
           if (length(opargs$col_shading) != opargs$nshading) stop("<<opargs$col_shading>> should have length <<nshading>>")
-          datsh=c(pinfo$ylims[1]-10,datsh,pinfo$ylims[2]+10)
+
           for (nsh in 1:opargs$nshading){
             polygon(c(-10,length(tdims$year)+10,length(tdims$year)+10,0),c(rep(datsh[nsh],2),rep(datsh[nsh+1],2)),col=opargs$col_shading[nsh],border=NA)
           }
@@ -75,18 +79,19 @@ single_ts <- function(ind_dat, day_dat_na,tdims, pdims, pinfo, trendplots, outpu
         lines(as.vector(pdata[[i]]$data),col=pcols[i],cex=1)
         points(as.vector(pdata[[i]]$data),pch=16,col=pcols[i],cex=1)
 
+
         # plot subtitles
         if(plot_title){
-          if(ut)           mtext(title, side=3,line=4*text_cex,cex=1.5*text_cex,adj=0.5)
-          mtext(paste0(ifelse(!is.null(pinfo$titlestring),paste0(pinfo$titlestring," "),""),pinfo$index_name," ",
+          if(ut) mtext(title, side=3,line=4*text_cex,cex=1.5*text_cex,adj=0.5)
+          mtext(paste0(ifelse(!is.null(pinfo$titlestring),paste0(pinfo$titlestring," "),""),pinfo$index_name,ifelse(anom," anomaly","")," ",
                        ifelse(is.na(agg),paste(aggn[1]," "),paste0(aggn[which(nagg==agg)]," ")),"",pname," (", pdims$lon[pp],"/ ",pdims$lat[pp],")"),
                 side=3,line=3*text_cex,cex=text_cex,adj=0)
           years <- ind_dat[[1]]$index_info$years
-          mtext(paste0("Period: ", years[1],"-",years[length(years)]), side=3, line = 2*text_cex, cex=0.8*text_cex, adj=0)
+          mtext(ifelse(anom,paste0("Reference period: ",gsub("_",",",refyears)),paste0("Period: ", years[1],"-",years[length(years)])), side=3, line = 2*text_cex, cex=0.8*text_cex, adj=0)
           mtext(paste0("Missing Values: ",round(na_vals) ," [%]"), side=3, line = text_cex, cex=0.8*text_cex, adj=0)
         }
 
-        if (trendplots){
+        if ((trendplots==TRUE | trendplots == "MannKendall")){
           tdata<-get_plot_data_points_trend(ind_dat,iagg=agg,years=tdims$year,ip=pp,pdiminfo=pdims$dims)
           plot_polyt(tdata=tdata,colv=colv,cex=cex,i=i)
 
@@ -94,7 +99,7 @@ single_ts <- function(ind_dat, day_dat_na,tdims, pdims, pinfo, trendplots, outpu
             trinfo <- t(round(sapply(ind_dat, function(ll)
               index_array(ll$trend_info, switch(is.na(agg)+1,c(1,2),1),
                           list(pdims$dims[[1]]$ipoint[pp],switch(is.na(agg)+1,which(agg==nagg),NULL)))),digits=2))
-            write_trend(trinfo,text_cex, dif=FALSE)
+            write_trend(trinfo,text_cex, dif=FALSE, opargs$units)
 
           }
           #legend("topright", legend=c("index","trend","loess"))
@@ -110,7 +115,7 @@ single_ts <- function(ind_dat, day_dat_na,tdims, pdims, pinfo, trendplots, outpu
 }
 
 
-multi_ind <- function(ind_dat, day_dat_na,tdims, pdims, pinfo, trendplots, output,plotdir,plotname,pwidth,pheight,pres,selpoints,cex,text_cex,plot_title,title,opargs){
+multi_ind <- function(ind_dat, day_dat_na,tdims, pdims, pinfo, trendplots, output,plotdir,plotname,pwidth,pheight,pres,selpoints,cex,text_cex,plot_title,title,plot_legend,opargs,anom=FALSE,refyears=NULL){
 
   if(length(ind_dat)==1) message("Only one index provided. Please provide several climindvis objects for a multi-index plot.")
 
@@ -139,7 +144,8 @@ multi_ind <- function(ind_dat, day_dat_na,tdims, pdims, pinfo, trendplots, outpu
 
       if(!is.null(output)) {
           plotfile<-paste0(plotdir,ifelse(is.null(plotname),"",paste0(plotname,"_")),"multind_ts","_",paste(pinfo$index_name,collapse = ""),
-                           "_",ifelse(is.na(agg),paste0(aggn,collapse = "","_"),paste0(aggn[which(nagg==agg)],"_")),tdims$year[1],"-",tdims$year[length(tdims$year)],"_",pname,".",output)
+                           "_",ifelse(is.na(agg),paste0(unique(aggn),collapse = "","_"),paste0(aggn[which(nagg==agg)],"_")),
+                           tdims$year[1],"-",tdims$year[length(tdims$year)],ifelse(anom,paste0("_refyears",refyears),""),"_",pname,".",output)
           if(is.element(output, c("png","jpeg","tiff","bmp"))){
             do.call(output,c(list(filename=plotfile,height=pheight,width=pwidth,res=pres)))
           } else if (output == "pdf"){
@@ -157,7 +163,7 @@ multi_ind <- function(ind_dat, day_dat_na,tdims, pdims, pinfo, trendplots, outpu
       ifelse(plot_title,par(mar=c(2,4*text_cex,(5+ut)*text_cex,ifelse(axt,4*text_cex,2))+0.1,tcl=ifelse(text_cex<1,-0.5+(0.5*text_cex),-0.5)),
              par(mar=c(2,4*text_cex,1,ifelse(axt,4*text_cex,2))+0.1,tcl=ifelse(text_cex<1,-0.5+(0.5*text_cex),-0.5)))
       plot(0,type="n",xlab="",ylab="",axes=FALSE,xlim=c(1,length(tdims$year)+1),ylim=ylims)
-
+      if (anom) abline(h=0,col="gray66")
       axis(side=1,labels=tdims$year,at=c(1:length(tdims$year)),cex.axis=text_cex,tick=TRUE)
       year_seq <- c(1:length(tdims$year))
       abline(v=year_seq[which((year_seq%%5)==0)],col="gray66" ,lty=2)
@@ -207,19 +213,19 @@ multi_ind <- function(ind_dat, day_dat_na,tdims, pdims, pinfo, trendplots, outpu
         mtext(paste0(ifelse(!is.null(pinfo$titlestring),paste0(pinfo$titlestring," "),""),
                      ifelse(is.na(agg),paste0(unique(aggn),collapse = ""," "),paste0(aggn[which(nagg==agg)]," ")),"",pname," (", pdims$lon[pp],"/ ",pdims$lat[pp],")"),side=3,line=3*text_cex,cex=text_cex,adj=0)
         years <- ind_dat[[1]]$index_info$years
-        mtext(paste0("Period: ", years[1],"-",years[length(years)]), side=3, line = 2*text_cex, cex=0.8*text_cex, adj=0)
+        mtext(ifelse(anom,paste0("Reference period: ",gsub("_",",",refyears)),paste0("Period: ", years[1],"-",years[length(years)])), side=3, line = 2*text_cex, cex=0.8*text_cex, adj=0)
         miss_val <- paste0(round(unlist(na_vals)),collapse = "/")
         mtext(paste0("Missing Values: ", miss_val ," [%]"), side=3, line = text_cex, cex=0.8*text_cex, adj=0)
 
-        if (trendplots==TRUE){
+        if (trendplots==TRUE | trendplots == "MannKendall"){
           trinfo <- t(round(sapply(ind_dat, function(ll)
             index_array(ll$trend_info, switch(is.na(agg)+1,c(1,2),1),
                         list(pdims$dims[[1]]$ipoint[pp],switch(is.na(agg)+1,which(agg%in%nagg),NULL)))),digits=2))
-          write_trend(trinfo,text_cex,dif=TRUE)
+          write_trend(trinfo,text_cex,dif=TRUE, opargs$units)
         }
       }
 
-      legend("topright",legend=pinfo$legend,col=pcols,lwd=2,bty="n",cex=0.8*text_cex)
+      if(plot_legend){legend("topright",legend=pinfo$legend,col=pcols,lwd=2,bty="n",cex=0.8*text_cex)}
       box()
 
       if(!is.null(output)){
@@ -229,14 +235,14 @@ multi_ind <- function(ind_dat, day_dat_na,tdims, pdims, pinfo, trendplots, outpu
   }
 }
 
-multi_agg <- function(ind_dat, day_dat_na,tdims, pdims, pinfo,trendplots, output,plotdir,plotname,pwidth,pheight,pres,selpoints,cex,text_cex,plot_title,title,opargs){
+multi_agg <- function(ind_dat, day_dat_na,tdims, pdims, pinfo,trendplots, output,plotdir,plotname,pwidth,pheight,pres,selpoints,cex,text_cex,plot_title,title,plot_legend,opargs,anom=FALSE,refyears=NULL){
   #if(is.null(tdims$agg)) stop("no valid aggregation for this index, change type argument")
 
   aggType <- Reduce(union,lapply(ind_dat, function(x) x$index_info$aggt))
   nagg <-  lapply(ind_dat, function(x) x$index_info$aggnames)
   if(any(is.element(aggType,c("annual","other","dates")))) {
     # necessary for extracting data
-    nagg[[which(is.element(aggType,c("annual","other","dates")))]] <- NA
+    nagg[which(is.element(aggType,c("annual","other","dates")))] <- NA
   }
 
   if(any(is.element(aggType,c("monthly")))){
@@ -259,7 +265,7 @@ multi_agg <- function(ind_dat, day_dat_na,tdims, pdims, pinfo,trendplots, output
     if(!is.null(output)){
       plotfile<-paste0(plotdir,ifelse(is.null(plotname),"",paste0(plotname,"_")),"multiagg_ts","_",unique(pinfo$index_name),"_",
                        paste0(pinfo$legend,collapse = ""),"_",
-                       years[1],"-",years[length(years)],"_",pname,".",output)
+                       years[1],"-",years[length(years)],ifelse(anom,paste0("_refyears",refyears),""),"_",pname,".",output)
       if(is.element(output, c("png","jpeg","tiff","bmp"))){
         do.call(output,c(list(filename=plotfile,height=pheight,width=pwidth,res=pres)))
       } else if (output == "pdf"){
@@ -277,6 +283,7 @@ multi_agg <- function(ind_dat, day_dat_na,tdims, pdims, pinfo,trendplots, output
     ifelse(plot_title,par(mar=c(2,4*text_cex,(5+1)*text_cex,1)+0.1,tcl=ifelse(text_cex<1,-0.5+(0.5*text_cex),-0.5)),
            par(mar=c(2,4*text_cex,1,1)+0.1,tcl=ifelse(text_cex<1,-0.5+(0.5*text_cex),-0.5)))
     plot(0,type="n",xlab="",ylab="",axes=FALSE,xlim=c(1,length(years)+1),ylim=ylims)
+    if (anom) abline(h=0,col="gray66")
     axis(side=1,labels=years,at=c(1:length(years)),cex.axis=text_cex)
     year_seq <- c(1:length(years))
     abline(v=year_seq[which((year_seq%%5)==0)],col="gray66" ,lty=2)
@@ -298,7 +305,7 @@ multi_agg <- function(ind_dat, day_dat_na,tdims, pdims, pinfo,trendplots, output
         lines(pdata[[1]]$data[1,],col=pcols[chelp],cex=cex)
         points(pdata[[1]]$data[1,],pch=16,col=pcols[chelp],cex=cex)
 
-        if (trendplots){
+        if (trendplots==TRUE | trendplots == "MannKendall"){
           tdata<-get_plot_data_points_trend(ind_dat[al],iagg=nagg[[al]][i],years=years,ip=pp,pdiminfo=pdims$dims[al])
           plot_polyt(tdata=tdata,colv=col2rgb(pcols[chelp]),cex=cex,i=1)
           trinfo[aggn[[al]][i],] <- round(index_array(ind_dat[[al]]$trend_info,
@@ -312,13 +319,13 @@ multi_agg <- function(ind_dat, day_dat_na,tdims, pdims, pinfo,trendplots, output
 
     if(plot_title){
       mtext(paste0(pinfo$titlestring,"",unique(pinfo$index_name)," ", pname," (", pdims$lon[pp],"/",pdims$lat[pp],")"),side=3,line=3*text_cex,cex=text_cex, adj=0)
-      mtext(paste0("Period: ", years[1],"-",years[length(years)]), side=3, line = 2*text_cex, cex=0.8*text_cex, adj=0)
+      mtext(ifelse(anom,paste0("Reference period: ",gsub("_",",",refyears)),paste0("Period: ", years[1],"-",years[length(years)])), side=3, line = 2*text_cex, cex=0.8*text_cex, adj=0)
       miss_val <- paste0(round(unlist(na_vals)),collapse = "/")
       mtext(paste0("Missing Values: ", miss_val ," [%]"), side=3, line = text_cex, cex=0.8*text_cex, adj=0)
-      if(trendplots){write_trend(trinfo,text_cex, dif=FALSE)}
+      if(trendplots==TRUE | trendplots == "MannKendall"){write_trend(trinfo,text_cex, dif=FALSE, opargs$units)}
     }
 
-    legend("topright",legend=pinfo$legend,col=pcols,lty=lty,lwd=2,bty="n",cex=0.8*text_cex)
+    if(plot_legend)legend("topright",legend=pinfo$legend,col=pcols,lty=lty,lwd=2,bty="n",cex=0.8*text_cex)
     box()
 
     if(!is.null(output)){
@@ -329,7 +336,7 @@ multi_agg <- function(ind_dat, day_dat_na,tdims, pdims, pinfo,trendplots, output
 }
 
 
-multi_dat <- function(ind_dat, day_dat_na,tdims, pdims, pinfo,trendplots, output,plotdir,plotname,pwidth,pheight,pres,selpoints,cex,text_cex,plot_title,title,opargs){
+multi_dat <- function(ind_dat, day_dat_na,tdims, pdims, pinfo,trendplots, output,plotdir,plotname,pwidth,pheight,pres,selpoints,cex,text_cex,plot_title,title,plot_legend,opargs,anom=FALSE,refyears=NULL){
 
   if (is.null(opargs$pcols)) {
     pcols=RColorBrewer::brewer.pal(ifelse(length(ind_dat)<3,3,length(ind_dat)), "Dark2")
@@ -352,7 +359,7 @@ multi_dat <- function(ind_dat, day_dat_na,tdims, pdims, pinfo,trendplots, output
       na_vals <- round(switch(is.na(agg)+1,
                               mapply(function(x,y){x[y$ipoint[[pp]],agg==nagg]}, x=day_dat_na, y=pdims$dims),
                               mapply(function(x,y){x[y$ipoint[[pp]]]}, x=day_dat_na, y=pdims$dims)),digits = 0)
-      if(trendplots) {tdata<-get_plot_data_points_trend(ind_dat,iagg=agg,years=tdims$year,ip=pp,pdiminfo=pdims$dims)}
+      if(trendplots==TRUE | trendplots == "MannKendall") {tdata<-get_plot_data_points_trend(ind_dat,iagg=agg,years=tdims$year,ip=pp,pdiminfo=pdims$dims)}
       ifelse(is.null(pdims$pnames[pp]),pname <- as.character(pp),pname <- pdims$pnames[pp])
 
       if(pinfo$ylims[1]=="ind"){
@@ -362,7 +369,7 @@ multi_dat <- function(ind_dat, day_dat_na,tdims, pdims, pinfo,trendplots, output
       if(!is.null(output)){
         plotfile<-paste0(plotdir,ifelse(is.null(plotname),"",paste0(plotname,"_")),"multidat_ts","_",unique(pinfo$index_name),"_",
                          ifelse(is.na(agg),paste0(aggn,collapse = "","_"),paste0(nagg[which(nagg==agg)],"_")),
-                         tdims$year[1],"-",tdims$year[length(tdims$year)],"_",pname,".",output)
+                         tdims$year[1],"-",tdims$year[length(tdims$year)],ifelse(anom,paste0("_refyears",refyears),"_"),"_",pname,".",output)
         if(is.element(output, c("png","jpeg","tiff","bmp"))){
           do.call(output,c(list(filename=plotfile,height=pheight,width=pwidth,res=pres)))
         } else if (output == "pdf"){
@@ -372,7 +379,7 @@ multi_dat <- function(ind_dat, day_dat_na,tdims, pdims, pinfo,trendplots, output
       ut<-ifelse(title=="",FALSE,TRUE)
     ifelse(plot_title,par(mar=c(2,4*text_cex,(5+ut)*text_cex,1)+0.1,tcl=ifelse(text_cex<1,-0.5+(0.5*text_cex),-0.5)),par(mar=c(2,4*text_cex,1,1)+0.1,tcl=ifelse(text_cex<1,-0.5+(0.5*text_cex),-0.5)))
     plot(0,type="n",xlab="",ylab="",axes=FALSE,xlim=c(1,length(tdims$year)+1),ylim=ylims)
-
+    if (anom) abline(h=0,col="gray66")
     axis(side=1,labels=tdims$year,at=c(1:length(tdims$year)),cex.axis=text_cex)
     year_seq <- c(1:length(tdims$year))
     abline(v=year_seq[which((year_seq%%5)==0)],col="gray66" ,lty=2)
@@ -403,7 +410,7 @@ multi_dat <- function(ind_dat, day_dat_na,tdims, pdims, pinfo,trendplots, output
         points(dat,pch=16,col=pcols[i],cex=cex*0.5)
       }
 
-      if (trendplots){
+      if (trendplots==TRUE | trendplots == "MannKendall"){
         polygon(c(1:length(tdata[[i]]$data[,1]),length(tdata[[i]]$data[,1]):1),c(tdata[[i]]$data[,2],rev(tdata[[i]]$data[,3])),border=NA,col=rgb(colv[1],colv[2],colv[3], alpha=70, maxColorValue = 255),cex=cex)
         lines(tdata[[i]]$data[,1],type="l",col=rgb(colv[1],colv[2],colv[3],maxColorValue = 255),cex=cex)
         lines(tdata[[i]]$data[,4],type="l",col=rgb(colv[1],colv[2],colv[3],maxColorValue = 255),lty=2,cex=cex)
@@ -411,18 +418,18 @@ multi_dat <- function(ind_dat, day_dat_na,tdims, pdims, pinfo,trendplots, output
     }
 
     if(plot_title){
-      mtext(paste0(pinfo$titlestring,"",pinfo$index_name," ", ifelse(is.na(agg),paste0(aggn,collapse = ""," "),paste0(nagg[which(nagg==agg)]," ")),pname," (", pdims$lon[pp],"/",pdims$lat[pp],")"),side=3,line=3*text_cex,cex=text_cex, adj=0)
+      mtext(paste0(pinfo$titlestring,"",pinfo$index_name,ifelse(anom," anomaly","")," ", ifelse(is.na(agg),paste0(aggn,collapse = ""," "),paste0(nagg[which(nagg==agg)]," ")),pname," (", pdims$lon[pp],"/",pdims$lat[pp],")"),side=3,line=3*text_cex,cex=text_cex, adj=0)
       mtext(paste0("Period: ", tdims$year[1],"-",tdims$year[length(tdims$year)]), side=3, line = 2*text_cex, cex=0.8*text_cex, adj=0)
       miss_val <- paste0(round(unlist(na_vals)),collapse = "/")
       mtext(paste0("Missing Values: ", miss_val ," [%]"), side=3, line = text_cex, cex=0.8*text_cex, adj=0)
-      if (trendplots){
+      if (trendplots==TRUE | trendplots == "MannKendall"){
         trinfo <- get_trend_info(ind_dat,agg,pdims$dims,nagg,pp)
-        write_trend(trinfo,text_cex, dif=FALSE)
+        write_trend(trinfo,text_cex, dif=FALSE, opargs$units)
        }
     }
 
     box()
-    legend("topright",legend=pinfo$legend,col=pcols,lty=1,lwd=2,bty="n",cex=0.8*text_cex)
+    if(plot_legend) legend("topright",legend=pinfo$legend,col=pcols,lty=1,lwd=2,bty="n",cex=0.8*text_cex)
 
     if(!is.null(output)){
       if (output!="dev.new") dev.off()
@@ -432,10 +439,14 @@ multi_dat <- function(ind_dat, day_dat_na,tdims, pdims, pinfo,trendplots, output
 
 
 multi_point <- function(ind_dat,day_dat_na, tdims, pdims, pinfo,trendplots, output,plotdir,plotname,pwidth,pheight,
-                        pres,selpoints,cex,text_cex,plot_title,title,opargs){
+                        pres,selpoints,cex,text_cex,plot_title,title,plot_legend,opargs,anom=FALSE,refyears=NULL){
 
   if (is.null(opargs$pcols)) {
-    pcols=RColorBrewer::brewer.pal(max(length(selpoints),3), "Dark2")[1:length(selpoints)]
+    if(length(selpoints)>8){
+      pcols = col=grDevices::colorRampPalette(c("red","blue"))(length(selpoints))
+      message("More than 8 stations selected. Consider providing your own colors.")
+    } else {pcols=RColorBrewer::brewer.pal(max(length(selpoints),3), "Dark2")[1:length(selpoints)]
+}
   } else pcols=opargs$pcols
 
   if (!is.null(tdims$agg)){
@@ -450,7 +461,7 @@ multi_point <- function(ind_dat,day_dat_na, tdims, pdims, pinfo,trendplots, outp
   for (agg in nagg){
     pdata<-get_plot_data_points(ind_dat,iagg=agg,years=tdims$year,ip=pp,pdiminfo=pdims$dims)
     na_vals <- switch(is.na(agg)+1,round(day_dat_na[[1]][pdims$dims$dat_p$ipoint,agg],digits=1),round(day_dat_na[[1]][pdims$dims[[1]]$ipoint],digits=1))
-    if(trendplots) {tdata<-get_plot_data_points_trend(ind_dat,iagg=agg,years=tdims$year,ip=pp,pdiminfo=pdims$dims)}
+    if(trendplots==TRUE | trendplots == "MannKendall") {tdata<-get_plot_data_points_trend(ind_dat,iagg=agg,years=tdims$year,ip=pp,pdiminfo=pdims$dims)}
 
     ifelse(is.null(pdims$pnames[pp]),pname <- as.character(pp),pname <- pdims$pnames[pp])
 
@@ -461,9 +472,9 @@ multi_point <- function(ind_dat,day_dat_na, tdims, pdims, pinfo,trendplots, outp
 
 
     if(!is.null(output)) {
-      plotfile<-    paste0(plotdir,ifelse(is.null(plotname),"",paste0(plotname,"_")),"multipoint_ts","_",pinfo$index_name,"_",
+      plotfile<-    paste0(plotdir,ifelse(is.null(plotname),"",paste0(plotname,"_")),"multipoint_ts","_",pinfo$index_name,ifelse(anom,"_anomaly",""),"_",
                            ifelse(is.na(agg),paste0(aggn,collapse = "","_"),paste0(aggn[which(nagg==agg)],"_")),
-                           tdims$year[1],"-",tdims$year[length(tdims$year)],".",output)
+                           tdims$year[1],"-",tdims$year[length(tdims$year)],ifelse(anom,paste0("_refyears",refyears),"_"),".",output)
       if(is.element(output, c("png","jpeg","tiff","bmp"))){
         do.call(output,c(list(filename=plotfile,height=pheight,width=pwidth,res=pres)))
       } else if (output == "pdf"){
@@ -474,7 +485,7 @@ multi_point <- function(ind_dat,day_dat_na, tdims, pdims, pinfo,trendplots, outp
     ifelse(plot_title,par(mar=c(2,4*text_cex,(5+ut)*text_cex,1)+0.1,tcl=ifelse(text_cex<1,-0.5+(0.5*text_cex),-0.5)),
            par(mar=c(2,4*text_cex,1,1)+0.1,tcl=ifelse(text_cex<1,-0.5+(0.5*text_cex),-0.5)))
     plot(0,type="n",xlab="",ylab="",axes=FALSE,xlim=c(1,length(tdims$year)+2),ylim=ylims,yaxs="i")
-
+    if (anom) abline(h=0,col="gray66")
     axis(side=1,labels=tdims$year,at=c(1:length(tdims$year)),cex.axis=text_cex)
     year_seq <- c(1:length(tdims$year))
     abline(v=year_seq[which((year_seq%%5)==0)],col="gray66" ,lty=2)
@@ -492,7 +503,7 @@ multi_point <- function(ind_dat,day_dat_na, tdims, pdims, pinfo,trendplots, outp
       lines(dat,col=pcols[i],cex=cex)
       points(dat,pch=16,col=pcols[i],cex=cex*0.5)
 
-      if (trendplots){
+      if (trendplots==TRUE | trendplots == "MannKendall"){
         polygon(c(1:length(tdata[[1]]$data[i,,1]),length(tdata[[1]]$data[i,,1]):1),c(tdata[[1]]$data[i,,2],rev(tdata[[1]]$data[i,,3])),border=NA,col=rgb(colv[1],colv[2],colv[3], alpha=70, maxColorValue = 255),cex=cex)
         lines(tdata[[1]]$data[i,,1],type="l",col=rgb(colv[1],colv[2],colv[3],maxColorValue = 255),cex=cex)
         lines(tdata[[1]]$data[i,,4],type="l",col=rgb(colv[1],colv[2],colv[3],maxColorValue = 255),lty=2,cex=cex)
@@ -500,30 +511,30 @@ multi_point <- function(ind_dat,day_dat_na, tdims, pdims, pinfo,trendplots, outp
     }
 
     if(plot_title){
-      mtext(paste0(pinfo$titlestring,"",pinfo$index_name," ",ifelse(is.na(agg),paste0(aggn,collapse = ""," "),paste0(aggn[which(nagg==agg)]," "))),side=3,line=3*text_cex,cex=text_cex, adj=0)
+      mtext(paste0(pinfo$titlestring,"",pinfo$index_name,ifelse(anom," anomaly","")," ",ifelse(is.na(agg),paste0(aggn,collapse = ""," "),paste0(aggn[which(nagg==agg)]," "))),side=3,line=3*text_cex,cex=text_cex, adj=0)
       years <- ind_dat[[1]]$index_info$years
-      mtext(paste0("Period: ", years[1],"-",years[length(years)]), side=3, line = 2*text_cex, cex=0.8*text_cex, adj=0)
+      mtext(ifelse(anom,paste0("Reference period: ",gsub("_",",",refyears)),paste0("Period: ", years[1],"-",years[length(years)])), side=3, line = 2*text_cex, cex=0.8*text_cex, adj=0)
       miss_val <- paste0(round(unlist(na_vals)),collapse = "/")
       mtext(paste0("Missing Values: ", miss_val ," [%]"), side=3, line = 1*text_cex, cex=0.8*text_cex, adj=0)
 
-      if(trendplots==TRUE){
+      if(trendplots==TRUE | trendplots == "MannKendall"){
         trinfo <- round(lapply(ind_dat, function(ll)
           index_array(ll$trend_info, switch(is.na(agg)+1,c(1,2),1),
                       list(pdims$dims[[1]]$ipoint[pp],switch(is.na(agg)+1,which(agg%in%nagg),NULL)),drop=TRUE))[[1]],digits=2)
-        write_trend(trinfo,text_cex, dif=FALSE)
+        write_trend(trinfo,text_cex, dif=FALSE, opargs$units)
       }
     }
 
 
     box()
-    legend("topright",legend=pinfo$legend,col=pcols,lty=1,lwd=2,bty="n",cex=0.8*text_cex)
+    if(plot_legend) legend("topright",legend=pinfo$legend,col=pcols,lty=1,lwd=2,bty="n",cex=0.8*text_cex)
     if(!is.null(output)){
       if (output!="dev.new") dev.off()
       }
   }
 }
 
-spi_barplot <- function(ind_dat,day_dat_na,tdims, pdims, pinfo, trendplots, output,plotdir,plotname,pwidth,pheight,pres,selpoints,cex,text_cex,plot_title,title,opargs,show.grid.h=TRUE){
+spi_barplot <- function(ind_dat,day_dat_na,tdims, pdims, pinfo, trendplots, output,plotdir,plotname,pwidth,pheight,pres,selpoints,cex,text_cex,plot_title,title,plot_legend,opargs,show.grid.h=TRUE){
 
   breaks <- c(0,0.675,0.92, 1.2,1.6,2)
 
@@ -802,13 +813,18 @@ plot_polyt <- function(tdata,colv,cex,i){
 }
 
 
-write_trend<- function(trinfo,text_cex, dif = FALSE){
+write_trend<- function(trinfo,text_cex, dif = FALSE, units){
+
 
   dl <- length(dim(trinfo))
   trend_type <- c("rel.trend", "abs.trend")
   #text <- switch(all(trinfo[,5]==-99.9)+1,paste0("p-value"," / ", "rel.trend "," / ","abs.trend "),paste0("p-value"," / ", "rel.trend "))
-  ifelse(all(trinfo[,4:5]== -99.9),types <- c(FALSE,FALSE),
-         ifelse(all(trinfo[,4]== -99.9),types <- c(FALSE, TRUE), ifelse(all(trinfo[,5]==-99.9),types <- c(TRUE,FALSE),types <- c(TRUE,TRUE))))
+  trinfo[trinfo==-99.9] <- NA
+  ifelse(all(is.na(trinfo[,4:5])),types <- c(FALSE,FALSE),
+         ifelse(all(is.na(trinfo[,4])),types <- c(FALSE, TRUE), ifelse(all(is.na(trinfo[,5])),types <- c(TRUE,FALSE),types <- c(TRUE,TRUE))))
+
+  # ifelse(all(trinfo[,4:5]== -99.9),types <- c(FALSE,FALSE),
+  #        ifelse(all(trinfo[,4]== -99.9) | all(is.na(trinfo[,4])),types <- c(FALSE, TRUE), ifelse(all(trinfo[,5]==-99.9),types <- c(TRUE,FALSE),types <- c(TRUE,TRUE))))
   #types <- ifelse(all(trinfo[,4:5]== -99.9),FALSE, TRUE)
   text <- paste("p-value", paste0(trend_type[types], collapse=" / "), sep = "  / ")
   trinfo <- as.data.frame(trinfo)
@@ -817,12 +833,12 @@ write_trend<- function(trinfo,text_cex, dif = FALSE){
   trinfo[is.na(trinfo)] <- " ----  "
 
   if(all(types)){
-    trds <- paste0(trinfo[,4], " [%] /  ",trinfo[,5], " [u/decade]")
+    trds <- paste0(trinfo[,4], " [%] /  ",trinfo[,5], " [",units,"/decade]")
   } else if (all.equal(types,c(TRUE,FALSE))==TRUE) {
     trds <- paste0("  / ",trinfo[,4], " [%] ")
     }
   else if (all.equal(types,c(FALSE,TRUE))==TRUE){
-    trds <- paste0(" ",trinfo[,5], " [u/decade] ")
+    trds <- paste0(" ",trinfo[,5], " [",units,"/decade] ")
   } else if (all(!types)){
     trds <- paste0(" no trends calculated. ")
   }

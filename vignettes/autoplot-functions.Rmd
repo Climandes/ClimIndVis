@@ -276,7 +276,7 @@ There are a number of further optional arguments which can be passed to the plot
 
 ### 3. autoplot_trend_map
 
-This function allows you to visualize the trend of indices, omitting val?ues where the trend is not significant. 
+This function allows you to visualize the trend of indices, omitting values where the trend is not significant. 
 
 If you use all the default values, the only arguments which need to be passed to the function are:
 
@@ -285,24 +285,24 @@ If you use all the default values, the only arguments which need to be passed to
 
 To see a more detailed description of the function arguments check out the documentation (`?ClimIndVis::autoplot_trend_map`).
 
-The color indicates the magnitude of the trends, for stations trends, the size of the triangle is also proportional to the absolute magnitude and the direction indicates the trend direction. 
+The color indicates the magnitude of the trends, for stations trends, the size of the triangle is also proportional to the absolute magnitude and the direction indicates the trend direction. Stations with no significant trends or where the indices are NA are shown as diamonds.
 
 
 ```{r trend_map_code,eval=FALSE,echo=TRUE}
 plot_args=list(p_cex=2,topo=list(alt=g_dat,lat=g_lat,lon=g_lon),ylims=c(y2,y1), xlims=c(x1,x2),mask_col="lightblue",NA_col="grey")
 autoplot_trend_map(dat_grid=object_grid, 
-  index="mean",index_args = list(aggt="seasonal", selagg=c("DJF","JJA"),var="tmin"),plot_args=plot_args,
+  index="fd",index_args = list(aggt="annual"),plot_args=plot_args,
     output="png",plotdir=plotdir)
 ```
 
 
 
-```{r trend_map_plots, fig.width=3.3, fig.height=2.5,fig.show='hold',echo=FALSE}
+```{r trend_map_plots, fig.align='center',echo=FALSE}
 
-knitr::include_graphics("Figs/trend_map1-1_mean_tmin_DJF_abs-trend_1981-2010.png",dpi=400)
-knitr::include_graphics("Figs/trend_map1-1_mean_tmin_JJA_abs-trend_1981-2010.png",dpi=400)
+knitr::include_graphics("Figs/pisco+obs_frost_days_annual_abs-trend_1981-2010.png",dpi=400)
+
 ```
-The figures show the trends of the seasonal mean minimum temperature for seasons "DJF" and "JJA".
+The figures show the trends of the yearly percentage of frost days.
 
 
 ### 4. autoplot_overview_stations
@@ -341,12 +341,29 @@ If you use all the default values, the only arguments which need to be passed to
 
 * the input data - hindcasts and verifying observations for grid and/or at stations. 
 * the *index* you want to plot and the corresponding index arguments as a list (*index_args*). Note that *trend* is automatically set to FALSE.
-* the verification metrics that you want to plot (*veri_metrics*)
+* the verification metrics that you want to plot (*veri_metrics*). 
 
 To see a more detailed description of the function arguments check out the documentation (`?ClimIndVis::autoplot_verification_map`).
 
-***Example figures will be added soon!***
+You can enter more than one metric in *veri_metrics*. If you output the graphics to a directory, a seperate folder for each verification metric will be created and the output saved in the respective folders. 
 
+
+```{r veri_map, eval=FALSE,echo=TRUE}
+autoplot_verification_map(hc_p = object_hc_st,obs_p=object_st,
+                          hc_grid=object_hc_grid,obs_grid=object_grid,
+                          index="dd" , index_args=list(aggt="other",aggmons=c(10:12)),
+                          plot_args = list(p_cex=3,topo=topo_list),
+                          veri_metrics = c("EnsCorr","EnsRocss","EnsRpss"),
+                          output="png",plotdir=plotdir)      
+```
+               
+Examples for categories 1 and 3 of the EnsRocss: 
+
+```{r veri_map_plot, fig.width=3.3, fig.height=2.5,fig.show='hold',echo=FALSE}
+
+knitr::include_graphics("Figs/vignette_EnsRocss_cat1_dry_days_OND_fcmon07_hc1981-2010.png",dpi=400)
+knitr::include_graphics("Figs/vignette_EnsRocss_cat3_dry_days_OND_fcmon07_hc1981-2010.png",dpi=400)
+```
 
 
 ### 6. autoplot_forecast_map
@@ -361,9 +378,31 @@ If you use all the default values, the only arguments which need to be passed to
 
 To see a more detailed description of the function arguments check out the documentation (`?ClimIndVis::autoplot_forecast_map`).
 
-***Example figures will be added soon!***
+The color shows the dominant forecast category, the shading the probability of that category. Gridpoint/stations where the observations have to many missing values or where the variability of hindcasts and/or forecasts are small and the probability thresholds of the categories are the same are marked in grey. 
+ 
+
+```{r fc_map, eval=FALSE,echo=TRUE}
+autoplot_forecast_map(fc_p=object_fc_st, hc_p = object_hc_st,
+                      index="tnn" , index_args=list(aggt="other",aggmons=10:11),
+                      plot_args = list(p_cex=3,topo=topo_list),
+                      output="png",plotdir=plotdir)
+```
+If the skill criterion is applied, the verification metric (*veri_metric*) and the minimum skill limit (*skillmin*) need to be passed to the function, e.g. EnsRocss>0.3. The forecast of all gridpoints/stations with a lower skill is then colored in black (or a color defined by the user)
+
+```{r fc_map2, eval=FALSE,echo=TRUE}
+autoplot_forecast_map(fc_p=object_fc_st, hc_p = object_hc_st,
+                      index="tnn" , index_args=list(aggt="other",aggmons=10:11),
+                      plot_args = list(p_cex=3,topo=topo_list),
+                      veri_metric = "EnsRocss",skillmin=0.3,
+                      output="png",plotdir=plotdir)
+```
 
 
+```{r fc_map_plot, fig.width=3.3, fig.height=2.5,fig.show='hold',echo=FALSE}
+
+knitr::include_graphics("Figs/vignette_forecast_TNN_ON_2018_fcmon07_hc1981-2016.png",dpi=400)
+knitr::include_graphics("Figs/vignette_forecast_TNN_EnsRocss_gt_0.3_ON_2018_fcmon07_hc1981-2010.png",dpi=400)
+```
 
 ### 7 autoplot_forecast_stations
 
@@ -377,8 +416,33 @@ If you use all the default values, the only arguments which need to be passed to
 
 To see a more detailed description of the function arguments check out the documentation (`?ClimIndVis::autoplot_forecast_stations`).
 
+A tacho plot is issued in which the shaded area is proportional to the probability of the respective category. The arrow denotes the dominant forecast category (category with highest forecast probability). The function saves one plot for each station in *plotdir*, exemplarily shown for station 3.
 
-***Example figures will be added soon!***
+```{r fc_station_code,eval=FALSE,echo=TRUE}
+autoplot_forecast_stations(fc_p=object_fc_st,hc_p=object_hc_st,obs_p=object_st,
+    index="sdii",index_args=list(aggt="seasonal"),verify=FALSE,
+    output="png",plotdir=plotdir)
+```
+
+
+```{r fc_station_plots, fig.align='center',echo=FALSE}
+
+knitr::include_graphics("Figs/fc_st3.png",dpi=300)
+```
+
+If the skill criterion is applied, e.g. EnsRocss>0.5, a message (which can be changed by the user) will appear. Additionally one can plot the climatology with the respective categories as shading in the backgound by setting *plot_climatology=TRUE*. The climatological time series are saved in a separate folder.
+
+```{r fc_station_skill_code,eval=FALSE,echo=TRUE}
+autoplot_forecast_stations(fc_p=object_fc_st,hc_p=object_hc_st,obs_p=object_st,
+    index="sdii",index_args=list(aggt="seasonal"),verify=TRUE,
+    veri_metric = "EnsCorr",skillmin=0.5,
+    output="png",plotdir=plotdir)
+```
+
+
+```{r fc_station_skill_plots, fig.align='center',echo=FALSE}
+knitr::include_graphics("Figs/fc_st3_skill2.png",dpi=400)
+```
 
 ### 8 autoplot_forecast_spi
 

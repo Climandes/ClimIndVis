@@ -2,6 +2,7 @@ context("calc_index")
 
 #generate test data
 source("generate_testdata_object.R")
+#source("/prod/zue/climate/comm_serv/CLIMANDES_Data/src_C2/Rclimandes_2/imn_code/climandes-2/src/ClimIndVis/tests/testthat/generate_testdata_object.R")
 
 tp <- make_object(prec=data_point,dates_prec=time,lon=lon,lat=lat,data_info=point_data_info)
 tp_grid <- make_object(prec=data_grid,dates_prec=time,lon=lon,lat=lat,data_info=grid_data_info)
@@ -56,7 +57,7 @@ test_that("index functions yield correct index", {
   expect_equal(aggreg, aggreg_test)
 
   #ndays_op_threshold
-  nd_opth<- as.vector(ClimIndVis:::ndays_op_threshold(temp_tmin,q_temp=NULL,date_factors, threshold=10, op = ">",iformat="perc",NAmaxAgg=20))
+  nd_opth<- as.vector(ClimIndVis:::ndays_op_threshold(temp_tmin,q_temp=NULL,q_temp_inbase = NULL,date_factor=date_factors, threshold=10, op = ">",iformat="perc",NAmaxAgg=20))
   nd_opth_test <- as.vector(aggregate(dat_tab["temp_tmin"], by= dat_tab["date_factors"],
                               function(x){
                                 so_fun <- match.fun(">")(x,10)
@@ -79,7 +80,7 @@ test_that("index functions yield correct index", {
   expect_equal(nd_irange,nd_irange_test)
 
   #total_precip_op_threshold
-  totprecip <- as.vector(ClimIndVis:::total_precip_op_threshold(temp_prec, date_factor = date_factors,threshold=1, op = ">",NAmaxAgg=20 ))
+  totprecip <- as.vector(ClimIndVis:::total_precip_op_threshold(temp_prec,q_temp=NULL, date_factor = date_factors,threshold=1, op = ">",NAmaxAgg=20 ))
   totprecip_test <- aggregate(dat_tab["temp_prec"], by= dat_tab["date_factors"],
                               function(x){
                                 mm <- sum(x[match.fun(">")(x,1)])
@@ -127,29 +128,57 @@ test_that("index functions yield correct index", {
 
 
 
-  #spell_duration----
-  q_temp <- climdex.pcic::climdex.quantile(temp_tmin, q= 0.02)
-  new_facts <- agg_factor <- as.factor(gsub(".*-","",date_factors))
-  q_temp <- climdex.pcic:::tapply.fast(temp_tmin, new_facts, function(x) {
-    qs <-climdex.pcic::climdex.quantile(x, q= 0.02)
-    return(qs)
-    })
-  q_temp_all <- c()
-  monthi <- function(i) {ifelse(i %% 12 == 0,12,i %% 12)}
-  for(i in 1:12){
-    q_temp_all[which(monthi(1:length(temp_tmin))==i)] <- q_temp[i]
-  }
-  dat_tab[,"q_temp"] <- q_temp_all
-  f <- match.fun("<")
-  periods <- ClimIndVis:::select_block_gt_length(f(temp_tmin, q_temp_all),5)
+  # #spell_duration----
+  # q_temp <- climdex.pcic::climdex.quantile(temp_tmin, q= 0.02)
+  # new_facts <- agg_factor <- as.factor(gsub(".*-","",date_factors))
+  # q_temp <- climdex.pcic:::tapply.fast(temp_tmin, new_facts, function(x) {
+  #   qs <-climdex.pcic::climdex.quantile(x, q= 0.02)
+  #   return(qs)
+  #   })
+  # q_temp_all <- c()
+  # monthi <- function(i) {ifelse(i %% 12 == 0,12,i %% 12)}
+  # for(i in 1:12){
+  #   q_temp_all[which(monthi(1:length(temp_tmin))==i)] <- q_temp[i]
+  # }
+  # dat_tab[,"q_temp"] <- q_temp_all
+  # f <- match.fun("<")
+  # periods <- ClimIndVis:::select_block_gt_length(f(temp_tmin, q_temp_all),5)
+  #
+  # spell_duration <- as.vector(ClimIndVis:::spell_duration(temp_tmin,q_temp = q_temp_all, date_factor=date_factors, op= "<",min_length = 6, spells_span_agg = TRUE, NAmaxAgg=20))
+  # spell_duration_test <- as.vector(aggregate(periods, by= dat_tab["date_factors"],sum)[,"x"])
+  # expect_equal(spell_duration,spell_duration_test)
 
-  spell_duration <- as.vector(ClimIndVis:::spell_duration(temp_tmin,q_temp = q_temp_all, date_factors, op= "<",min_length = 6, spells_span_agg = TRUE, NAmaxAgg=20))
-  spell_duration_test <- as.vector(aggregate(periods, by= dat_tab["date_factors"],sum)[,"x"])
-  expect_equal(spell_duration,spell_duration_test)
+
+
 
   }
      )
 
+#
+# #test quantile calculation
+# test_that("quantile function in C yields correct output",{
+#
+#   bp <- substr(c(dates[1], tail(dates,1)),1,4 )
+#   r_df <- as.Date(c(paste0(bp,c("-01-01","-12-31"))))
+#   q_temp <- ClimIndVis:::zhang_running_qtile(temp_tmin, dates, qtiles=0.1, n=5,bootstrap_range=r_df, get_bootstrap_data = FALSE, min_fraction = 0.1)
+#
+#
+#   nd_opth<- as.vector(ClimIndVis:::ndays_op_threshold(temp_tmin,q_temp=NULL,q_temp_inbase = NULL,date_factors, threshold=10, op = ">",iformat="perc",NAmaxAgg=20))
+#   nd_opth_test <- as.vector(aggregate(dat_tab["temp_tmin"], by= dat_tab["date_factors"],
+#                                       function(x){
+#                                         so_fun <- match.fun(">")(x,10)
+#                                         ndays <- sum(so_fun==TRUE)
+#                                         len <- length(x)
+#                                         perc <- ndays/len*100
+#                                         return(perc)
+#                                       })[["temp_tmin"]])
+#   expect_equal(nd_opth, round(nd_opth_test,digits=1))
+#
+#
+#   #expect_equal(as.vector(tpg$index[1,1,,]),spi_vals)
+#
+# }
+# )
 
 
 

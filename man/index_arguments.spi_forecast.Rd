@@ -5,8 +5,8 @@
 \title{arguments for index spi_forecast}
 \usage{
 \method{index_arguments}{spi_forecast}(climindvis, fc_p, timescale = 6,
-  param = TRUE, ref = NULL, distribution = "gamma", trend = FALSE,
-  trendargs, NAmaxAgg = 20, ...)
+  ref = NULL, distribution = "gamma", trend = FALSE, trendargs,
+  NAmaxAgg = 20, ...)
 }
 \arguments{
 \item{climindvis}{Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable precipitation (prec)}
@@ -19,7 +19,7 @@
 
 \item{distribution}{A character string naming a distribution of package stats (see for example GammaDist). For more information on the choice of the distribution, see section Details. Default = "gamma".}
 
-\item{trend}{Logial (or character). Calculates trends with a predefined method for the chosen index. For information on default method, see  \code{\link{trend_methods}}. You can chose to calculate a non-parameteric trend, by setting trend to a character string "MannKendall". This calculates a TheilSen slope and MannKendall test. Default = TRUE.}
+\item{trend}{Logial (or character). Calculates trends with a predefined method for the chosen index. For information on default method, see  \code{\link{trend_methods}}. You can chose to calculate a non-parameteric trend, by setting trend to a character string "MannKendall". This calculates a TheilSen slope and MannKendall test. Default = FALSE.}
 
 \item{NAmaxAgg}{Maximum number of missing values in daily data of each aggregation period (e.g. in all January values for the whole time series). Value between 0 (=0\%; no missing values allowed) and 100 (=100\%; all values can be missing values). If the number of missing values is higher than NAmaxAgg the index value for the respective grid point/station is set to NA. Default = 20 (20\%).}
 }

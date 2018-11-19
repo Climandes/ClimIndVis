@@ -42,7 +42,7 @@ make_object(tmin = NULL, tmax = NULL, prec = NULL, tavg = NULL,
  \item date_format  [character] (see NOTES)
   \itemize{
       \item t1d: time is a vector (1d), applies to data provided as single time series.
-      \item t2d: time is a named list, applies to data provided in form of time slices (list elements being the individual time slices). The names of the list elements correspond to the begin years of the time slices.
+      \item t2d: time is a named list, applies to data provided in form of time slices (list elements being the individual time slices). The names of the list elements correspond to the  years of the first entry of each time slice.
     }
  \item data_name: Name of dataset (e.g. "Station data" or "ECMWF S4 hindcasts"). Nessesary for plot functions
 
@@ -55,8 +55,8 @@ The function returns a climindvis object with the following entries:
 \itemize{
 \item data: Named list containing an array of data (tmin/tmax/prec/tavg) of dimension: spatial dimensions x (ensemble dimensions) x no of timesteps
 \item time: Array of timesteps which are common for all input data.
-\item lon: Array of longitudes common for all input data.
-\item lat: Array of latitudes common for all input data.
+\item lon: Array of longitudes common for all input data. For gridded data, longitudes need to be in ascending order.
+\item lat: Array of latitudes common for all input data. For gridded data, latitudes need to be in ascending order.
 \item data_info: data_info as assed to function.
 \item time_factors: time factors used for calculation of temporal aggregation of indices.
 \item mask: (only for gridded data) list containing a mask for each variable with mask=1 for gridpoints where all time steps are NA

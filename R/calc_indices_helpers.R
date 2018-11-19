@@ -11,40 +11,82 @@ put_default_args<-function(argnames,argdefaults,arglist){
 ##################helpers for calculate_index.climindvis##################################
 ####time factors####
 # gets factors to cut out wanted time slices. "annual","monthly","seasonal" or array with consecutive months
-get_date_factors<-function(climindvis,agg,aggmons=NULL,selagg=NULL,start_days=NA,end_days=NA){
+get_date_factors<-function(climindvis,agg,aggmons=NULL,selagg=NULL,start_days=NA,end_days=NA,start=NULL,end=NULL,xdays=NULL){
   if(agg=="other") if(is.null(aggmons)) stop ("if <<aggt>> is other, <<aggmons>> need to be specified")
   if(agg=="dates") if(is.null(start_days) | is.null(end_days)) stop ("if <<aggt>> is dates, <<start_days>> and <<end_days>> need to be specified")
+  if (agg=="xdays") if (is.null(xdays)) stop("if <<aggt>> is xdays,  <<xdays>> needs to be specified")
   years<-levels(climindvis$time_factors$years)
   if (agg == "annual") {
     r<-factor(climindvis$time_factor$years)
     r<-check_agg_complete(r,agg)
     aggnames="annual"
+    jdays <- climindvis$time_factors$jdays
   } else if (agg=="monthly" & is.null(selagg)){
     r<-factor(climindvis$time_factor$yearmons)
     r<-check_agg_complete(r,agg)
     aggnames=month.abb[as.integer(unique(substr(levels(r),6,7)))]
+    jdays <- climindvis$time_factors$jdays
   } else if (agg=="monthly" & !is.null(selagg)){
     r<-factor(select_months_factors(climindvis$time_factors$yearmons,levels(climindvis$time_factors$years),selagg))
     r<-check_agg_complete(r,agg)
     aggnames=month.abb[as.integer(unique(substr(levels(r),6,7)))]
+    jdays <- select_jdays(climindvis, r)
   } else if (agg == "seasonal") {
     r<-factor(select_seas_factors(climindvis$time_factors$yearmons,levels(climindvis$time_factors$years),selagg))
     r<-check_agg_complete(r,agg)
     aggnames=unique(substr(levels(r),6,8))
+    jdays <- select_jdays(climindvis, r)
   } else if (agg == "other") {
     r<-factor(select_date_factors_monthly(climindvis$time_factors$yearmons,levels(climindvis$time_factors$years),aggmons))
     if(all(is.element(diff(aggmons),c(1,-11))) ) {
       aggnames=month_abb(aggmons)
     } else aggnames=paste0("mons",paste(aggmons,collapse="-"))
+    jdays <- select_jdays(climindvis, r)
   } else if (agg == "dates"){
     r<-factor(select_date_factors(climindvis$time,start_days,end_days))
     if (format(as.Date(start_days),"%Y")[1] !="0"){
       aggnames="user_dates"
     } else  aggnames=paste0(gsub("-","",substring(start_days,6,10)),"-",gsub("-","",substring(end_days,6,10)))
+    jdays <- select_jdays(climindvis, r)
+  } else if (agg == "xdays"){
+    r<-factor(select_xday_factors(climindvis$time,start,end,xdays))
+    jdays <- select_jdays(climindvis, r)
+    aggnames=paste0(gsub("-","",levels(r)),"+",xdays)
+
   }
+  names(r) = climindvis$time_factors$years
   if (all(is.na(r))) stop("selected time period is not available in data")
-  return(list(tfactor=r,aggnames=aggnames))
+  switch(is_index_special(class(climindvis)[1])+1,return(list(tfactor=r,aggnames=aggnames)),return(list(tfactor=r,aggnames=aggnames, jdays=jdays)))
 }
+
+
+select_xday_factors<- function(time,start,end,xdays){
+  if (!is.null(start)) if (class(start)!= "Date") start=as.Date(start)
+  if (!is.null(end)) if (class(end)!= "Date") start=as.Date(end)
+  if (is.element(start,time)) {
+    sel=ifelse(is.null(start),1,which(time==start))
+    if (!is.null(end)) sel2=which(time==end)
+  } else stop("start is not an element of time. Please check time steps or change start")
+  nt=length(time)
+  helpd=array(NA,nt)
+  count=switch(is.null(end)+1,seq(sel,nt,xdays),seq(sel,sel2,xdays))
+  for (cc in 1:(length(count)-1)){
+    helpd[count[cc]:(count[cc+1]-1)]=paste0(time[count[cc]])
+  }
+  return(helpd)
+}
+
+
+
+
+# function to select jdays based on selected period
+select_jdays <- function(climindvis, r){
+
+  jd <- climindvis$time_factors$jdays
+  jd[is.na(r)] <- NA
+  return(jd)
+}
+
 #help functions for get_date_factors
 select_date_factors_monthly<-function(yearmons,years,aggmons){
   mons<-as.integer(unique(sapply(strsplit(levels(yearmons),split="-"),"[",2)))
@@ -118,6 +160,7 @@ select_date_factors<-function(times,start_days,end_days){
   helpd<-array(NA,length(times))
   for(i in 1:length(beg_dates)) {
     if(!is.na(beg_dates[i]) & !is.na(end_dates[i])){
+      # helpd[beg_dates[i]:end_dates[i]]=vals[i]
       helpd[beg_dates[i]:end_dates[i]]=vals[i]
     } }
 
@@ -226,9 +269,9 @@ get_quants <- function(climindvis,var,qargs,sel_time){
         }
         rep(index_array(quants,1,gd+1),edim)
         message("Warning when calculating quantiles: ")
-        message("no of ensemble members in th_object and climindvis object are not the same. Same thresholds used for all members")
+        message("number of ensemble members in th_object and climindvis object are not the same. Same thresholds used for all members")
       } else {
-        stop(" no of ensemble members in th_object and climindvis object are not the same, if <<qens_all>>==FALSE, thresholds are calculated individually for each member and thresholds in th_object need to have the same ensemble dimension as the climindvis object.")
+        stop(" number of ensemble members in th_object and climindvis object are not the same, if <<qens_all>>==FALSE, thresholds are calculated individually for each member and thresholds in th_object need to have the same ensemble dimension as the climindvis object.")
       }
 
     }
@@ -255,6 +298,13 @@ get_quants <- function(climindvis,var,qargs,sel_time){
 
   return(list(quants=quants,quants_help=quants_help))
 
+}
+
+rearange_time<-function(data,data_levels){
+  dd=dim(data)
+  data_out=aperm(data,c(2:length(dd),1))
+  dimnames(data_out) <-list(NULL,data_levels)
+  return(data_out)
 }
 
 ####other helpers for calculate_index.climindvis####
@@ -297,7 +347,9 @@ get_idims<-function(climindvis,args){
   if (is.element(args$aggt,c("seasonal","monthly"))){
     idims=c(idims,"agg")
   }
-  idims=c(idims,"year")
+  if (args$aggt=="xdays"){
+    idims=c(idims,paste0("dates"))
+  } else idims=c(idims,"year")
   return(idims)
 }
 

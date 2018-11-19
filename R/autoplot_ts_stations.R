@@ -20,7 +20,9 @@
 #'@param selyears Array to select subset of years to plot, e.g. c(1981:1990).
 #'@param ylims Limits of xaxis for plot of format ylims=c(ymin,ymax). If a individual limits for every plot are needed, set ylims to "ind". If not provided limits are taken from the data and are equal in all plots.
 #'@param plot_title Logical. Add plot title and additional information to graphic? Default = TRUE.
+#'@param plot_legend Logical. Add plot legend of depicted stations to graphic? Default = TRUE.
 #'@param cex cex of plots (see par()). Default=1
+#'@param text_cex size of text plotted in graph. Default=1
 #'@param pwidth Width of plotting region of output (as input for jpeg, png, ...). For output = pdf, pwidth is set to pwidth/pres. Default = 2000.
 #'@param pheight Height of plotting region of output (as input for jpeg, png, ...). For output = pdf, pheight is set to pheight/pres.  Default = 1300.
 #'@param pres Graphics resolution. Default = 250.
@@ -110,7 +112,7 @@
 #'@export
 autoplot_ts_stations<-function(dat_p, index, index_args, ts_type = "single_ts",
                                trendplots = FALSE, selpoints=NULL, selyears=NULL,
-                              output = NULL, plotdir = NULL, plotname = NULL, title = "", plot_title = TRUE,
+                              output = NULL, plotdir = NULL, plotname = NULL, title = "", plot_title = TRUE,plot_legend=TRUE,
                               ylims = NULL, pwidth = 2000, pheight = 1300, pres = 250, cex = 1, text_cex = 1, ...){
   opargs <- list(...)
 
@@ -118,7 +120,6 @@ autoplot_ts_stations<-function(dat_p, index, index_args, ts_type = "single_ts",
 
   points <- ifelse (missing(dat_p), 0, 1)
   grid <- 0
-
   #multi_dat checks:
   tryCatch({
     if (!any(is.element(ts_type,c("single_ts","multi_ind","multi_agg","multi_point","multi_dat","spi_barplot")))) stop("<<ts_type>> passed to function is not defined. ")
@@ -143,6 +144,7 @@ autoplot_ts_stations<-function(dat_p, index, index_args, ts_type = "single_ts",
 
   if (is.list(index_args[[1]])){
   index_args <-  lapply(index_args, function(ii) {
+    if (ii$aggt=="xdays") stop("aggt=xdays is not implemented yet for autoplot functions")
      ii$trend <- trendplots
      return(ii)})
   } else index_args$trend  <- trendplots
@@ -172,12 +174,12 @@ autoplot_ts_stations<-function(dat_p, index, index_args, ts_type = "single_ts",
 
   index2 <- lapply(index, function(x) {x})
   names(index2) <- index
-  ivar <- mapply(function(args,index,obj){
-    class(obj)  <- append(index,"climindvis")
-    arguments=c(list(climindvis=obj),args=args)
-    ivar<-do.call(index_arguments,arguments)$var
+
+  ivar <- mapply(function(args,index){
+    ivar<-get_indexvar(index,args)
     return(list(ivar))
-  },index=index2,args=index_args,obj=dat)
+  },args=index_args,index=index2)
+
 
   tfact <- mapply(function(args,index,obj){
     class(obj)  <- append(index,"climindvis")
@@ -212,12 +214,13 @@ autoplot_ts_stations<-function(dat_p, index, index_args, ts_type = "single_ts",
   ifelse(ts_type =="multi_agg" &  length(Reduce(union,lapply(ind_dat, function(x) x$index_info$aggt)))> 1,
     tdims<-get_matching_tdims_index_multi_agg(ind_dat,...),
     tdims<-get_matching_tdims_index(ind_dat,...))
-    #xxx in ind_dat[[1]]$index_info gibt es $years und $aggnames. Wenn man oben mit cut_to_same_dates ausschneidet braucht man diese Funktione hier gar nicht mehr, oder?
   pdims <- match_pdims_index(ind_dat,selpoints=selpoints,...)
   pinfo <- get_pinfo(ind_dat,ts_type,ylims,opargs)
+  opargs$units = get_leg_units(ind_dat,trend=FALSE) #false because we do not want brackets
+
   if (is.null(selpoints)) selpoints=1:pdims$pnumber
 
   # 3.2 call respective plotting function
  do.call(ts_type, list(ind_dat,day_dat_na,tdims, pdims, pinfo=pinfo, trendplots, output=output,plotdir=plotdir,plotname=plotname,
-                    pwidth=pwidth,pheight=pheight,pres=pres,selpoints=selpoints,cex=cex,text_cex=text_cex,plot_title=plot_title,title=title,opargs=opargs))
+                    pwidth=pwidth,pheight=pheight,pres=pres,selpoints=selpoints,cex=cex,text_cex=text_cex,plot_title=plot_title,title=title,plot_legend=plot_legend,opargs=opargs))
 }
