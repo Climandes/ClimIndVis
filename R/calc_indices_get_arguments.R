@@ -330,7 +330,7 @@ index_arguments.2var_th<-function(climindvis,threshold1,threshold2,operator1,ope
 #'@inheritParams th_doc
 #'@inheritParams trend_doc
 #'@examples
-#' data(object_st) # load example objects
+#' data(object_st) # load example
 #' calc_index(object_st,index="th_range",aggt="seasonal",trend=TRUE,
 #' threshold=-5,operator=">=",threshold2 = 5, operator2 = "<=", thvar="tmin")
 #' @keywords internal
