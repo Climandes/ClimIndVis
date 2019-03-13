@@ -38,6 +38,8 @@ autoplot_forecast_spi<-function(obs_p, fc_p,
   opargs <- list(...)
   # 2. check point or grid
   points <- ifelse (missing(obs_p)  & missing (fc_p),0,1)
+  points <- ifelse (missing(obs_p)  & missing (fc_p),0,1)
+  
   grid <- 0
   if(points==0) stop("Point data has to be provided.")
 

@@ -1,7 +1,0 @@
-# SPI- Test Plots
-
-outdir <- "/prod/zue/climate/comm_serv/CLIMANDES_Data/src_C2/Rclimandes_2/figures/ClimIndVis/"
-
-
-sci_fc <- calc_index(climandes_obs,  index = "spi_forecast",aggregation="monthly",forecast=climandes_fc, timescale= 3, distribution="gamma",trend=FALSE)
-plot_spi_forecast(sci_fc, trendplots=FALSE, output="png",plotstart = 1993, outdir=paste0(outdir,"fc_spi"))
