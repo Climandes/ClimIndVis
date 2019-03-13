@@ -310,12 +310,14 @@ index_arguments.th<-function(climindvis,threshold,operator,thvar,iformat="perc",
 #'@inheritParams trend_doc
 #'@examples
 #' data(object_st) # load example objects
-#' calc_index(object_st,index="th",aggt="dates", start_days="0000-01-15",end_days="0000-04-15",threshold=-5,operator="<=",thvar="tmin",trend=TRUE)
+#' calc_index(object_st,index="th",aggt="dates", start_days="0000-01-15",end_days="0000-04-15",threshold=-5,operator2="<",operator1="<",thvar="tmin",trend=TRUE)
 #' @keywords internal
 index_arguments.2var_th<-function(climindvis,threshold1,threshold2,operator1,operator2,thvar1,thvar2,iformat="perc",NAmaxAgg=20,trend=FALSE,NAmaxTrend=20,...){
   if(missing(climindvis) || missing(threshold1) || missing(threshold2) || missing(operator1) || missing(operator2) || missing(thvar1) || missing(thvar2)) stop("Not all mandatory arguments provided for calculation of index.")
   check_var(climindvis,thvar1)
   check_var(climindvis,thvar2)
+  
+  
   return(list(ifun="ndays_op_threshold_2var",var1=thvar1,var2=thvar2,ifunargs=list(threshold1=threshold1,threshold2=threshold2,op1=operator1,op2=operator2,iformat=iformat,NAmaxAgg=NAmaxAgg),
               trend=trend,trendargs=list(method="logit_reg", count=ifelse(iformat=="perc",FALSE,TRUE), log_trans=FALSE,NAmaxTrend=NAmaxTrend, rel= TRUE),
               plotargs=list(iname=paste0(thvar1,operator1,threshold1,"and",thvar2,operator2,threshold2))))
