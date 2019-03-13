@@ -5,7 +5,8 @@
 \title{arguments for index th_topt}
 \usage{
 \method{index_arguments}{th_topt}(climindvis, threshold, threshold2,
-  iformat = "perc", NAmaxAgg = 20, trend = FALSE, NAmaxTrend = 20, ...)
+  iformat = "perc", NAmaxAgg = 20, trend = FALSE, NAmaxTrend = 20,
+  ...)
 }
 \arguments{
 \item{climindvis}{Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable average temperature (tavg)}

@@ -4,11 +4,11 @@
 \alias{index_arguments.csdi}
 \title{arguments for index cold spell duration index}
 \usage{
-\method{index_arguments}{csdi}(climindvis, NAmaxAgg = 20, trend = FALSE,
-  NAmaxTrend = 20, q_threshold = 10, n = 5, min_length = 6,
-  spells_span_agg = FALSE, baseperiod, inbase = FALSE,
-  min_base_fraction = 0.1, th_object = NULL, NAmaxQ = 365,
-  qens_all = TRUE, ...)
+\method{index_arguments}{csdi}(climindvis, NAmaxAgg = 20,
+  trend = FALSE, NAmaxTrend = 20, q_threshold = 10, n = 5,
+  min_length = 6, spells_span_agg = FALSE, baseperiod,
+  inbase = FALSE, min_base_fraction = 0.1, th_object = NULL,
+  NAmaxQ = 365, qens_all = TRUE, ...)
 }
 \arguments{
 \item{climindvis}{Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable minimum temperature (tmin)}

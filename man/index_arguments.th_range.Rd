@@ -4,9 +4,9 @@
 \alias{index_arguments.th_range}
 \title{arguments for index th_range}
 \usage{
-\method{index_arguments}{th_range}(climindvis, threshold, operator, threshold2,
-  operator2, thvar, iformat = "perc", NAmaxAgg = 20, trend = FALSE,
-  NAmaxTrend = 20, ...)
+\method{index_arguments}{th_range}(climindvis, threshold, operator,
+  threshold2, operator2, thvar, iformat = "perc", NAmaxAgg = 20,
+  trend = FALSE, NAmaxTrend = 20, ...)
 }
 \arguments{
 \item{climindvis}{Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable "thvar".}
@@ -15,11 +15,11 @@
 
 \item{operator}{One of ">",">=","<","<="}
 
-\item{threshold2}{Threshold (numerical)}
+\item{threshold2}{Threshold (numerical). Thresholds need to be provided in mm for precipitation and in degrees C for temperature.}
 
 \item{operator2}{One of ">",">=","<","<="}
 
-\item{thvar}{Variable for which days in range should be calculated (tmin/tmax/tavg/prec) by threshold operator thvar operator2 threshold2}
+\item{thvar}{Variable for which days in range should be calculated (tmin/tmax/tavg/prec) by threshold operator thvar}
 
 \item{iformat}{Format for indicator "perc"(default)/"days"}
 
@@ -33,7 +33,7 @@
 arguments for index th_range
 }
 \examples{
-data(object_st) # load example objects
+data(object_st) # load example object
 calc_index(object_st,index="th_range",aggt="seasonal",trend=TRUE,
 threshold=-5,operator=">=",threshold2 = 5, operator2 = "<=", thvar="tmin")
 }

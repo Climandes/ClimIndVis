@@ -84,3 +84,4 @@ Other autoplot_functions: \code{\link{autoplot_anomaly_ts}},
   \code{\link{autoplot_ts_stations}},
   \code{\link{autoplot_verification_map}}
 }
+\concept{autoplot_functions}

@@ -36,3 +36,4 @@ data(object_hc_grid,object_fc_grid)
 \seealso{
 Other data_examples: \code{\link{example_data}}
 }
+\concept{data_examples}

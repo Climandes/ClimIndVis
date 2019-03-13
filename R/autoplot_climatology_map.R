@@ -67,9 +67,10 @@ autoplot_climatology_map <-function(
   dat<-cut_to_same_dates(dat,selyears_data)
   if(grid==1){
     indexvar=get_indexvar(index,index_args)
-    plot_args$mask <-dat_grid$mask[[indexvar]]
+    plot_args$mask <-dat_grid$mask[[indexvar[1]]]
   }
-
+warning("For two variables, mask is only of first variable")
+  
   # 2. calculate index --------------------------------------------------
   index_args$trend = FALSE
   ind_dat = lapply(dat, function(dd) do.call("calc_index", c(list(dd, index = index), index_args)))

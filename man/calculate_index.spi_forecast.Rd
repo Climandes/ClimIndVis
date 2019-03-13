@@ -34,4 +34,5 @@ Stagee, J.H. ; Tallaksen, L.M.; Gudmundsson, L.; van Loon, A.; Stahl, K.: Candid
 
 Other calculate_index: \code{\link{calculate_index.climindvis}}
 }
+\concept{calculate_index}
 \keyword{internal}

@@ -8,11 +8,19 @@
 
 \item{operator}{One of ">",">=","<","<="}
 
-\item{threshold2}{Threshold (numerical)}
+\item{threshold1}{Threshold (numerical). Thresholds need to be provided in mm for precipitation and in degrees C for temperature.}
+
+\item{operator1}{One of ">",">=","<","<="}
+
+\item{threshold2}{Threshold (numerical). Thresholds need to be provided in mm for precipitation and in degrees C for temperature.}
 
 \item{operator2}{One of ">",">=","<","<="}
 
-\item{thvar}{Variable for which days in range should be calculated (tmin/tmax/tavg/prec) by threshold operator thvar operator2 threshold2}
+\item{thvar}{Variable for which days in range should be calculated (tmin/tmax/tavg/prec) by threshold operator thvar}
+
+\item{thvar1}{Variable for which days in range should be calculated (tmin/tmax/tavg/prec) by threshold1 operator1 thvar1}
+
+\item{thvar2}{Variable for which days in range should be calculated (tmin/tmax/tavg/prec) by threshold2 operator2 thvar2}
 
 \item{dd_threshold}{Precipitation threshold for dry days in mm. Default = 1}
 }

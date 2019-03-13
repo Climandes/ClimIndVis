@@ -28,6 +28,12 @@
 #'      \tab example:    index_args=list(aggt= seasonal, threshold=25 )\cr
 #'\tab \cr
 #'
+#'  \tab \cr
+#'     \strong{summ_day}\tab Summer days (Tmax>25C). For a description of all arguments and default values see  \code{\link{index_arguments.summ_day}} \cr
+#'      \tab arguments: \strong{aggt}, iformat,NAmaxAgg,NAmaxTrend \cr
+#'      \tab example:    index_args=list(aggt="monthly",selagg=c(1:3),iformat="days") \cr
+#'  \tab \cr
+#'  
 #'       \strong{th_topt}\tab Days with average temperature within a user defined temperature range (threshold <= Tavg <= threshold2). For a description of all arguments and default values see  \code{\link{index_arguments.th_topt}}\cr
 #'      \tab arguments: \strong{aggt, threshold, threshold2}, iformat, NAmaxAgg, NAmaxTrend \cr
 #'      \tab example:    index_args=list(aggt="other",aggmons=c(1:3),threshold=10,threshold2=20)\cr
@@ -36,6 +42,11 @@
 #'      \strong{th} \tab Threshold function for days below/above a user defined threshold (Variable >/>=/</<= threshold). For a description of all arguments and default values see \code{\link{index_arguments.th}}\cr
 #'      \tab arguments: \strong{aggt, threshold, operator, thvar}, iformat, NAmaxAgg, NAmaxTrend \cr
 #'      \tab example:    index_args=list(aggt="monthly", threshold=-5, operator="<", thvar="tmin"  )\cr
+#'\tab \cr
+#'
+#'      \strong{2var_th} \tab Threshold function for days below/above a user defined threshold (Variable >/>=/</<= threshold) and two variables. For a description of all arguments and default values see \code{\link{index_arguments.2var_th}}\cr
+#'      \tab arguments: \strong{aggt, threshold1,threshold2, operator1,operator2,thvar1, thvar2}, iformat, NAmaxAgg, NAmaxTrend \cr
+#'      \tab example:    index_args=list(aggt="monthly", threshold1=30,threshold2=1, operator1=">=",operator2="<", thvar1="tmax",thvar2="prec"  )\cr
 #'\tab \cr
 #'
 #'       \strong{th_range} \tab Threshold function for days within a user defined range  (threshold >/>=/</<= variable >/>=/</<= threshold2). For a description of all arguments and default values see \code{\link{index_arguments.th_range}}\cr

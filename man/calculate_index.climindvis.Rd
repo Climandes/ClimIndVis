@@ -21,4 +21,5 @@ default index function for climindvis objects
 
 Other calculate_index: \code{\link{calculate_index.spi_forecast}}
 }
+\concept{calculate_index}
 \keyword{internal}

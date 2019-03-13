@@ -4,8 +4,8 @@
 \alias{index_arguments.prcptot}
 \title{arguments for index prcptot}
 \usage{
-\method{index_arguments}{prcptot}(climindvis, NAmaxAgg = 20, trend = FALSE,
-  NAmaxTrend = 20, dd_threshold = 1, ...)
+\method{index_arguments}{prcptot}(climindvis, NAmaxAgg = 20,
+  trend = FALSE, NAmaxTrend = 20, dd_threshold = 1, ...)
 }
 \arguments{
 \item{climindvis}{Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable precipitation (prec)}

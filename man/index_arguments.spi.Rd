@@ -5,8 +5,8 @@
 \title{arguments for index spi}
 \usage{
 \method{index_arguments}{spi}(climindvis, timescale = 6, ref = NULL,
-  distribution = "gamma", limit = Inf, trend = FALSE, NAmaxAgg = 20,
-  forecast = FALSE, NAmaxTrend = 20, ...)
+  distribution = "gamma", limit = Inf, trend = FALSE,
+  NAmaxAgg = 20, forecast = FALSE, NAmaxTrend = 20, ...)
 }
 \arguments{
 \item{climindvis}{Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable precipitation (prec)}

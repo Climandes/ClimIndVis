@@ -54,6 +54,7 @@ Threshold Indices:
   \item \strong{fd} Frost days (Tmin<0C). For arguments and default values see \code{\link{index_arguments.fd}}
   \item \strong{th_tmin} Days with minimum temperature below a user defined threshold (Tmin < threshold). For arguments and default values see  \code{\link{index_arguments.th_tmin}}
   \item \strong{th_tmax} Days with maximum temperature above a user defined threshold (Tmax > threshold). For arguments and default values see  \code{\link{index_arguments.th_tmax}}
+  \item \strong{summ_day} Days with maximum temperature above a 25° C (Tmax > 25° C). For arguments and default values see  \code{\link{index_arguments.summ_day}}
   \item \strong{th_topt} Days with average temperature within a user defined temperature range (threshold <= Tavg <= threshold2). For arguments and default values see  \code{\link{index_arguments.th_topt}}
   \item \strong{th} Threshold function for days below/above a user defined threshold (Variable >/>=/</<= threshold). For arguments and default values see \code{\link{index_arguments.th}}
   \item \strong{th_range} Threshold function for days within a user defined range  (threshold >/>=/</<= variable >/>=/</<= threshold2). For arguments and default values see \code{\link{index_arguments.th_range}}

@@ -5,7 +5,8 @@
 \title{arguments for index th}
 \usage{
 \method{index_arguments}{th}(climindvis, threshold, operator, thvar,
-  iformat = "perc", NAmaxAgg = 20, trend = FALSE, NAmaxTrend = 20, ...)
+  iformat = "perc", NAmaxAgg = 20, trend = FALSE, NAmaxTrend = 20,
+  ...)
 }
 \arguments{
 \item{climindvis}{Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable "thvar".}
@@ -14,7 +15,7 @@
 
 \item{operator}{One of ">",">=","<","<="}
 
-\item{thvar}{Variable for which days in range should be calculated (tmin/tmax/tavg/prec) by threshold operator thvar operator2 threshold2}
+\item{thvar}{Variable for which days in range should be calculated (tmin/tmax/tavg/prec) by threshold operator thvar}
 
 \item{iformat}{Format for indicator "perc"(default)/"days"}
 

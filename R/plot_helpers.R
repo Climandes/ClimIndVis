@@ -8,8 +8,9 @@ get_indexvar<-function(index,index_args){
 
   preci<-c("dd" ,"cdd","prcptot","rx","cwd","sdii","rXptot","spi","spi_forecast","rainy_season_start","rainy_season_end","rainy_season_length")
   tmini<-c("fd","tn10p","tnn","tn90p","tnx","th_tmin","csdi")
-  tmaxi<-c("tx10p","txn","txx","tx90p","th_tmax","wsdi")
+  tmaxi<-c("tx10p","txn","txx","tx90p","th_tmax","wsdi","summ_day","2var_th")
   tavgi<-c("th_topt")
+  
 
  tryCatch({
   if (is.element(index,preci)){
@@ -20,6 +21,8 @@ get_indexvar<-function(index,index_args){
     var="tmax"
   } else if (is.element(index,tavgi)){
     var="tavg"
+  # }else if(grepl("2var",index)){
+  #   if (index=="2var_th") var=c(index_args[c("thvar1","thvar2")])
   } else {
     if (!any(grepl("var",names(index_args)))) stop(paste0("for index ",index, " var/thvar needs to be defined in index_args"))
     var=unlist(index_args[grepl("var",names(index_args))])
@@ -74,7 +77,7 @@ get_default_color<-function(index,iname,fc=FALSE){
   } else if (is.element(index, c("spi","spi_forecast"))){
     col=prec_anom
     center=TRUE
-  } else if (is.element(index,c("tx90p","th_tmax","wsdi")) ){
+  } else if (is.element(index,c("tx90p","th_tmax","wsdi","summ_day","2var_th")) ){
     col=hot
   } else if (is.element(index,c("txx"))){
     col=hot

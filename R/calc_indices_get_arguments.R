@@ -86,9 +86,13 @@ NULL
 #'threshold
 #'@param threshold Threshold (numerical). Thresholds need to be provided in mm for precipitation and in degrees C for temperature.
 #'@param operator One of ">",">=","<","<="
-#'@param threshold2 Threshold (numerical)
+#'@param threshold1 Threshold (numerical). Thresholds need to be provided in mm for precipitation and in degrees C for temperature.
+#'@param operator1 One of ">",">=","<","<="
+#'@param threshold2 Threshold (numerical). Thresholds need to be provided in mm for precipitation and in degrees C for temperature.
 #'@param operator2 One of ">",">=","<","<="
-#'@param thvar Variable for which days in range should be calculated (tmin/tmax/tavg/prec) by threshold operator thvar operator2 threshold2
+#'@param thvar Variable for which days in range should be calculated (tmin/tmax/tavg/prec) by threshold operator thvar 
+#'@param thvar1 Variable for which days in range should be calculated (tmin/tmax/tavg/prec) by threshold1 operator1 thvar1 
+#'@param thvar2 Variable for which days in range should be calculated (tmin/tmax/tavg/prec) by threshold2 operator2 thvar2
 #'@param dd_threshold Precipitation threshold for dry days in mm. Default = 1
 #'@name th_doc
 #'@keywords internal
@@ -302,7 +306,7 @@ index_arguments.th<-function(climindvis,threshold,operator,thvar,iformat="perc",
     plotargs=list(iname=paste0(thvar,operator,threshold))))
 }
 
-#'arguments for index th.2var
+#'arguments for index 2var_th
 #'@inheritParams varallth
 #'@inheritParams index_arguments
 #'@inheritParams iformat_doc
@@ -330,7 +334,7 @@ index_arguments.2var_th<-function(climindvis,threshold1,threshold2,operator1,ope
 #'@inheritParams th_doc
 #'@inheritParams trend_doc
 #'@examples
-#' data(object_st) # load example
+#' data(object_st) # load example object
 #' calc_index(object_st,index="th_range",aggt="seasonal",trend=TRUE,
 #' threshold=-5,operator=">=",threshold2 = 5, operator2 = "<=", thvar="tmin")
 #' @keywords internal

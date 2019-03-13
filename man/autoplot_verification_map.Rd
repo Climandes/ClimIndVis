@@ -4,8 +4,8 @@
 \alias{autoplot_verification_map}
 \title{Wrapper function to calculate and visualize verification of indices}
 \usage{
-autoplot_verification_map(obs_grid, hc_grid, hc_ref_grid = NULL, obs_p, hc_p,
-  hc_ref_p = NULL, index, index_args = list(), selyears = NULL,
+autoplot_verification_map(obs_grid, hc_grid, hc_ref_grid = NULL, obs_p,
+  hc_p, hc_ref_p = NULL, index, index_args = list(), selyears = NULL,
   veri_metrics, veri_args = list(), col = "default", ncat = 3,
   output = NULL, plotdir, plot_title = TRUE, plotname = "",
   sep_folder = TRUE, title = "", plot_args = list())
@@ -98,3 +98,4 @@ Other autoplot_functions: \code{\link{autoplot_anomaly_map}},
   \code{\link{autoplot_trend_map}},
   \code{\link{autoplot_ts_stations}}
 }
+\concept{autoplot_functions}

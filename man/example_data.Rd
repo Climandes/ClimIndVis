@@ -49,3 +49,4 @@ make_object(tmin=data_grid$tmin,dates_tmin=data_grid$time,lon=data_grid$lon,lat=
 \seealso{
 Other data_examples: \code{\link{example_climindvis_objects}}
 }
+\concept{data_examples}

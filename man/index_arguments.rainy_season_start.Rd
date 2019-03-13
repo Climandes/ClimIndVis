@@ -4,9 +4,9 @@
 \alias{index_arguments.rainy_season_start}
 \title{arguments for index rainy_season_start}
 \usage{
-\method{index_arguments}{rainy_season_start}(climindvis, rs_method, days, th,
-  dd_th = 1, nval = NA, mdays, mcdd, trend = FALSE, NAmaxTrend = 20,
-  ...)
+\method{index_arguments}{rainy_season_start}(climindvis, rs_method, days,
+  th, dd_th = 1, nval = NA, mdays, mcdd, trend = FALSE,
+  NAmaxTrend = 20, ...)
 }
 \arguments{
 \item{climindvis}{Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable precipitation (prec)}

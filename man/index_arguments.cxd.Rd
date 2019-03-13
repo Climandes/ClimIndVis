@@ -5,7 +5,8 @@
 \title{arguments for index cxd}
 \usage{
 \method{index_arguments}{cxd}(climindvis, NAmaxAgg = 20, trend = FALSE,
-  NAmaxTrend = 20, thvar, threshold, operator, spells_span_agg = FALSE, ...)
+  NAmaxTrend = 20, thvar, threshold, operator, spells_span_agg = FALSE,
+  ...)
 }
 \arguments{
 \item{climindvis}{Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable "thvar".}
@@ -16,7 +17,7 @@
 
 \item{NAmaxTrend}{Maximum number of years in time series of index which are missing values. Value between 0 (=0\%); no years with missing values allowed) and 100 (=100\%); all years can be missing values). If exceeded, the trend is set to NA for the respective grid point/station. Note that the value is relative to the length of the time series. Default = 20 (20\%).}
 
-\item{thvar}{Variable for which days in range should be calculated (tmin/tmax/tavg/prec) by threshold operator thvar operator2 threshold2}
+\item{thvar}{Variable for which days in range should be calculated (tmin/tmax/tavg/prec) by threshold operator thvar}
 
 \item{threshold}{Threshold (numerical). Thresholds need to be provided in mm for precipitation and in degrees C for temperature.}
 

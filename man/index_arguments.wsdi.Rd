@@ -4,11 +4,11 @@
 \alias{index_arguments.wsdi}
 \title{arguments for index warm spell duration index}
 \usage{
-\method{index_arguments}{wsdi}(climindvis, NAmaxAgg = 20, trend = FALSE,
-  NAmaxTrend = 20, q_threshold = 90, n = 5, min_length = 6,
-  spells_span_agg = FALSE, baseperiod, inbase = FALSE,
-  min_base_fraction = 0.1, th_object = NULL, NAmaxQ = 365,
-  qens_all = TRUE, ...)
+\method{index_arguments}{wsdi}(climindvis, NAmaxAgg = 20,
+  trend = FALSE, NAmaxTrend = 20, q_threshold = 90, n = 5,
+  min_length = 6, spells_span_agg = FALSE, baseperiod,
+  inbase = FALSE, min_base_fraction = 0.1, th_object = NULL,
+  NAmaxQ = 365, qens_all = TRUE, ...)
 }
 \arguments{
 \item{climindvis}{Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable maximum temperature (tmax)}
