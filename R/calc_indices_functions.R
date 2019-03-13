@@ -70,6 +70,28 @@ ndays_op_threshold<-function (temp,jdays, q_temp=NULL,q_temp_inbase=NULL,date_fa
     return(days)
 }
 
+##calculate number of days op(">","<","<=",">=") a threshold using functions from climdex.pcic for two variable
+ndays_op_threshold_2var<-function (temp1,temp2,date_factor,threshold1,threshold2,op1 = "<",op2 = "<",iformat="perc",NAmaxAgg=20,...)
+{
+  opargs <- list(...)
+  stopifnot(is.numeric(temp1) && is.numeric(temp2) && is.factor(date_factor) && is.numeric(threshold1) && is.numeric(threshold2))
+  
+  days<-climdex.pcic:::tapply.fast(match.fun(op1)(temp1,threshold1) & match.fun(op2)(temp2,threshold2), date_factor,
+                                   sum, na.rm = TRUE)
+  nna<-climdex.pcic:::tapply.fast(is.na(temp1)==FALSE & is.na(temp2)==FALSE, date_factor,
+                                  sum, na.rm = TRUE)
+  length<-climdex.pcic:::tapply.fast(temp1, date_factor,
+                                     function(x) length(x))
+  days[nna/length*100<(100-NAmaxAgg)]=NA
+  if(iformat=="perc"){
+    out<-round(days/nna*100,digits=1)
+    out[which(nna==0)]=NA
+    return(out)
+  } else
+    return(days)
+}
+
+
 #calculate sum of of days op a threshold
 total_precip_op_threshold <- function(temp, q_temp=NULL,date_factor, threshold=NULL, op= ">", NAmaxAgg=20,...){
   stopifnot(is.numeric(temp) && is.factor(date_factor) && (ifelse(!is.null(q_temp),is.numeric(q_temp) | all(is.na(q_temp)),TRUE) | is.numeric(threshold)))

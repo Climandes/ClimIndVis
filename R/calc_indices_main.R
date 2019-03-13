@@ -92,7 +92,9 @@ calc_index <- function(climindvis, index, aggt, ...) {
     if(missing(aggt)) stop("aggt needs to be provided")
     aggt=check_aggt(index,aggt,climindvis$data_info$type)
 
-    class(climindvis) <- append(index,"climindvis")
+    if(grepl("2var",index)) {
+      class(climindvis) <- list("2var",index,"climindvis")
+    } else class(climindvis) <- append(index,"climindvis")
 
     if (!exists(paste0("index_arguments.",index),mode="function")){
       stop("Error: chosen index does not exist. Please check index list.")
@@ -189,3 +191,52 @@ calculate_index.climindvis <- function(climindvis,aggt,...){
   return(ireturn)
 
 }
+
+
+#For 2 variables
+calculate_index.2var <- function(climindvis,aggt,...){
+  
+  args=list(aggt=aggt,...)
+  
+  arguments=c(list(climindvis=climindvis),args)
+  
+  iargs<-do.call(index_arguments,arguments)
+  
+  #
+  sel_time<-get_date_factors(climindvis,args$aggt,args$aggmons,args$selagg,args$start_days,args$end_days,args$start,args$end,args$xdays)
+  
+  d=dim(climindvis$data[[iargs$var1]])
+  ld=length(d)
+  
+  # dat_help <- list()
+  # dat_help$var1 <- array(climindvis$data[[iargs$var1]],dim=c(prod(d[1:(ld-1)]),d[ld]))
+  # dat_help$var2 <- array(climindvis$data[[iargs$var2]],dim=c(prod(d[1:(ld-1)]),d[ld]))
+  
+  dat_help=lapply(iargs[c("var1","var2")], function(v) array(climindvis$data[[v]],dim=c(prod(d[1:(ld-1)]),d[ld])))
+  
+  iout <- sapply(1:dim(dat_help[[1]])[1],
+                 function(x) do.call(iargs$ifun,c(list(temp1=dat_help$var1[x,],temp2=dat_help$var2[x,],date_factor=sel_time$tfactor),iargs$ifunargs)))
+  
+  ireturn<-list()
+  ireturn$index_info <- c(iargs$ifunargs,iargs$plotargs,iargs$qargs,list(aggt=ifelse(args$aggt=="xdays",paste0(args$xdays,"days"),args$aggt),aggnames=sel_time$aggnames,years=unique(substr(levels(sel_time$tfactor),1,4))))
+  
+  if (args$aggt=="xdays"){
+    ihelp=rearange_time(iout,levels(sel_time$tfactor))
+  } else  ihelp <-rearange_by_year(iout,levels(sel_time$tfactor))
+  ireturn$index<-array(ihelp,c(d[1:(ld-1)],dim(ihelp)[-1]),dimnames=c(rep(list(NULL),ld-1),dimnames(ihelp) [-1]))
+  ireturn$index_info$idims<-get_idims(climindvis,args)
+  
+  
+  if(grepl("fc",climindvis$data_info$type)) iargs$trend=FALSE
+  
+  if (iargs$trend != FALSE){
+    itrend <- calc_index_trend(index=ireturn$index,iargs$trend, targs=iargs$trendargs)
+    ireturn$index_trend <-  itrend$data
+    ireturn$trend_info <- itrend$summary
+  }
+  
+  if (args$aggt=="dates") ireturn$index_info<-c(ireturn$index_info,list(start_days=args$start_days,end_days=args$end_days))
+  return(ireturn)
+  
+}
+
