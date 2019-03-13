@@ -310,7 +310,7 @@ index_arguments.th<-function(climindvis,threshold,operator,thvar,iformat="perc",
 #'@inheritParams trend_doc
 #'@examples
 #' data(object_st) # load example objects
-#' calc_index(object_st,index="th",aggt="dates", start_days="0000-01-15",end_days="0000-04-15",threshold=-5,operator="<=",thvar="tmin",trend=TRUE)
+#' calc_index(object_st,index="th",aggt="dates", start_days="0000-01-15",end_days="0000-04-15",threshold=-5,operator5="<=",thvar="tmin",trend=TRUE)
 #' @keywords internal
 index_arguments.2var_th<-function(climindvis,threshold1,threshold2,operator1,operator2,thvar1,thvar2,iformat="perc",NAmaxAgg=20,trend=FALSE,NAmaxTrend=20,...){
   if(missing(climindvis) || missing(threshold1) || missing(threshold2) || missing(operator1) || missing(operator2) || missing(thvar1) || missing(thvar2)) stop("Not all mandatory arguments provided for calculation of index.")
