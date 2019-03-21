@@ -27,6 +27,7 @@
 #'@param pres Graphics resolution. Default = 250.
 #'
 #'
+#'
 #'@section Details:
 #'
 #' The missing values displayed when plot_title = TRUE denotes the percentage of missing daily values in the selected aggregation period.

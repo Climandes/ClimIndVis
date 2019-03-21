@@ -1,5 +1,6 @@
 ### get_quants new
-
+#' @useDynLib ClimIndVis
+#' @importFrom Rcpp sourceCpp
 
 get_quants_new <- function(climindvis,var,qargs,sel_time){
 
@@ -22,9 +23,6 @@ get_quants_new <- function(climindvis,var,qargs,sel_time){
          qargs$inbase <- FALSE
          message("<<inbase>> set to FALSE. Bootstrapping for ensemble is computational intensive.")
        }
-       # if(qargs$qens_all){ ## brauchen wir das noch?
-       #   agg_factor_h=rep(agg_factor,each=edim)
-       # } else gd=c(gd,ed)
      }
 
       quants <- get_temp_quantiles(climindvis,var,qargs, ed, sel_time)
@@ -222,9 +220,8 @@ zhang_running_qtile <- function (temp, dates_base, qtiles, bootstrap_range,
     bs_data <- temp[inset]
     qdat <- NULL
     if (get_bootstrap_data) {
-      d <- .Call(get("running_quantile_windowed_bootstrap",asNamespace("climdex.pcic")), bs_data,
-      # d <- .Call("running_quantile_windowed_bootstrap", bs_data,
-        n, qtiles, dpy, min_fraction, PACKAGE = "climdex.pcic")
+      d <- .Call("running_quantile_windowed_bootstrap", bs_data,
+        n, qtiles, dpy, min_fraction, PACKAGE = "ClimIndVis")
       dim(d) <- c(dpy, nyears, nyears - 1, length(qtiles))
       qdat <- lapply(1:length(qtiles), function(x) {
         r <- d[, , , x, drop = FALSE]
@@ -243,11 +240,11 @@ zhang_running_qtile <- function (temp, dates_base, qtiles, bootstrap_range,
 
 
 
-
+#
 running_quantile <- function (data, n, q, dpy, min.fraction){
-  ret <- .Call(get("running_quantile_windowed",asNamespace("climdex.pcic")), data, n, q, dpy,
-    min.fraction, PACKAGE = "climdex.pcic")
-  dim(ret) <- c(length(q), dpy)
-  return(t(ret))
-}
+   ret <- .Call("running_quantile_windowed", data, n, q, dpy,
+     min.fraction, PACKAGE = "ClimIndVis")
+   dim(ret) <- c(length(q), dpy)
+   return(t(ret))
+ }
 

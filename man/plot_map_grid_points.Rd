@@ -14,7 +14,7 @@ plot_map_grid_points(g_dat = NULL, g_lon = NULL, g_lat = NULL,
   pwidth = 5, graphic_device, plot_title, lwidth = 1, plwidth = 1,
   trend = FALSE, topo = NULL, text_cex = 1, mask_col = "lightgrey",
   NA_col = "white", fc_plot = FALSE, outliers = c(FALSE, FALSE),
-  units = "", ...)
+  units = "", contour = NULL, contourcol = "darkgrey", ...)
 }
 \arguments{
 \item{g_lon, g_lat:}{arrays of longitudes and latidudes  of dimension nx,ny ( or matrix of dim nx x ny if grid is not regular).}

@@ -28,7 +28,7 @@ autoplot_overview_stations(dat_p, indices, indices_args, selpoints = NULL,
 
 \item{NAmaxClim}{Integer [0,100]. Maximum percentage of years with missing values for calculation of climatology. If exceeded value for respective grid point/station is set to NA. Default = 20 ( = 20"\%").}
 
-\item{output}{Format of image to be plotted ("png", "jpg", "tiff", "pdf","dev.new").  Default = NULL, output to null device (getOption("device") will show you the null device. If you are not using RStudio, NULL and dev.new will give the same output).}
+\item{output}{Format of image to be plotted ("png", "jpeg", "tiff", "pdf","dev.new").  Default = NULL, output to null device (getOption("device") will show you the null device. If you are not using RStudio, NULL and dev.new will give the same output).}
 
 \item{plotdir}{Character string of path of directory for saving plots. Ignored if  \emph{output} is NULL or "dev.new".}
 

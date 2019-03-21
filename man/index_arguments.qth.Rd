@@ -7,7 +7,8 @@
 \method{index_arguments}{qth}(climindvis, thvar, NAmaxAgg = 20,
   trend = FALSE, NAmaxTrend = 20, iformat = "perc", baseperiod,
   q_threshold, n = 5, inbase = TRUE, min_base_fraction = 0.1, operator,
-  th_object = NULL, NAmaxQ = 365, qens_all = TRUE, ...)
+  th_object = NULL, NAmaxQ = 365, qens_all = TRUE, dd_threshold = 1,
+  ...)
 }
 \arguments{
 \item{climindvis}{Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable "thvar".}

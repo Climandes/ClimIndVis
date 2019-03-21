@@ -216,6 +216,7 @@ autoplot_ts_stations<-function(dat_p, index, index_args, ts_type = "single_ts",
     tdims<-get_matching_tdims_index(ind_dat,...))
   pdims <- match_pdims_index(ind_dat,selpoints=selpoints,...)
   pinfo <- get_pinfo(ind_dat,ts_type,ylims,opargs)
+  
   opargs$units = get_leg_units(ind_dat,trend=FALSE) #false because we do not want brackets
 
   if (is.null(selpoints)) selpoints=1:pdims$pnumber

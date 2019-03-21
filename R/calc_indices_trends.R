@@ -61,7 +61,7 @@ calc_index_trend <- function(index,trend,targs,time=NULL ){
 calc_trend <- function(data,time ,targs){
   DAT <- data.frame(years=time, ind=data)
   leapyear_shift =TRUE
-  dat.final <- matrix(NA,nrow = 4,ncol=length(DAT[,1]))
+  dat.final <- matrix(-99.9,nrow = 4,ncol=length(DAT[,1]))
 
   if(all(is.na(data))) {return(list(data = dat.final, stat=stat))}
   else if(sum(is.na(data))>length(data)*(targs$NAmaxTrend)/100) # mehr als 80pro fehlen, trend nicht berechnet
@@ -80,6 +80,8 @@ calc_trend <- function(data,time ,targs){
     dat.final[2,] = exp(fit1-1.96*se.fit1)/(1+exp(fit1-1.96*se.fit1))*365
     dat.final[3,]  = exp(fit1+1.96*se.fit1)/(1+exp(fit1+1.96*se.fit1))*365
     dat.final[4,]   = lw1
+    naind <-get_naind(DAT)
+    dat.final[,naind] = -99.9
 
     stat <- data.frame(
       inicio = DAT[1,1],
@@ -103,10 +105,12 @@ calc_trend <- function(data,time ,targs){
     fit1   <- pred1$fit
     se.fit1<- pred1$se.fit
     lw1 <- predict(loess(ind~years, data = DAT), data.frame(years = DAT[,1]))
-       dat.final[1,]  = exp(fit1)/(1+exp(fit1)) * 100
-       dat.final[2,]  = exp(fit1-1.96*se.fit1)/(1+exp(fit1-1.96*se.fit1)) * 100
-       dat.final[3,]  = exp(fit1+1.96*se.fit1)/(1+exp(fit1+1.96*se.fit1)) * 100
-       dat.final[4,]    = lw1 * 100
+    dat.final[1,]  = exp(fit1)/(1+exp(fit1)) * 100
+    dat.final[2,]  = exp(fit1-1.96*se.fit1)/(1+exp(fit1-1.96*se.fit1)) * 100
+    dat.final[3,]  = exp(fit1+1.96*se.fit1)/(1+exp(fit1+1.96*se.fit1)) * 100
+    dat.final[4,]  = lw1 * 100
+    naind <-get_naind(DAT)
+    dat.final[,naind] = -99.9
 
     stat <- data.frame(
       inicio = DAT[1,1],
@@ -144,10 +148,13 @@ calc_trend <- function(data,time ,targs){
     }
     lw1 <- predict(loess(ind~years, data = DAT), data.frame(years = DAT[,1]))
     if(targs$log_trans == T){
-         dat.final[1,]  = exp(fit[,1])
-        dat.final[2,]  = exp(fit[,2])
-        dat.final[3,]   = exp(fit[,3])
-        dat.final[4,]   = lw1
+
+      dat.final[1,]  = exp(fit[,1])
+      dat.final[2,]  = exp(fit[,2])
+      dat.final[3,]   = exp(fit[,3])
+      dat.final[4,]   = lw1
+      naind <-get_naind(DAT)
+      dat.final[,naind] = -99.9
 
       trend.abs <- (dat.final[1,dim(DAT)[1]] - dat.final[1,1])/(dim(DAT)[1])*10
       trend.rel <- ((dat.final[1,dim(DAT)[1]] - dat.final[1,1])/(dat.final[1,round(dim(DAT)[1]/2)])*100)
@@ -164,6 +171,9 @@ calc_trend <- function(data,time ,targs){
       dat.final[2,]  = pred1$fit[,2]
       dat.final[3,]  = pred1$fit[,3]
       dat.final[4,]  = lw1
+      naind <-get_naind(DAT)
+      dat.final[,naind] =-99.9
+
 
       stat <- data.frame(
         inicio = DAT[1,1],
@@ -185,6 +195,8 @@ calc_trend <- function(data,time ,targs){
     dat.final[2,]  = rep(NA,length(lw1))
     dat.final[3,]  = rep(NA,length(lw1))
     dat.final[4,]  = lw1
+    naind <-get_naind(DAT)
+    dat.final[,naind] = -99.9
 
     stat <- data.frame(
       inicio = DAT[1,1],
@@ -418,4 +430,18 @@ TheilSen <- function (dat.df) {
   TS <- c(intercpt, slope)
   list(TS = TS, S = S)
 }
+
+# function to check if first or last values are NA and set them in prediction to na
+get_naind <- function(DAT){
+
+  newdat <- switch((length(dim(DAT))>1)+1,is.na(DAT),is.na(DAT[,2]))
+  indpos <- c()
+  for(i in 1:length(newdat)){
+    if(all(newdat[i] & newdat[1:i])) {indpos <- c(indpos,i)}
+    else if(all(newdat[i] & newdat[i:length(newdat)])) {indpos <- c(indpos,i)}
+
+  }
+  return(indpos)
+}
+
 

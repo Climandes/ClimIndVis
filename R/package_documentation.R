@@ -64,3 +64,8 @@
 #' @name ClimIndVis
 NULL
 
+#' @useDynLib ClimIndVis
+#' @importFrom Rcpp sourceCpp
+NULL
+
+

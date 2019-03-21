@@ -85,6 +85,8 @@ Quantile Indices:
   \item \strong{tx90p} Percentage of days when TX > 90th percentile.For arguments and default values see  \code{\link{index_arguments.tx90p}}
   \item \strong{qth} Number of days above/below thershold. (works for precip and temperature data).  For arguments and default values see  \code{\link{index_arguments.qth}}
   \item \strong{rXptot} Total precipitation when RR > Xp, e.g. (r95ptot). For arguments and default values see  \code{\link{index_arguments.rXptot}}
+   \item \strong{qval}  Percentile value for each aggregation period and year. For arguments and default values see  \code{\link{index_arguments.qval}}
+    \item \strong{qrange} Percentile range for each aggregation period and year. For arguments and default values see  \code{\link{index_arguments.qrange}}
   }
 further Indices:
 \itemize{
@@ -95,6 +97,8 @@ further Indices:
   \item \strong{sdii} Simple precipitation intensity index. Ratio of total rainfall to the number of days when precipitation is higher than a dry day threshold. For arguments and default values see  \code{\link{index_arguments.sdii}}
   \item \strong{prcptot} Total precipitation in wet days. For arguments and default values see  \code{\link{index_arguments.prcptot}}
   \item \strong{rainy_season_start} Start of the rainy season. Argument \emph{aggt} needs to be set to \emph{dates} and \emph{start_days} and \emph{end_days} additionally provided for this index.  For more arguments and default values see  \code{\link{index_arguments.rainy_season_start}}
+  #'   \item \strong{rainy_season_end} End of the rainy season. Argument \emph{aggt} needs to be set to \emph{dates} and \emph{start_days} and \emph{end_days} additionally provided for this index.  For more arguments and default values see  \code{\link{index_arguments.rainy_season_end}}
+  #'   \item \strong{rainy_season_dur} Duration of the rainy season. Argument \emph{aggt} needs to be set to \emph{dates} and \emph{day_start} and \emph{day_end} additionally provided for this index.  For more arguments and default values see  \code{\link{index_arguments.rainy_season_dur}}
     }
 }
 

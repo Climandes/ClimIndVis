@@ -26,7 +26,16 @@ ndays_op_threshold<-function (temp,jdays, q_temp=NULL,q_temp_inbase=NULL,date_fa
     if (missing(jdays)) stop("error in index function: argument jdays is missing")
     jdays <- as.numeric(jdays)
     f <- match.fun(op)
-    dat <- f(temp,q_temp[jdays])
+    if(opargs$q_var=="prec"){
+      if(length(q_temp)>1){
+        ind <- get_ind(date_factor, q_temp)
+        dat <- f(temp,q_temp[ind])
+      }
+      else {
+        dat <- f(temp, q_temp)
+        }
+    } else{dat <- f(temp,q_temp[jdays])}
+
     if(!is.null(q_temp_inbase)){
 
       df_year <- as.numeric(substr(date_factor,1,4))
@@ -74,12 +83,16 @@ ndays_op_threshold<-function (temp,jdays, q_temp=NULL,q_temp_inbase=NULL,date_fa
 total_precip_op_threshold <- function(temp, q_temp=NULL,date_factor, threshold=NULL, op= ">", NAmaxAgg=20,...){
   stopifnot(is.numeric(temp) && is.factor(date_factor) && (ifelse(!is.null(q_temp),is.numeric(q_temp) | all(is.na(q_temp)),TRUE) | is.numeric(threshold)))
 
+  if(!is.numeric(NAmaxAgg)){NAmaxAgg <- as.numeric(NAmaxAgg)}
+
   if(!is.null(q_temp)){
-    ind <- get_ind(date_factor, q_temp)
+    if(length(q_temp)>1){
+      ind <- get_ind(date_factor, q_temp)
+    } else { ind <- rep(1,length(date_factor))}
     mm <- mapply_fast(temp,q_temp[ind], date_factor, function(x,y,z){
       if(all(is.na(y))) {NA}
       else {
-        sum(x[match.fun(op)(x,y)], na.rm=TRUE)
+        sum(x[match.fun(z)(x,y)], na.rm=TRUE)
         }
     }, z=op)
 
@@ -193,9 +206,9 @@ minmax_value <- function(temp, date_factor, func, NAmaxAgg=20,rx=1) {
 
   if ( rx > 1){
     #temp[is.na(temp)]<-0
-    temp.sum <- caTools::runmean(temp, k= rx, endrule="NA")
+    temp.sum <- caTools::runmean(temp, k= as.numeric(rx), endrule="NA")
     temp.sum[is.na(temp.sum)]<- NA
-    vals <- suppressWarnings(climdex.pcic:::tapply.fast(temp.sum, date_factor, func, na.rm=TRUE) * rx)
+    vals <- suppressWarnings(climdex.pcic:::tapply.fast(temp.sum, date_factor, func, na.rm=TRUE) * as.numeric(rx))
   } else vals <- suppressWarnings(climdex.pcic:::tapply.fast(temp,date_factor,func, na.rm=TRUE))
   vals[is.infinite(vals)] <- NA
   nna<-climdex.pcic:::tapply.fast(is.na(temp)==FALSE, date_factor,sum, na.rm = TRUE)
@@ -233,7 +246,17 @@ spell_duration <- function (temp, jdays, q_temp=NULL,q_temp_inbase=NULL,date_fac
 }
 
 
-
+q_agg<- function(temp,date_factor,q1,q2=NULL,NAmaxAgg=20,...){
+    if (!is.null(q2)){
+      val=climdex.pcic:::tapply.fast(temp,date_factor,function(x) quantile(x, q2,na.rm=TRUE) - quantile(x, q1,na.rm=TRUE))
+    } else {
+      val=climdex.pcic:::tapply.fast(temp,date_factor,function(x) quantile(x, q1,na.rm=TRUE))
+    }
+  nna<-climdex.pcic:::tapply.fast(is.na(temp)==FALSE, date_factor,sum, na.rm = TRUE)
+  length<-climdex.pcic:::tapply.fast(temp, date_factor, function(x) length(x))
+  val[nna/length*100<(100-NAmaxAgg)]=NA
+  return(val)
+}
 
 
 

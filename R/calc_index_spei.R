@@ -20,7 +20,7 @@ calc_spi <- function (temp = NULL,date_factor, param=FALSE,timescale , ref, dist
 
     na <- climdex.pcic:::tapply.fast(is.na(refdat), reffac, sum)
     dlength <- climdex.pcic:::tapply.fast(refdat, reffac,function(x) length(x))
-    percna <- na/dlength > NAmaxAgg
+    percna <- na/dlength > (NAmaxAgg/100)
     agg_val <- climdex.pcic:::tapply.fast(refdat, reffac, sum, na.rm=TRUE)
     agg_val[percna] <- NA
 
@@ -31,7 +31,7 @@ calc_spi <- function (temp = NULL,date_factor, param=FALSE,timescale , ref, dist
 
     na_pred <- climdex.pcic:::tapply.fast(is.na(temp), date_factor, sum)
     dlength_pred <- climdex.pcic:::tapply.fast(temp, date_factor,function(x) length(x))
-    percna_pred <- na_pred/dlength_pred > NAmaxAgg
+    percna_pred <- na_pred/dlength_pred > (NAmaxAgg/100)
     agg_pred <- climdex.pcic:::tapply.fast(temp, date_factor, sum) # add na stuff here
     agg_pred[percna_pred] <- NA
   }

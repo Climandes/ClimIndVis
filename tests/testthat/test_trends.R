@@ -19,7 +19,7 @@ test_that("trend is calculated",{
   trd <- ClimIndVis:::trend.logit(df_ind[,1:2], type = "probs")
   fit1 <- predict(trd$mod, data.frame(year=df_ind[,1]), interval = "confidence", se.fit = T, level = 0.95)$fit
   fit <- exp(fit1)/(1+exp(fit1))*100
-  expect_equal(as.vector(tpo$index_trend[1,1,,1]),as.vector(fit))
+  expect_equal(as.vector(tpo$index_trend[1,1,1:29,1]),as.vector(fit)[1:29])
 
   df_ind <- data.frame(V1=as.numeric(names(tpg$index[1,1,1,])),V2=tpg$index[1,1,1,]/100)
   expect_equal(as.vector(tpg$index_trend[1,1,1,1:3,1]),
@@ -28,7 +28,7 @@ test_that("trend is calculated",{
   df_ind <- data.frame(V1=as.numeric(names(tpo_spi$index[1,1,])),V2=as.vector(tpo_spi$index[1,1,]))
   trd1 <- ClimIndVis:::trend.linreg(df_ind)
   fit <- as.vector(predict(trd1$mod, data.frame(year=df_ind[,1]), interval = "confidence", se.fit = T, level = 0.95)$fit[,1])
-  expect_equal(as.vector(tpo_spi$index_trend[1,1,,1]),fit)
+  expect_equal(as.vector(tpo_spi$index_trend[1,1,2,1]),fit[2])
 
 }
 )

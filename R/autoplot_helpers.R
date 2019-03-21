@@ -145,11 +145,7 @@ cut_to_same_dates_index<-function(index_data,selyears=NULL){
   })
 }
 
-#testet ob Index Quantile benutzt
-is_index_special<-function(index){
-  r<-ifelse (is.element(index,c("qth","qtot","rXptot","tn10p","tx10p","tn90p","tx90p","csdi","wsdi")),TRUE,FALSE )
-  return(r)
-}
+
 get_leg_units<-function(ind_dat,trend=FALSE){
 
   units=Reduce(union,lapply(ind_dat[!sapply(ind_dat,is.null)], function(id) id$index_info$iformat))
@@ -295,7 +291,8 @@ get_plot_args<-function(autoplot){
 }
 
 
-get_plot_title<-function(titlestring,show_title=TRUE,autoplot,aa=NULL,yy=NULL,pp=NULL,vv=NULL,cname=NULL,tname=NULL,abs=FALSE,sig_lev,tmet,sep_folder=TRUE){
+get_plot_title<-function(titlestring,show_title=TRUE,autoplot,aa=NULL,yy=NULL,pp=NULL,vv=NULL,cname=NULL,tname=NULL,abs=FALSE,
+                         sig_lev,tmet,sep_folder=TRUE, type){
   env=parent.frame()
   iinfo=lapply(env$ind_dat, function(i) i$index_info)
   dnames=lapply(env$ind_dat, function(i) i$data_info$data_name )
@@ -407,11 +404,26 @@ get_plot_title<-function(titlestring,show_title=TRUE,autoplot,aa=NULL,yy=NULL,pp
                                          iinfo[[1]]$aggnames[aa],"_",ifelse(abs==TRUE,"abs-", "rel-"),"trend_",sig_lev*100,"_",yearnames),"")
 
 
-    }
+  }
+  else if (autoplot=="ts_station"){
+    if(show_title){
+      t <- list(title= paste0(ifelse(!is.null(env$pinfo$titlestring),paste0(env$pinfo$titlestring," "),""),
+                              env$pinfo$index_name,ifelse(env$anom," anomaly","")," ",
+                              ifelse(is.na(aa),paste(env$aggn[1]," "),paste0(env$aggn[which(env$nagg==aa)]," ")),
+                              "",env$stname," (", env$pdims$lon[env$pp],"/ ",env$pdims$lat[env$pp],")"),
+                period = ifelse(env$anom,paste0("Reference period: ",gsub("_",",",env$refyears)),paste0("Period: ", env$years[1],"-",env$years[length(env$years)])))
+
+    } else {t <- NA}
+
+    inames <- switch((type=="multi_ind_")+1,replace_operator_name(iinfo[[1]]$iname), paste0(sapply(iinfo, function(x) x$iname), collapse=""))
+    f=ifelse(!is.null(env$output),paste0(env$plotdir, env$plotname, ifelse(env$plotname == "", "", "_"), type,
+                                         inames,ifelse(env$anom,"_anomaly",""), "_",
+                                         iinfo[[1]]$aggnames[ifelse(is.na(aa),1,aa)],"_",ifelse(env$trendplots==FALSE,"", "trend_"),
+                                         yearnames,"_",ifelse(env$anom,paste0("_refyears",env$refyears),""),"_",env$stname,".", env$output),"")
+  }
+
   return(list(t=t,f=f))
 }
-
-
 
 calc_index_special_autoplot<- function(data,index,index_args, selyears){
   fc=which(sapply(data, function(dd) grepl("fc",dd$data_info$type )))
@@ -457,16 +469,12 @@ get_skill_data<-function(veri_dat,vv,aa,tt,cc,aggl,nout,tdims){
   })
 }
 
-
-
 is.even <- function(x) x %% 2 == 0
-
 
 return_m <- function(x){
   x <- pad2(1:12)[c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")%in% x]
 return(x)
   }
-
 
 get_method <- function(x, dif){
   y <- switch(dif+1, x[!is.na(x)][1], x[!is.na(x)])

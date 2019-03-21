@@ -1,3 +1,4 @@
+# documentation --------------------------------------
 #'Function to calculate climate indices
 #'
 #'The function calculated climate indices for different temporal aggregations for gridded and station data. It also works for seasonal forecast ensembles (grid and station). As input a climindvis object (output of \code{\link{make_object}} is needed.
@@ -69,6 +70,8 @@
 #'   \item \strong{tx90p} Percentage of days when TX > 90th percentile.For arguments and default values see  \code{\link{index_arguments.tx90p}}
 #'   \item \strong{qth} Number of days above/below thershold. (works for precip and temperature data).  For arguments and default values see  \code{\link{index_arguments.qth}}
 #'   \item \strong{rXptot} Total precipitation when RR > Xp, e.g. (r95ptot). For arguments and default values see  \code{\link{index_arguments.rXptot}}
+#'    \item \strong{qval}  Percentile value for each aggregation period and year. For arguments and default values see  \code{\link{index_arguments.qval}}
+#'     \item \strong{qrange} Percentile range for each aggregation period and year. For arguments and default values see  \code{\link{index_arguments.qrange}}
 #'   }
 #'further Indices:
 #'\itemize{
@@ -79,10 +82,14 @@
 #'   \item \strong{sdii} Simple precipitation intensity index. Ratio of total rainfall to the number of days when precipitation is higher than a dry day threshold. For arguments and default values see  \code{\link{index_arguments.sdii}}
 #'   \item \strong{prcptot} Total precipitation in wet days. For arguments and default values see  \code{\link{index_arguments.prcptot}}
 #'   \item \strong{rainy_season_start} Start of the rainy season. Argument \emph{aggt} needs to be set to \emph{dates} and \emph{start_days} and \emph{end_days} additionally provided for this index.  For more arguments and default values see  \code{\link{index_arguments.rainy_season_start}}
+#'   #'   \item \strong{rainy_season_end} End of the rainy season. Argument \emph{aggt} needs to be set to \emph{dates} and \emph{start_days} and \emph{end_days} additionally provided for this index.  For more arguments and default values see  \code{\link{index_arguments.rainy_season_end}}
+#'   #'   \item \strong{rainy_season_dur} Duration of the rainy season. Argument \emph{aggt} needs to be set to \emph{dates} and \emph{day_start} and \emph{day_end} additionally provided for this index.  For more arguments and default values see  \code{\link{index_arguments.rainy_season_dur}}
 
 #'     }
 #'@export
 #'@seealso \code{\link{calculate_index.climindvis}}
+#'
+# functions ----------------------------------------------
 calc_index <- function(climindvis, index, aggt, ...) {
 
     if (is(climindvis,"climindvis")==FALSE) stop ("Function needs climindvis object.")
@@ -189,3 +196,72 @@ calculate_index.climindvis <- function(climindvis,aggt,...){
   return(ireturn)
 
 }
+
+
+calculate_index.rainy_season_dur <- function(climindvis,aggt,...){
+
+  args=list(aggt=aggt,...)
+ if(is.null(args$nstart)) args$nstart=300
+ if(is.null(args$nend)) args$nend=300
+  arguments=c(list(climindvis=climindvis),args)
+
+  iargs<-do.call(index_arguments,arguments)
+
+  #"
+  args$start_days=args$day_start
+  args$end_days=paste0("0000",substring(as.Date(paste0("1981",substring(args$day_start,5,10)))+args$nstart,5,10))
+  sel_time_start<-get_date_factors(climindvis,args$aggt,args$aggmons,args$selagg,args$start_days,args$end_days,args$start,args$end,args$xdays)
+  args$start_days=args$day_end
+  args$end_days=paste0("0000",substring(as.Date(paste0("1981",substring(args$day_end,5,10)))+args$nend,5,10))
+  sel_time_end<-get_date_factors(climindvis,args$aggt,args$aggmons,args$selagg,args$start_days,args$end_days,args$start,args$end,args$xdays)
+
+  d=dim(climindvis$data[[iargs$var]])
+  ld=length(d)
+
+  dat_help <- array(climindvis$data[[iargs$var]],dim=c(prod(d[1:(ld-1)]),d[ld]))
+
+  smon=substring(args$day_start,6,7)
+  emon=substring(args$day_end,6,7)
+  if (emon>=smon){
+    diff= as.integer(as.Date(paste0("1981",substring(args$day_end,5,10)))-as.Date(paste0("1981",substring(args$day_start,5,10))))
+  } else {
+    diff= as.integer(as.Date(paste0("1982",substring(args$day_end,5,10)))-as.Date(paste0("1981",substring(args$day_start,5,10))))
+    test=sel_time_end
+    levels(test$tfactor) = as.character(as.numeric(levels(test$tfactor))-1)
+  }
+
+    istart <- apply(dat_help,1,
+      function(x) do.call("rainy_season_start",c(list(temp=x,date_factor=sel_time_start$tfactor),iargs$ifunargs)))
+    iend <- apply(dat_help,1,
+      function(x) do.call("rainy_season_end",c(list(temp=x,date_factor=sel_time_end$tfactor),iargs$ifunargs)))
+if ((emon<smon)) {
+     dimnames(iend)[[1]]= as.character(as.numeric(dimnames(iend)[[1]])-1)
+     sel=match(dimnames(iend)[[1]],dimnames(istart)[[1]])
+
+}
+ iout=iend[!is.na(sel),]+diff-istart[sel[!is.na(sel)],]
+
+  ireturn<-list()
+  ireturn$index_info <- c(iargs$ifunargs,iargs$plotargs,iargs$qargs,list(aggt=ifelse(args$aggt=="xdays",paste0(args$xdays,"days"),args$aggt),aggnames=paste0("start_",smon,substring(args$day_start,9,10),"_end_",emon,substring(args$day_end,9,10)),years=dimnames(iout)[[1]]))
+
+  ihelp <-rearange_by_year(iout,dimnames(iout)[[1]])
+  ireturn$index<-array(ihelp,c(d[1:(ld-1)],dim(ihelp)[-1]),dimnames=c(rep(list(NULL),ld-1),dimnames(ihelp) [-1]))
+  ireturn$index_info$idims<-get_idims(climindvis,args)
+
+
+  if(grepl("fc",climindvis$data_info$type)) iargs$trend=FALSE
+
+  if (iargs$trend != FALSE){
+    itrend <- calc_index_trend(index=ireturn$index,iargs$trend, targs=iargs$trendargs)
+    ireturn$index_trend <-  itrend$data
+    ireturn$trend_info <- itrend$summary
+  }
+
+  if (args$aggt=="dates") ireturn$index_info<-c(ireturn$index_info,list(start_days=args$start_days,end_days=args$end_days))
+  return(ireturn)
+
+}
+
+
+
+

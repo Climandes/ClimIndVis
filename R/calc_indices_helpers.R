@@ -56,7 +56,8 @@ get_date_factors<-function(climindvis,agg,aggmons=NULL,selagg=NULL,start_days=NA
   }
   names(r) = climindvis$time_factors$years
   if (all(is.na(r))) stop("selected time period is not available in data")
-  switch(is_index_special(class(climindvis)[1])+1,return(list(tfactor=r,aggnames=aggnames)),return(list(tfactor=r,aggnames=aggnames, jdays=jdays)))
+   switch(is_index_special(class(climindvis)[1])+1 ,return(list(tfactor=r,aggnames=aggnames)),
+    return(list(tfactor=r,aggnames=aggnames, jdays=jdays)))
 }
 
 
@@ -418,5 +419,11 @@ check_agg_complete<-function(r,agg){
     stop_quietly()
   }
   }
+  return(r)
+}
+
+#testet ob Index Quantile benutzt
+is_index_special<-function(index){
+  r<-ifelse (is.element(index,c("qth","qtot","rXptot","tn10p","tx10p","tn90p","tx90p","csdi","wsdi")),TRUE,FALSE )
   return(r)
 }

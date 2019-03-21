@@ -11,7 +11,7 @@
 \arguments{
 \item{climindvis}{Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable precipitation (prec)}
 
-\item{timescale}{Integer. Timescale for monthly SPI calculation, i.e.running mean for 1-monthly,3-monthly, etc. period. Default = 6.}
+\item{timescale}{Integer. Timescale for monthly SPI calculation. The timescale is the window length (in month) of a backward looking running mean. Default = 6.}
 
 \item{ref}{Vector with start and end year for reference period. If no reference period is specified, the full period is used as reference period.}
 

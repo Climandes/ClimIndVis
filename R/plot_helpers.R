@@ -6,7 +6,7 @@
 # "sdi"
 get_indexvar<-function(index,index_args){
 
-  preci<-c("dd" ,"cdd","prcptot","rx","cwd","sdii","rXptot","spi","spi_forecast","rainy_season_start","rainy_season_end","rainy_season_length")
+  preci<-c("dd" ,"cdd","prcptot","rx","cwd","sdii","rXptot","spi","spi_forecast","rainy_season_start","rainy_season_end","rainy_season_dur")
   tmini<-c("fd","tn10p","tnn","tn90p","tnx","th_tmin","csdi")
   tmaxi<-c("tx10p","txn","txx","tx90p","th_tmax","wsdi")
   tavgi<-c("th_topt")
@@ -66,7 +66,7 @@ get_default_color<-function(index,iname,fc=FALSE){
     col=dry
   } else if (is.element(index,c("fd","tn10p","th_tmin","csdi")) | (index=="cxd" & grepl("tmin<",iname))) {
     col = cold
-  } else if (is.element(index,c("tnn"))  |(index=="cxd" & grepl("tmin>",iname))) {
+  } else if ((is.element(index,c("tnn"))& fc)  |(index=="cxd" & grepl("tmin>",iname))) {
     col = rev(cold)
     center=TRUE
   } else if (is.element(index, c("prcptot","rx","cwd","sdii","rXptot")) | (index=="cxd" & grepl("prec>",iname))){
@@ -76,12 +76,20 @@ get_default_color<-function(index,iname,fc=FALSE){
     center=TRUE
   } else if (is.element(index,c("tx90p","th_tmax","wsdi")) ){
     col=hot
-  } else if (is.element(index,c("txx"))){
+  } else if (is.element(index,c("txx"))& fc){
     col=hot
     center=TRUE
   } else if (is.element(index,c("tn90p","tx10p"))){
     col=sun[1:5]
-  } else if (is.element(index,c("txn","tnx"))){
+  } else if (is.element(index,c("txn","tnx","txx","tnn")) & !fc){
+    col=temp_abs
+    center=TRUE
+  }  else if (is.element(index,c("qval","qrange")) & grepl("t",iname) & !fc){
+      col=temp_abs
+      center=TRUE
+  }else if (is.element(index,c("qval","qrange")) & grepl("prec",iname) & !fc){
+    col=prec
+  }else if (is.element(index,c("txn","tnx")) & fc){
     col=sun[1:5]
     center=TRUE
   } else if (index=="cxd" & grepl("tmax",iname)){
@@ -90,7 +98,9 @@ get_default_color<-function(index,iname,fc=FALSE){
     col=rev(vegetation)
   } else if (index == "rainy_season_end") {
     col=vegetation
-  } else if (is.element(index,c("minmax_xdays","varmin","varmax"))){
+  } else if (index == "rainy_season_dur") {
+    col=vegetation
+  }else if (is.element(index,c("minmax_xdays","varmin","varmax"))){
     if (grepl("min",iname)){
       col(switch(grepl("prec",iname)+1),cold,prec)
     } else if (grepl("max",iname)){
@@ -388,12 +398,17 @@ get_breaks <- function(dat=NULL,zlims=NULL,nlev=8,center=FALSE){
   if(is.null(zlims)) {
     zlims <- get_lims(dat)
     }
-  else if (!is.list(zlims)){
+  else {
     rdat <- range(dat, na.rm=TRUE)
-    f <- ifelse(rdat[2]>zlims[2],rdat[2],NA)
-    d <- ifelse(rdat[1]<zlims[1],rdat[1],NA)
-    zlims <- list(lim= zlims, diffs =c(d,f))
-    }
+    if (!is.list(zlims)){
+      f <- ifelse(rdat[2]>zlims[2],rdat[2],NA)
+      d <- ifelse(rdat[1]<zlims[1],rdat[1],NA)
+      zlims <- list(lim= zlims, diffs =c(d,f))
+    } else {
+      f <- ifelse(rdat[2]>zlims$lim[2],rdat[2],NA)
+      d <- ifelse(rdat[1]<zlims$lim[1],rdat[1],NA)
+      zlims$diffs=c(d,f)
+    }}
   if(any(is.null(zlims$lim))){
     zlims$lim <- c(0,0)}
 

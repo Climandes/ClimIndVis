@@ -67,6 +67,9 @@ NULL
 #'@param q Vector of quantiles, default to seq(0,1,by=0.01)
 #'@param th_object Climindvis_index object, default=NULL. if calculating a quantile index for forecast data, a climindvis_index object of hindcasts data for the same spatial dimensions and forecast months has to be provided. Threshold values will then be taken from the hindcast object (object$index_info$quantiles). In this case all other arguments (q, baseperiod, threhold,..) are ignored and taken from the climindvis_index object. In case of autoplot functions, these values are handed over automatically and th_object should be left at default value of NULL..
 #'@param q_threshold Percentile threshold (numerical). Value between 0 and 100.
+#'@param percentile Percentile threshold (numerical). Value between 0 and 100.
+#'@param percentile1 Lower percentile threshold (numerical). Value between 0 and 100.
+#'@param percentile2 Upper percentile threshold (numerical). Value between 0 and 100.
 #'@param n Window size (in days) for running window in temperature quantile calculation. Default =5. See details for further information.
 #'@param inbase For temperature quantiles, calculate quantiles inside baseperiod and outside baseperiod follwoing the boostrapping method of Zhang 2005. Only applicable, when baseperiod is selected. Default = TRUE. For hindcast data, inbase is set to FALSE because boostrapping of ensemble and years is computational intensive.
 #'@param NAmaxQ Minimim number of days needed for calculation of quantiles. Default = 365 [days]. For monthly aggregation of precipitation, consider lowering the threshold or expanding the baseperiod.
@@ -95,7 +98,7 @@ NULL
 NULL
 
 #'SPI
-#'@param timescale Integer. Timescale for monthly SPI calculation, i.e.running mean for 1-monthly,3-monthly, etc. period. Default = 6.
+#'@param timescale Integer. Timescale for monthly SPI calculation. The timescale is the window length (in month) of a backward looking running mean. Default = 6.
 #'@param ref Vector with start and end year for reference period. If no reference period is specified, the full period is used as reference period.
 #'@param distribution A character string naming a distribution of package stats (see for example GammaDist). For more information on the choice of the distribution, see section Details. Default = "gamma".
 #'@param limit Truncate SPI values that are larger than a given threshold, as values larger than 4 are not reasonable. Default = 4. The truncation can be disabled by setting limit = Inf.
@@ -354,6 +357,24 @@ index_arguments.dd<-function(climindvis,iformat="perc",NAmaxAgg=20,trend=FALSE,N
     plotargs=list(iname="dry days")))
 }
 
+#'arguments for index sud
+#'@inheritParams vartmax
+#'@inheritParams index_arguments
+#'@inheritParams iformat_doc
+#'@inheritParams trend_doc
+#'@inheritParams th_doc
+#'@examples
+#' data(object_st) # load example objects
+#' calc_index(object_st,index="dd",aggt="monthly")
+#'@keywords internal
+index_arguments.sud<-function(climindvis,iformat="perc",NAmaxAgg=20,trend=FALSE,NAmaxTrend=20,dd_threshold=1,...){
+  check_var(climindvis,"tmax")
+  return(list(ifun="ndays_op_threshold",var="tmax",ifunargs=list(threshold=20,op=">",iformat=iformat,NAmaxAgg=NAmaxAgg),
+    trend=trend,trendargs=list(method="logit_reg", count=ifelse(iformat=="perc",FALSE,TRUE), log_trans=FALSE,NAmaxTrend=NAmaxTrend, rel= TRUE),
+    plotargs=list(iname="summer days")))
+}
+
+
 #'arguments for index sdii
 #'@inheritParams varprec
 #'@inheritParams index_arguments
@@ -526,9 +547,11 @@ check_qth_args<-function(indexname,th=FALSE){
 #' ind_fc<-calc_index(object_fc_st,index="qth",aggt="monthly",th_object=ind_hc,thvar="tmin",q_threshold=5,operator=">=")
 #'@keywords internal
 index_arguments.qth<-function(climindvis,thvar, NAmaxAgg=20,trend=FALSE ,NAmaxTrend=20,iformat="perc", baseperiod, q_threshold,n=5,inbase = TRUE,
-                              min_base_fraction=0.1,operator,th_object=NULL,NAmaxQ=365,qens_all=TRUE,...){
+                              min_base_fraction=0.1,operator,th_object=NULL,NAmaxQ=365,qens_all=TRUE,dd_threshold=1,...){
   if(missing(climindvis) || missing(thvar) ||missing(q_threshold)|| missing(operator)) stop("Not all mandatory arguments provided for calculation of index.")
-  check_var(climindvis,thvar)
+  if(!is.numeric(q_threshold)){q_threshold <- as.numeric(q_threshold)}
+
+    check_var(climindvis,thvar)
   if (!is.null(th_object)){
     check_qth_args(indexname="qth",th=TRUE)
   } else {
@@ -545,8 +568,9 @@ index_arguments.qth<-function(climindvis,thvar, NAmaxAgg=20,trend=FALSE ,NAmaxTr
 
   return(list(ifun="ndays_op_threshold",var=thvar,
     ifunargs=list(op=operator,iformat=iformat,NAmaxAgg=NAmaxAgg),
-    qargs=list(qth=q_threshold/100,n=n,inbase=inbase,min_base_fraction=min_base_fraction,baseperiod = baseperiod, th_quantiles=th_object$index_info$th_quantiles,NAmaxQ=NAmaxQ,qens_all=qens_all),
-    trend=trend,trendargs=list(method="logit_reg",count=FALSE,  log_trans=TRUE,NAmaxTrend=NAmaxTrend, rel= TRUE),
+    qargs=list(qth=q_threshold/100,n=n,inbase=inbase,min_base_fraction=min_base_fraction,baseperiod = baseperiod,
+               th_quantiles=th_object$index_info$th_quantiles,NAmaxQ=NAmaxQ,qens_all=qens_all,q_var=thvar, dd_threshold=dd_threshold),
+    trend=trend,trendargs=list(method="logit_reg",count=TRUE,  log_trans=FALSE,NAmaxTrend=NAmaxTrend, rel= TRUE),
     plotargs=list(iname=paste0(thvar,operator,q_threshold,"th percentile"))))
 }
 
@@ -579,7 +603,8 @@ index_arguments.tn10p<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=2
   }
     return(list(ifun="ndays_op_threshold",var="tmin",
     ifunargs=list(op="<",iformat=iformat,NAmaxAgg=NAmaxAgg),
-    qargs=list(qth=(10/100),n=n,baseperiod = baseperiod, inbase=inbase, min_base_fraction = min_base_fraction,th_quantiles=th_object$index_info$th_quantiles,NAmaxQ=NAmaxQ,qens_all=qens_all),
+    qargs=list(qth=(10/100),n=n,baseperiod = baseperiod, inbase=inbase, min_base_fraction = min_base_fraction,
+               th_quantiles=th_object$index_info$th_quantiles,NAmaxQ=NAmaxQ,qens_all=qens_all, q_var="tmin"),
     trend=trend,trendargs=list(method="logit_reg",count=FALSE,  log_trans=TRUE,NAmaxTrend=NAmaxTrend, rel= TRUE),
     plotargs=list(iname="TN10p")))
 }
@@ -596,8 +621,8 @@ index_arguments.tn10p<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=2
 #'
 #' ## for forecasts
 #' data(object_hc_st, object_fc_st) # load example objects
-#' ind_hc<-calc_index(object_hc_st,index="tx90p",aggt="monthly")
-#' ind_fc<-calc_index(object_fc_st,index="tx90p",aggt="monthly",th_object=ind_hc)
+#' ind_hc<-calc_index(object_hc_st,index="tn90p",aggt="monthly")
+#' ind_fc<-calc_index(object_fc_st,index="tn90p",aggt="monthly",th_object=ind_hc)
 #'@keywords internal
 index_arguments.tn90p<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=20,iformat="perc",n=5, baseperiod,inbase = TRUE, min_base_fraction=0.1, th_object=NULL,NAmaxQ=365,qens_all=TRUE,...){
   if(missing(climindvis)) stop("climindvis object has to be provided for calculation of index")
@@ -614,7 +639,8 @@ index_arguments.tn90p<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=2
 
   return(list(ifun="ndays_op_threshold",var="tmin",
     ifunargs=list(op=">",iformat=iformat,NAmaxAgg=NAmaxAgg),
-    qargs=list(qth=(90/100),n=n,baseperiod = baseperiod, inbase=inbase, min_base_fraction = min_base_fraction,th_quantiles=th_object$index_info$th_quantiles,NAmaxQ=NAmaxQ,qens_all=qens_all),
+    qargs=list(qth=(90/100),n=n,baseperiod = baseperiod, inbase=inbase, min_base_fraction = min_base_fraction,
+               th_quantiles=th_object$index_info$th_quantiles,NAmaxQ=NAmaxQ,qens_all=qens_all, q_var="tmin"),
     trend=trend,trendargs=list(method="logit_reg",count=FALSE,  log_trans=TRUE,NAmaxTrend=NAmaxTrend, rel= TRUE),
     plotargs=list(iname="TN90p")))
 }
@@ -648,7 +674,8 @@ index_arguments.tx10p<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=2
 
   return(list(ifun="ndays_op_threshold",var="tmax",
     ifunargs=list(op="<",iformat=iformat,NAmaxAgg=NAmaxAgg),
-    qargs=list(qth=(10/100),n=n,baseperiod = baseperiod, inbase=inbase, min_base_fraction = min_base_fraction, th_quantiles=th_object$index_info$th_quantiles,NAmaxQ=NAmaxQ,qens_all=qens_all),
+    qargs=list(qth=(10/100),n=n,baseperiod = baseperiod, inbase=inbase, min_base_fraction = min_base_fraction,
+               th_quantiles=th_object$index_info$th_quantiles,NAmaxQ=NAmaxQ,qens_all=qens_all, q_var="tmax"),
     trend=trend,trendargs=list(method="logit_reg",count=FALSE,  log_trans=TRUE,NAmaxTrend=NAmaxTrend, rel= TRUE),
     plotargs=list(iname="TX10p")))
 }
@@ -682,7 +709,8 @@ index_arguments.tx90p<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=2
 
   return(list(ifun="ndays_op_threshold",var="tmax",
     ifunargs=list(op=">",iformat=iformat,NAmaxAgg=NAmaxAgg),
-    qargs=list(qth=(90/100),n=n,baseperiod = baseperiod,inbase=inbase, min_base_fraction= min_base_fraction,th_quantiles=th_object$index_info$th_quantiles,NAmaxQ=NAmaxQ,qens_all=qens_all),
+    qargs=list(qth=(90/100),n=n,baseperiod = baseperiod,inbase=inbase, min_base_fraction= min_base_fraction,
+               th_quantiles=th_object$index_info$th_quantiles,NAmaxQ=NAmaxQ,qens_all=qens_all, q_var="tmax"),
     trend=trend,trendargs=list(method="logit_reg",count=FALSE,  log_trans=TRUE,NAmaxTrend=NAmaxTrend, rel= TRUE),
     plotargs=list(iname="TX90p")))
 }
@@ -714,9 +742,11 @@ index_arguments.rXptot<-function(climindvis,NAmaxAgg=20,trend=FALSE , NAmaxTrend
       message("Baseperiod is missing. Full period used as baseperiod") }
     else {check_bp(climindvis,baseperiod)}
   }
+  if(!is.numeric(q_threshold)){ q_threshold <- as.numeric(q_threshold)}
   if(q_threshold<0 || q_threshold >100) stop("q_threshold value has to be between 0 and 100")
   return(list(ifun="total_precip_op_threshold",var="prec",ifunargs=list(op=operator,NAmaxAgg=NAmaxAgg),
-    qargs=list(qth=(q_threshold/100),dd_threshold = dd_threshold, baseperiod = baseperiod,inbase =FALSE,th_quantiles=th_object$index_info$th_quantiles,NAmaxQ=NAmaxQ,qens_all=qens_all),
+    qargs=list(qth=(q_threshold/100),dd_threshold = dd_threshold, baseperiod = baseperiod,inbase =FALSE,
+               th_quantiles=th_object$index_info$th_quantiles,NAmaxQ=NAmaxQ,qens_all=qens_all, q_var="prec"),
     trend=trend,trendargs=list(method="lin_reg",count=FALSE,  log_trans=TRUE,NAmaxTrend=NAmaxTrend, rel= TRUE),
     plotargs=list(iname=paste0("r",q_threshold,"ptot"),iformat="mm")))
 
@@ -753,7 +783,8 @@ index_arguments.csdi<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=20
   if(q_threshold<0 || q_threshold >100) stop("q_threshold value has to be between 0 and 100")
   return(list(ifun="spell_duration",var="tmin",
     ifunargs=list(func="min", op="<",min_length=6,spells_span_agg=spells_span_agg, NAmaxAgg=NAmaxAgg),
-    qargs=list(qth=(q_threshold/100),n=n, baseperiod = baseperiod,inbase=inbase, min_base_fraction=min_base_fraction, th_quantiles=th_object$index_info$th_quantiles,NAmaxQ=NAmaxQ,qens_all=qens_all),
+    qargs=list(qth=(q_threshold/100),n=n, baseperiod = baseperiod,inbase=inbase, min_base_fraction=min_base_fraction,
+               th_quantiles=th_object$index_info$th_quantiles,NAmaxQ=NAmaxQ,qens_all=qens_all,q_var="min"),
     trend=trend,trendargs=list(method="logit_reg",count=FALSE,  log_trans=FALSE,NAmaxTrend=NAmaxTrend, rel= TRUE),
     plotargs=list(iname="CSDI",iformat="dayscount")))
 }
@@ -789,7 +820,8 @@ index_arguments.wsdi<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=20
   if(q_threshold<0 || q_threshold >100) stop("threshold value has to be between 0 and 100")
   return(list(ifun="spell_duration",var="tmax",
     ifunargs=list( func="max", op=">",min_length=6,spells_span_agg=spells_span_agg,NAmaxAgg=NAmaxAgg),
-    qargs=list(qth=(q_threshold/100),n=n, baseperiod = baseperiod,inbase=inbase, min_base_fraction=min_base_fraction, th_quantiles=th_object$index_info$th_quantiles,NAmaxQ=NAmaxQ,qens_all=qens_all),
+    qargs=list(qth=(q_threshold/100),n=n, baseperiod = baseperiod,inbase=inbase, min_base_fraction=min_base_fraction,
+               th_quantiles=th_object$index_info$th_quantiles,NAmaxQ=NAmaxQ,qens_all=qens_all, q_var="tmax"),
     trend=trend,trendargs=list(method="logit_reg",count=FALSE,  log_trans=FALSE,NAmaxTrend=NAmaxTrend, rel= TRUE),
     plotargs=list(iname="WSDI",iformat="dayscount")))
 }
@@ -810,22 +842,31 @@ index_arguments.wsdi<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=20
 #'   \item consec_th (\strong{days,th},nval): sum of user defined number of consecutive days (<<days>>) above user defined threshold (<<th>>) (e.g. sum of 4 days > 10mm)
 #'
 #'   \item consec_th_maxcdd (\strong{days,th,mdays,mcdd},nval): sum of user defined number of consecutive days (<<days>>) above user defined threshold (<<th>>)  and maximum number of consecutive dry days (<<mdays>>)  within a number of user defined days (<<mcdd>>)  (e.g. sum of 4 days > 10mm and maximum 6 consecutive dry days within the next 30 days)
-#'}
+#'
+#'   \item sos (th1,th2,nval,NAdays): start of season defined by a threshold amount and distribution of rainfall reveived in three consecutive dacades (at least th1mm rainfall in first decade and at least th2mm rainfall in following 2 decades. Default values are th1=25mm,th2=20mm). See DETAILS section.
+#'   }
 #'@param nval Value which is returned if criteria for start of rainy season are not met, default=NA. Other values can be set to distinguish between years where data is NA and years where criteria of index are not met
 #'@param days Number of consecutive days of which precipitation sum is higher than threshold <<th>>
 #'@param th Threshold for precipitation sum of <<days>> consecutive days
 #'@param dd_th Dry day threshold
 #'@param mcdd Maximum consecutive dry days in the next <<mdays>> days
 #'@param mdays Number of days to check for <<mcdd>>
+#'@param NAdays Number of NA days allowed per decade for index <<sos>>. Default=0.
 #'@inheritParams trend_doc
+#'@section DETAILS:
+#'In this case of choosing <<sos>> decades are calculatet starting from start_date defined in the aggregtion.
+#'The returned day is the last day of the decade, e.g. if the criterion is met in the second decade, the return value would be 20. The precipitation per decade is calculated by the mean(prec)*10 in order to avoid the influence of missing values. By using the parameter NAdays, the number of allowed missing values per decade can be defined. If the onset criteria are not met the value for the given year is set to NA.
 #'@examples
 #' data(object_st) # load example objects
 #' calc_index(object_st,index="rainy_season_start",aggt="dates",start_days="0000-08-01",end_days="0000-03-01",rs_method="gurgiser")
 #'
 #'@keywords internal
-index_arguments.rainy_season_start<-function(climindvis,rs_method,days,th,dd_th=1,nval=NA,mdays,mcdd,trend=FALSE,NAmaxTrend=20,...){
+index_arguments.rainy_season_start<-function(climindvis,rs_method,days,th,th1=25,th2=20,dd_th=1,nval=NA,mdays,mcdd,trend=FALSE,NAmaxTrend=20,NAdays=0,...){
   check_var(climindvis,"prec")
-  if (rs_method=="consec_th") {
+  if (rs_method=="sos"){
+    method_args=list(rs_method=rs_method,dd_th=dd_th,nval=nval,th1=th1,th2=th2,NAdays=NAdays)
+    methodname=rs_method
+  } else if (rs_method=="consec_th") {
     if(missing(days) || missing(th)) stop("at least one of the mandatory argumens( <<days>>,<<th>>) is missing")
     method_args=list(rs_method=rs_method,days=days,th=th,dd_th=dd_th,nval=nval)
     methodname=paste0(days,"daysum_gt",th)
@@ -839,7 +880,139 @@ index_arguments.rainy_season_start<-function(climindvis,rs_method,days,th,dd_th=
   }
 
   return(list(ifun=paste0("rainy_season_start"),var="prec", ifunargs=method_args,trend=trend, trendargs=list(method="lin_reg", count=TRUE, log_trans=FALSE,NAmaxTrend=NAmaxTrend, rel= TRUE),
-    plotargs=list(name="rainy_season_start",iname=paste0("start of rainy season (" ,methodname,")" ),iformat="days_since")))
+    plotargs=list(name="rainy_season_start",iname=paste0("rsstart-" ,methodname),iformat="days_since")))
+}
+
+
+
+# rainy season ------------------------------------------------------------
+
+#'arguments for index rainy_season_end
+#'@inheritParams varprec
+#'@param rs_method: method for calculation of index (further indicator arguments for each rs_method are given in brackets and defined below, arguments without default that have to be provided are in bold font ):
+#'\itemize{
+#'   \item garcia (nval): sum(3days) > 20mm and maximum number of consecutive dry days within the next 30 days <=10 (definition from Garcia et al.,2007 )
+#'
+#'   \item gurgiser (nval): sum(7days) > 10mm and number of consecutive wet days   within the next 30 days > 10 (definition from Gurgiser et al.,2017)
+#'   }
+#'@param th Threshold for precipitation sum of <<days>> consecutive days
+#'@param dd_th Dry day threshold
+#'@param NAdays Number of NA days allowed per decade for index <<sos>>. Default=0.
+#'@inheritParams trend_doc
+#'@section DETAILS:
+#'In case the criteria are not met for a given year, the value for that year is set to NA.
+#'
+#'@examples
+#' data(object_st) # load example objects
+#' calc_index(object_st,index="rainy_season_end",aggt="dates",start_days="0000-02-01",end_days="0000-08-01",rs_method="gurgiser")
+#'
+#'@keywords internal
+index_arguments.rainy_season_end<-function(climindvis,rs_method,days,dd_th=1,nval=NA,trend=FALSE,NAmaxTrend=20,NAdays=0,...){
+  check_var(climindvis,"prec")
+    method_args=list(rs_method=rs_method,dd_th=dd_th,nval=nval)
+    methodname=rs_method
+
+  return(list(ifun=paste0("rainy_season_end"),var="prec", ifunargs=method_args,trend=trend, trendargs=list(method="lin_reg", count=TRUE, log_trans=FALSE,NAmaxTrend=NAmaxTrend, rel= TRUE),
+    plotargs=list(name="rainy_season_end",iname=paste0("rsend-" ,methodname),iformat="days_since")))
+}
+
+
+
+# rainy season ------------------------------------------------------------
+
+#'arguments for index rainy_season_dur
+#'@inheritParams varprec
+#'@param rs_method: method for calculation of index (further indicator arguments for each rs_method are given in brackets and defined below, arguments without default that have to be provided are in bold font ):
+#'\itemize{
+#'   \item garcia (nval): sum(3days) > 20mm and maximum number of consecutive dry days within the next 30 days <=10 (definition from Garcia et al.,2007 )
+#'
+#'   \item gurgiser (nval): sum(7days) > 10mm and number of consecutive wet days   within the next 30 days > 10 (definition from Gurgiser et al.,2017)
+#'   }
+#'@param th Threshold for precipitation sum of <<days>> consecutive days
+#'@param dd_th Dry day threshold
+#'@param NAdays Number of NA days allowed per decade for index <<sos>>. Default=0.
+#'@inheritParams trend_doc
+#'@section DETAILS:
+#'The duration of the rainy season is calculated using the same functions for the start and end of the rainy season. The arguments for the aggregations have to be provided differently. <<day start>> indicates the first day of the calculation for the start of the rainy season and <<day end>> the first day of the time series for calculating the end of the rainy season. nstart/nend are the number of days after day_start/day_end to consider for the calculation (defaults to 300days). If the criterion for start or end are not met the value of the respective year is set to NA.
+#'
+#'@examples
+#' data(object_st) # load example objects
+#' calc_index(object_st,index="rainy_season_start",aggt="dates",start_days="0000-08-01",end_days="0000-03-01",rs_method="gurgiser")
+#'
+#'@keywords internal
+index_arguments.rainy_season_dur<-function(climindvis,rs_method,days,dd_th=1,nval=NA,trend=FALSE,NAmaxTrend=20,NAdays=0,...){
+  check_var(climindvis,"prec")
+  method_args=list(rs_method=rs_method,dd_th=dd_th,nval=nval)
+  methodname=rs_method
+
+  return(list(ifun=paste0("rainy_season_dur"),var="prec", ifunargs=method_args,trend=trend, trendargs=list(method="lin_reg", count=TRUE, log_trans=FALSE,NAmaxTrend=NAmaxTrend, rel= TRUE),
+    plotargs=list(name="rainy_season_dur",iname=paste0("rsdur-" ,methodname),iformat="days")))
+}
+
+
+
+# rainy season ------------------------------------------------------------
+
+#'arguments for index rainy_season_end
+#'@inheritParams varprec
+#'@param rs_method: method for calculation of index (further indicator arguments for each rs_method are given in brackets and defined below, arguments without default that have to be provided are in bold font ):
+#'\itemize{
+#'   \item garcia (nval): sum(3days) > 20mm and maximum number of consecutive dry days within the next 30 days <=10 (definition from Garcia et al.,2007 )
+#'
+#'   \item gurgiser (nval): sum(7days) > 10mm and number of consecutive wet days   within the next 30 days > 10 (definition from Gurgiser et al.,2017)
+#'   }
+#'@param th Threshold for precipitation sum of <<days>> consecutive days
+#'@param dd_th Dry day threshold
+#'@param NAdays Number of NA days allowed per decade for index <<sos>>. Default=0.
+#'@inheritParams trend_doc
+#'@section DETAILS:
+#'xxx
+#'
+#'@examples
+#' data(object_st) # load example objects
+#' calc_index(object_st,index="rainy_season_start",aggt="dates",start_days="0000-08-01",end_days="0000-03-01",rs_method="gurgiser")
+#'
+#'@keywords internal
+index_arguments.rainy_season_end<-function(climindvis,rs_method,days,dd_th=1,nval=NA,trend=FALSE,NAmaxTrend=20,NAdays=0,...){
+  check_var(climindvis,"prec")
+    method_args=list(rs_method=rs_method,dd_th=dd_th,nval=nval)
+    methodname=rs_method
+
+  return(list(ifun=paste0("rainy_season_end"),var="prec", ifunargs=method_args,trend=trend, trendargs=list(method="lin_reg", count=TRUE, log_trans=FALSE,NAmaxTrend=NAmaxTrend, rel= TRUE),
+    plotargs=list(name="rainy_season_end",iname=paste0("ers-" ,methodname),iformat="days_since")))
+}
+
+
+
+# rainy season ------------------------------------------------------------
+
+#'arguments for index rainy_season_dur
+#'@inheritParams varprec
+#'@param rs_method: method for calculation of index (further indicator arguments for each rs_method are given in brackets and defined below, arguments without default that have to be provided are in bold font ):
+#'\itemize{
+#'   \item garcia (nval): sum(3days) > 20mm and maximum number of consecutive dry days within the next 30 days <=10 (definition from Garcia et al.,2007 )
+#'
+#'   \item gurgiser (nval): sum(7days) > 10mm and number of consecutive wet days   within the next 30 days > 10 (definition from Gurgiser et al.,2017)
+#'   }
+#'@param th Threshold for precipitation sum of <<days>> consecutive days
+#'@param dd_th Dry day threshold
+#'@param NAdays Number of NA days allowed per decade for index <<sos>>. Default=0.
+#'@inheritParams trend_doc
+#'@section DETAILS:
+#'xxx
+#'
+#'@examples
+#' data(object_st) # load example objects
+#' calc_index(object_st,index="rainy_season_start",aggt="dates",start_days="0000-08-01",end_days="0000-03-01",rs_method="gurgiser")
+#'
+#'@keywords internal
+index_arguments.rainy_season_dur<-function(climindvis,rs_method,days,dd_th=1,nval=NA,trend=FALSE,NAmaxTrend=20,NAdays=0,...){
+  check_var(climindvis,"prec")
+  method_args=list(rs_method=rs_method,dd_th=dd_th,nval=nval)
+  methodname=rs_method
+
+  return(list(ifun=paste0("rainy_season_dur"),var="prec", ifunargs=method_args,trend=trend, trendargs=list(method="lin_reg", count=TRUE, log_trans=FALSE,NAmaxTrend=NAmaxTrend, rel= TRUE),
+    plotargs=list(name="rainy_season_dur",iname=paste0("dur-" ,methodname),iformat="days")))
 }
 
 
@@ -892,3 +1065,41 @@ index_arguments.spi_forecast<-function(climindvis,fc_p, timescale=6,ref=NULL,dis
               plotargs=list(iname=paste0("SPI",timescale, ref))))
 }
 
+
+
+
+
+
+#'arguments for index qval
+#'@inheritParams qth
+#'@inheritParams index_arguments
+#'@inheritParams trend_doc
+#'@section DETAILS:
+#'This index calculated the  percentile of each aggregation time period and year seperately.
+#'@examples
+#' data(object_st) # load example objects
+#' calc_index(object_st,index="qval,aggt="seasonal",percentile=5, var="tmin")
+#'@keywords internal
+index_arguments.qval<-function(climindvis,NAmaxAgg=20,trend=FALSE,NAmaxTrend=20,percentile,var,...){
+  check_var(climindvis,var)
+  return(list(ifun="q_agg",var=var,ifunargs=list(q1=percentile/100,q2=NULL, NAmaxAgg=NAmaxAgg),
+    trend=trend,trendargs=list(method="lin_reg",count=FALSE,  log_trans=FALSE,NAmaxTrend=NAmaxTrend, rel=FALSE),
+    plotargs=list(iname=paste0(var,"_q",q_threshold),iformat=ifelse(var=="prec","mm","degreeC"))))
+}
+
+#'arguments for index qrange
+#'@inheritParams qth
+#'@inheritParams index_arguments
+#'@inheritParams trend_doc
+#'@section DETAILS:
+#'This index calculated the difference between the two percentile values for each aggregation and year seperately, e.g. in the case of the 25th and the 75th percentile the interquantile range is calculated.
+#' @examples
+#' data(object_st) # load example objects
+#' calc_index(object_st,index="qrange",aggt="seasonal",precentile1=25,percentile2=75,var="tmax")
+#'@keywords internal
+index_arguments.qrange<-function(climindvis,NAmaxAgg=20,trend=FALSE,NAmaxTrend=20,percentile1,percentile2,var,...){
+  check_var(climindvis,var)
+  return(list(ifun="q_agg",var=var,ifunargs=list(q1=q_threshold/100,q2=q_threshold2/100, NAmaxAgg=NAmaxAgg),
+    trend=trend,trendargs=list(method="lin_reg",count=FALSE,  log_trans=FALSE,NAmaxTrend=NAmaxTrend, rel=FALSE),
+    plotargs=list(iname=paste0(var,"_q",q_threshold,"_q",q_threshold2),iformat=ifelse(var=="prec","mm","degreeC"))))
+}

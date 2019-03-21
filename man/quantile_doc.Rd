@@ -12,6 +12,12 @@
 
 \item{q_threshold}{Percentile threshold (numerical). Value between 0 and 100.}
 
+\item{percentile}{Percentile threshold (numerical). Value between 0 and 100.}
+
+\item{percentile1}{Lower percentile threshold (numerical). Value between 0 and 100.}
+
+\item{percentile2}{Upper percentile threshold (numerical). Value between 0 and 100.}
+
 \item{n}{Window size (in days) for running window in temperature quantile calculation. Default =5. See details for further information.}
 
 \item{inbase}{For temperature quantiles, calculate quantiles inside baseperiod and outside baseperiod follwoing the boostrapping method of Zhang 2005. Only applicable, when baseperiod is selected. Default = TRUE. For hindcast data, inbase is set to FALSE because boostrapping of ensemble and years is computational intensive.}

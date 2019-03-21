@@ -5,8 +5,8 @@
 \title{arguments for index rainy_season_start}
 \usage{
 \method{index_arguments}{rainy_season_start}(climindvis, rs_method, days, th,
-  dd_th = 1, nval = NA, mdays, mcdd, trend = FALSE, NAmaxTrend = 20,
-  ...)
+  th1 = 25, th2 = 20, dd_th = 1, nval = NA, mdays, mcdd,
+  trend = FALSE, NAmaxTrend = 20, NAdays = 0, ...)
 }
 \arguments{
 \item{climindvis}{Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable precipitation (prec)}
@@ -27,6 +27,8 @@
 
 \item{NAmaxTrend}{Maximum number of years in time series of index which are missing values. Value between 0 (=0\%); no years with missing values allowed) and 100 (=100\%); all years can be missing values). If exceeded, the trend is set to NA for the respective grid point/station. Note that the value is relative to the length of the time series. Default = 20 (20\%).}
 
+\item{NAdays}{Number of NA days allowed per decade for index <<sos>>. Default=0.}
+
 \item{rs_method:}{method for calculation of index (further indicator arguments for each rs_method are given in brackets and defined below, arguments without default that have to be provided are in bold font ):
 \itemize{
 \item stern (nval): 3 of 5 days > 0.1mm & sum(5days) > 25mm and maximum number of consecutive dry days  within the next 30 days >=7 (definition from Stern et al., 1981 )
@@ -38,11 +40,19 @@
   \item consec_th (\strong{days,th},nval): sum of user defined number of consecutive days (<<days>>) above user defined threshold (<<th>>) (e.g. sum of 4 days > 10mm)
 
   \item consec_th_maxcdd (\strong{days,th,mdays,mcdd},nval): sum of user defined number of consecutive days (<<days>>) above user defined threshold (<<th>>)  and maximum number of consecutive dry days (<<mdays>>)  within a number of user defined days (<<mcdd>>)  (e.g. sum of 4 days > 10mm and maximum 6 consecutive dry days within the next 30 days)
-}}
+
+  \item sos (th1,th2,nval,NAdays): start of season defined by a threshold amount and distribution of rainfall reveived in three consecutive dacades (at least th1mm rainfall in first decade and at least th2mm rainfall in following 2 decades. Default values are th1=25mm,th2=20mm). See DETAILS section.
+  }}
 }
 \description{
 arguments for index rainy_season_start
 }
+\section{DETAILS}{
+
+In this case of choosing <<sos>> decades are calculatet starting from start_date defined in the aggregtion.
+The returned day is the last day of the decade, e.g. if the criterion is met in the second decade, the return value would be 20. The precipitation per decade is calculated by the mean(prec)*10 in order to avoid the influence of missing values. By using the parameter NAdays, the number of allowed missing values per decade can be defined. If the onset criteria are not met the value for the given year is set to NA.
+}
+
 \examples{
 data(object_st) # load example objects
 calc_index(object_st,index="rainy_season_start",aggt="dates",start_days="0000-08-01",end_days="0000-03-01",rs_method="gurgiser")

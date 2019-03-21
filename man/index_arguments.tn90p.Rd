@@ -41,7 +41,7 @@ calc_index(object_st,index="tn90p",aggt="monthly",trend=TRUE,baseperiod=c(1981,2
 
 ## for forecasts
 data(object_hc_st, object_fc_st) # load example objects
-ind_hc<-calc_index(object_hc_st,index="tx90p",aggt="monthly")
-ind_fc<-calc_index(object_fc_st,index="tx90p",aggt="monthly",th_object=ind_hc)
+ind_hc<-calc_index(object_hc_st,index="tn90p",aggt="monthly")
+ind_fc<-calc_index(object_fc_st,index="tn90p",aggt="monthly",th_object=ind_hc)
 }
 \keyword{internal}

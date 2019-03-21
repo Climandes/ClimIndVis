@@ -37,7 +37,7 @@ autoplot_verification_map(obs_grid, hc_grid, hc_ref_grid = NULL, obs_p, hc_p,
 
 \item{ncat}{Number of forecast categories. Default = 3.}
 
-\item{output}{Format of image to be plotted ("png", "jpg", "tiff", "pdf","dev.new").  Default = NULL, output to null device (getOption("device") will show you the null device. If you are not using RStudio, NULL and dev.new will give the same output).}
+\item{output}{Format of image to be plotted ("png", "jpeg", "tiff", "pdf","dev.new").  Default = NULL, output to null device (getOption("device") will show you the null device. If you are not using RStudio, NULL and dev.new will give the same output).}
 
 \item{plotdir}{Character string of path of directory for saving plots. Ignored if  \emph{output} is NULL or "dev.new".}
 

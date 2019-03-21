@@ -3,8 +3,9 @@
 
 
 
-plot_tacho<-function(filename,pos,perc_cat,colors=colors,skill=NULL,skillmin,noskill,maxskill,breaks,r1=0,r3=1.1,line.ens=FALSE,pos.ens=NA,tacholabs,lab.place,scale.labs=NA,scale.place=NA,message_text=NULL,title=""){
-
+plot_tacho<-function(filename,pos,perc_cat,colors=colors,skill=NULL,skillmin,noskill,maxskill,breaks,r1=0,r3=1.1,line.ens=FALSE,pos.ens=NA,tacholabs,lab.place,scale.labs=NA,scale.place=NA,message_text=NULL,title="",pwidth=5,pheight=3){
+if (is.null(pwidth)) pwidth=5
+if (is.null(pheight)) pheight=3
 if (missing (lab.place)) lab.place <- (breaks[1:(length(breaks)-1)] + breaks[2:(length(breaks))])/2
 if (missing (tacholabs)) tacholabs=1:(length(breaks)-1)
 if (missing(skillmin)) skillmin=noskill
@@ -68,7 +69,7 @@ if (filename==""){
   dev.new()
  print(p)
 } else {
-  ggplot2::ggsave(filename, plot = ggplot2::last_plot(),width= par("din")[1],height= par("din")[2]-3 )
+  ggplot2::ggsave(filename, plot = ggplot2::last_plot(),width= pwidth,height= pheight )
 }
 
 

@@ -9,6 +9,8 @@
 #' @inheritParams veri_doc
 #' @param verify Logical. Should skill criterion be applied?
 #' @param col Plot colors, array of same length as ncat. If not provided, package default colors for index are used.
+#' @param pwidth Optional, only used if output is not NULL. Width of plot, default=5. Only considered if output!=NULL
+#' @param pheight Optional, only used if output is not NULL. Height of plot, default=3.
 #'
 #'@section Output:
 #' This function returns one plot per temporal aggregation which is covered by the hindcasta and forecasts (e.g. if aggt="seasonal" and the forecast is issued in Jan for 7 months it would return one graphic for "MAM").
@@ -60,7 +62,7 @@ autoplot_forecast_stations<-function(
   verify = TRUE, veri_metric, veri_args = list(),  skillmin = NULL,
   text_noskill = "no skill", text_novar = "no or little variation in climatology", text_nocat = "no dominant category",
   col = "default", prob, ncat = 3, cat_names = paste0("cat", 1:ncat),
-  plot_climatology = FALSE, plot_title = TRUE,
+  plot_climatology = FALSE, plot_title = TRUE, pwidth=NULL, pheight=NULL,
   output = NULL, plotdir, plotname = "", title = "") {
 
   #1. checks ------------------------------------------------------------------
@@ -219,7 +221,7 @@ autoplot_forecast_stations<-function(
           pnames=get_plot_title(titlestring=title,show_title=plot_title,autoplot="forecast_point",aa,yy,pp)
 
           #if (!plot_climatology){
-            plot_tacho(filename=pnames$f,pos=ppos$p,perc_cat=switch(is.na(pskill$p)+1,cprobs$p,rep(0,ncat)),colors=ch,pskill$p,skillmin,noskill,maxskill,breaks,r1=0,r3=1.1,tacholabs=cat_names,message_text=message_text,title=pnames$t)
+            plot_tacho(filename=pnames$f,pos=ppos$p,perc_cat=switch(is.na(pskill$p)+1,cprobs$p,rep(0,ncat)),colors=ch,pskill$p,skillmin,noskill,maxskill,breaks,r1=0,r3=1.1,tacholabs=cat_names,message_text=message_text,title=pnames$t,pwidth=pwidth,pheight=pheight)
 
         } #no values
       } #agg

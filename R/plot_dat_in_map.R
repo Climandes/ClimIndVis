@@ -44,7 +44,8 @@
 plot_map_grid_points <- function(g_dat=NULL,g_lon=NULL,g_lat=NULL,g_col=rainbow(10),g_col_center=FALSE,g_breaks,g_nlev=10,
   p_lon=NULL,p_lat=NULL,p_col_info="same",p_col=rainbow(10),p_col_center=FALSE,p_dat,p_legend=0,legend_center=FALSE,
   xlims,ylims,zlims=NULL,p_zlims,mask=NULL,mask_NA=NULL,ratio=1.0,p_nlev=10,p_breaks=NA,p_text,p_pch=21,p_cex=1,p_pch_s=NA,p_col_sig,
-  output=NULL,outfile,plot_scale=TRUE,pwidth=5,graphic_device,plot_title,lwidth=1,plwidth=1,trend=FALSE,topo=NULL,text_cex=1,mask_col="lightgrey",NA_col="white",fc_plot=FALSE,outliers=c(FALSE,FALSE),units="",...) {
+  output=NULL,outfile,plot_scale=TRUE,pwidth=5,graphic_device,plot_title,lwidth=1,plwidth=1,trend=FALSE,topo=NULL,text_cex=1,
+  mask_col="lightgrey",NA_col="white",fc_plot=FALSE,outliers=c(FALSE,FALSE),units="",contour=NULL,contourcol="darkgrey",...) {
 
 opargs<-list(...)
   # 1.checks ----------------------------------------------------------------
@@ -131,7 +132,7 @@ opargs<-list(...)
         }
       }
       if (all(g_breaks>=0)) {
-        g_col=colorRampPalette(g_col)(length(g_breaks)*2-1)[length(g_breaks): (length(g_breaks)*2-1)]
+        g_col=colorRampPalette(g_col)(length(g_breaks)*2-1)[(length(g_breaks)+1): (length(g_breaks)*2-1)]
       } else if (all(g_breaks<=0)){
         g_col=colorRampPalette(g_col)(length(g_breaks)*2-1)[1:(length(g_breaks)-1)]
       } else {
@@ -141,11 +142,13 @@ opargs<-list(...)
         sel=which(is.element(round(g_br_help,digits=4),round(g_breaks,digits=4)))
         g_col = colorRampPalette(g_col)(length(g_br_help)-1)[head(sel,-1)]
       }
-    } else {
-      if (length(g_col) != (length(g_breaks)-1)){
-      g_col = colorRampPalette(g_col)(length(g_breaks)-1)
-      }
     }
+
+    if (length(g_col) != (length(g_breaks)-1)){
+      g_col = colorRampPalette(g_col)(length(g_breaks)-1)
+
+      }
+
 
     if (outliers[1]) g_dat[g_dat<head(g_breaks,1)]=head(g_breaks,1)
     if (outliers[2]) g_dat[g_dat>tail(g_breaks,1)]=tail(g_breaks,1)
@@ -270,7 +273,8 @@ opargs<-list(...)
     if (!all(is.na(mask))) image(g_lon,g_lat,mask,xlim=xlims, ylim=ylims,col=mask_col,add=TRUE)
    }
    maps::map(ifelse(coords==TRUE,'world',"world2"), add=T, lwd=2)
-   maps::map('lakes', add=T, lwd=2,wrap=switch(coords+1,c(0,360),c(-180,180)))
+   maps::map('lakes', add=T, lwd=2,wrap=switch(coords+1,c(0,360),c(-180,180)), fill=TRUE, col="lightblue")
+
   #plot a grid on top of the plot
   all_lons <- seq(xlims[1],xlims[2],1)
   all_lats <- seq(ylims[1],ylims[2],1)
@@ -283,7 +287,7 @@ opargs<-list(...)
   if (!is.null(topo)){
     contour(topo$lon, topo$lat, topo$alt, nlevels=3, col="gray55", add=TRUE)
   }
-
+  if (!is.null(contour)) contour(contour$lon,contour$lat,contour$mask, nlevels=1, col=contourcol, add=TRUE,lwd=2,labels="")
 
 #plot points
   if (points==1){

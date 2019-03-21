@@ -95,7 +95,13 @@
 #'   \strong{rXptot} \tab Total precipitation when RR > Xp, e.g. (r95ptot). For a description of all arguments and default values see  \code{\link{index_arguments.rXptot}} \cr
 #'   \tab arguments: \strong{aggt}, q_threshold=95, operator=">",NAmaxAgg, NAmaxTrend, baseperiod, NAmaxbasep, iformat,th_object, qens_all\cr
 #'   \tab example:    index_args=list(aggt="seasonal") \cr
-#
+#'
+#'    \strong{qval} \tab Percentile value for each aggregation period and year. For arguments and default values see  \code{\link{index_arguments.qval}}\cr
+#'   \tab arguments: \strong{aggt,percentile,var},NAmaxAgg\cr
+#'   \tab example:    index_args=list(aggt="seasonal",percentile=5,var="tmax) \cr
+#'   #'    \strong{qrange} \tab Percentile value for each aggregation period and year. For arguments and default values see  \code{\link{index_arguments.qrange}}\cr
+#'   \tab arguments: \strong{aggt,percentile1,percentile,var},NAmaxAgg\cr
+#'   \tab example:    index_args=list(aggt="seasonal",percentile1=25,percentile2=75,var="tmax) \cr
 #'   }
 #'
 #'@section further Indices:
@@ -122,9 +128,14 @@
 #'   \tab example:    index_args=list(aggt="seasonal") \cr
 #'\tab \cr
 #'   \strong{rainy_season_start} \tab Start of the rainy season. Argument \emph{aggt} needs to be set to \emph{dates} and \emph{start_days} and \emph{end_days} additionally provided for this index.  For more arguments and default values see  \code{\link{index_arguments.rainy_season_start}} \cr
-#'   \tab arguments: \strong{aggt="dates"}, rs_method, days, th, dd_th, nval, mdays, mcdd, NAmaxAgg, NAmaxTrend\cr
+#'   \tab arguments: \strong{aggt="dates", rs_method}, days, th, dd_th, nval, mdays, mcdd, NAmaxAgg, NAmaxTrend\cr
 #'   \tab example:    index_args=list(aggt="dates", start_days="0000-08-01", end_days = "0000-07-31",rs_method="gurgiser") \cr
-
+#'   \strong{rainy_season_end} \tab End of the rainy season. Argument \emph{aggt} needs to be set to \emph{dates} and \emph{start_days} and \emph{end_days} additionally provided for this index.  For more arguments and default values see  \code{\link{index_arguments.rainy_season_end}} \cr
+#'   \tab arguments: \strong{aggt="dates",rs_method},days, th, dd_th, nval, mdays, mcdd, NAmaxAgg, NAmaxTrend\cr
+#'   \tab example:    index_args=list(aggt="dates", start_days="0000-02-01", end_days = "0000-08-31",rs_method="gurgiser") \cr
+#'   #'   \strong{rainy_season_dur} \tab Duration of the rainy season. Argument \emph{aggt} needs to be set to \emph{dates} and \emph{days_start} and \emph{days_end} additionally provided for this index.  For more arguments and default values see  \code{\link{index_arguments.rainy_season_dur}} \cr
+#'   \tab arguments: \strong{aggt="dates",rs_method},days, th, dd_th, nval, mdays, mcdd, NAmaxAgg, NAmaxTrend\cr
+#'   \tab example:    index_args=list(aggt="dates", day_start="0000-08-01", days_end = "0000-02-01",nstart=300,nend=200,rs_method="gurgiser") \cr
 #'     }
 #'     @keywords internal
 NULL
