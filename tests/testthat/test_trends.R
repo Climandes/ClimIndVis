@@ -9,7 +9,7 @@ test_that("trend is calculated",{
   test_obj_tpg <- make_object(prec= data_grid$prec, dates_prec=data_grid$time, lon=data_grid$lon,lat=data_grid$lat, data_info= data_grid$data_info)
 
   tpo <- calc_index(test_obj_tpo, index = "dd",aggt="seasonal",thvar="prec",iformat="perc",trend=TRUE)
-  tpo_rs <- calc_index(test_obj_tpo, index = "rainy_season_start",rs_method="stern",aggt="dates",start_days="0000-01-10",end_days="0000-12-31",trend=TRUE)
+  tpo_rs <- calc_index(test_obj_tpo, index = "rainy_season_start",rs_method="jd",aggt="dates",start_days="0000-01-10",end_days="0000-12-31",trend=TRUE)
   tpg <- calc_index(test_obj_tpg, index = "dd",aggt="seasonal",thvar="prec",iformat="perc",trend=TRUE)
 
   tpo_spi <- calc_index(test_obj_tpo, index = "spi",aggt="monthly", timescale= 3, distribution="gamma", trend = TRUE)

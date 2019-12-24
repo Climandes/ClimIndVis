@@ -145,6 +145,7 @@ calculate_index.climindvis <- function(climindvis,aggt,...){
   #
   sel_time<-get_date_factors(climindvis,args$aggt,args$aggmons,args$selagg,args$start_days,args$end_days,args$start,args$end,args$xdays)
 
+  #iargs$trendargs$numdays <- sel_time$numdays # for logit calculation 
   d=dim(climindvis$data[[iargs$var]])
   ld=length(d)
 
@@ -187,7 +188,7 @@ calculate_index.climindvis <- function(climindvis,aggt,...){
   if(grepl("fc",climindvis$data_info$type)) iargs$trend=FALSE
 
   if (iargs$trend != FALSE){
-    itrend <- calc_index_trend(index=ireturn$index,iargs$trend, targs=iargs$trendargs)
+     itrend <- calc_index_trend(index=ireturn$index,iargs$trend, targs=iargs$trendargs)
     ireturn$index_trend <-  itrend$data
     ireturn$trend_info <- itrend$summary
   }
@@ -239,8 +240,17 @@ if ((emon<smon)) {
      sel=match(dimnames(iend)[[1]],dimnames(istart)[[1]])
 
 }
+  
  iout=iend[!is.na(sel),]+diff-istart[sel[!is.na(sel)],]
 
+ if(!is.null(args$nval)){
+   iend_sel = iend[!is.na(sel),]
+   istart_sel =istart[sel[!is.na(sel)],]
+   ind = (iend_sel==args$nval | istart_sel==args$nval)
+   iout[ind] = args$nval
+ }
+ 
+ 
   ireturn<-list()
   ireturn$index_info <- c(iargs$ifunargs,iargs$plotargs,iargs$qargs,list(aggt=ifelse(args$aggt=="xdays",paste0(args$xdays,"days"),args$aggt),aggnames=paste0("start_",smon,substring(args$day_start,9,10),"_end_",emon,substring(args$day_end,9,10)),years=dimnames(iout)[[1]]))
 

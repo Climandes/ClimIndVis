@@ -11,21 +11,21 @@ tp_grid <- make_object(prec=data_grid,dates_prec=time,lon=lon,lat=lat,data_info=
 #test that function gives correct values
 test_that("test function values with test data", {
 
-  expect_equal(calc_index(tp,"rainy_season_start",rs_method="stern",aggt="dates",start_days="0000-01-10",end_days="0000-12-31", trend=FALSE)$index[2,1:3],
+  expect_equal(calc_index(tp,"rainy_season_start",rs_method="jd",aggt="dates",start_days="0000-01-10",end_days="0000-12-31", trend=FALSE)$index[2,1:3],
                c("1981"=1,"1982"=1,"1983"=1))
   })
 
 #test gridded data
 test_that("test function values with test data, gridded data", {
   expect_equal(
-    calc_index(tp_grid,"rainy_season_start",rs_method="stern",  aggt="dates",  start_days="0000-01-10", end_days="0000-12-31",trend=FALSE)$index[,1,],
+    calc_index(tp_grid,"rainy_season_start",rs_method="jd",  aggt="dates",  start_days="0000-01-10", end_days="0000-12-31",trend=FALSE)$index[,1,],
 
-    calc_index(tp_grid,"rainy_season_start", rs_method="stern", aggt="dates", start_days="0000-01-10",end_days="0000-12-31",trend=FALSE)$index[,2,])})
+    calc_index(tp_grid,"rainy_season_start", rs_method="jd", aggt="dates", start_days="0000-01-10",end_days="0000-12-31",trend=FALSE)$index[,2,])})
 
 ##### test calc_indices_functions ######
 
 #test that method gives the same result as basic function call
-for (rs_method in c("gurgiser","stern","garcia")){
+for (rs_method in c("gurgiser","jd","garcia")){
 test_that("generic function versus manual calculation using base function", {
   expect_equal(calc_index(tp,"rainy_season_start",rs_method=rs_method  ,aggt="dates",   start_days="0000-01-10",
                                                                     end_days="0000-12-31", trend=FALSE)$index[2,],

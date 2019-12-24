@@ -238,7 +238,7 @@ get_trinfo <- function(climindvis_index, aggreg, ip){
     }
 }
 
-image_scale <- function(breaks,col, axis.pos=1, add.axis=TRUE, xlab,ylab,scale_lab, key.extend=c(FALSE,FALSE),fc_axis=NULL, equidist=FALSE,...){
+image_scale <- function(breaks,col, axis.pos=1, add.axis=TRUE, xlab,ylab,scale_lab, key.extend=c(FALSE,FALSE),fc_axis=NULL,useraxis=NULL, equidist=FALSE,mar=c(5,1,5,3),las=1,...){
 
    # if(!missing(breaks)){
   #   if(length(breaks) != (length(col)+1)){stop("must have one more break than colour")}
@@ -257,7 +257,7 @@ image_scale <- function(breaks,col, axis.pos=1, add.axis=TRUE, xlab,ylab,scale_l
   if(axis.pos %in% c(2,4)){ylim<-range(height); xlim<-c(0,1)}
   if(missing(ylab)){ylab=""}
   if(missing(xlab)){xlab=""}
-  par(mar=c(5,1,5,3))
+  par(mar=mar)
   if (!is.null(fc_axis)){
     if(axis.pos %in% c(1,3)) par(mar=c(2,1,1,1))
     if(axis.pos %in% c(2,4)) par(mar=c(1,1,1,2))
@@ -273,7 +273,7 @@ image_scale <- function(breaks,col, axis.pos=1, add.axis=TRUE, xlab,ylab,scale_l
   }
 
   if(axis.pos %in% c(2,4) & is.null(fc_axis)){
-    mtext(side=4,at=breaks[round(length(breaks)/2)],scale_lab,line=1.5,cex=1,las=3, padj = 1)
+    mtext(side=4,at=breaks[round(length(breaks)/2)],scale_lab,line=1.5,cex=1,las=las, padj = 1)
   }
   if (any(key.extend)) {
     dl <- diff(breaks[2:3])
@@ -349,6 +349,11 @@ image_scale <- function(breaks,col, axis.pos=1, add.axis=TRUE, xlab,ylab,scale_l
 
   } else {box()}
   if(add.axis) axis(axis.pos)
+  if(!is.null(useraxis)){
+    
+    axis(side=4,at=useraxis$ats, labels=useraxis$labs, line=0, cex.axis=useraxis$cex,las=1)
+    
+  }
 
 }
 

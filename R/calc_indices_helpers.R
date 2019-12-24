@@ -427,3 +427,16 @@ is_index_special<-function(index){
   r<-ifelse (is.element(index,c("qth","qtot","rXptot","tn10p","tx10p","tn90p","tx90p","csdi","wsdi")),TRUE,FALSE )
   return(r)
 }
+
+
+# get_numdays <- function(sel_time, climindvis,iargs){
+#   len_factors <- tapply(sel_time$tfactor,sel_time$tfactor, length)
+#   ## acount for na values
+#   
+#   nna <- climdex.pcic:::tapply.fast(sel_time$tfactor)
+#   
+#   
+#   return(numdays)
+# }
+
+

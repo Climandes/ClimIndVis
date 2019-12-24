@@ -5,7 +5,7 @@
 #'\emph{vignette("autoplot-functions",package="ClimIndVis")} into the console.
 #'
 #'@inheritParams plot_doc
-#'@param sig_lev Level of significance. Only significant trend estimates are plotted. Default = 0.95.
+#'@param sig_lev Level of significance. Only significant trend estimates are plotted. Default = 0.05.
 #'@param abs Logical. Plot absolute trend (unit/decade) instead of relative trend (percentage change relative to middle time). Default = TRUE. For indices with continuous temperature values (e.g. TNN, TNX, etc.), no relative trend is calculated.
 #' @section Details:
 #' For every index a default method is used for the trend calculation. The default trend estimation and test depends on the nature of the calculated index: \cr
@@ -34,7 +34,7 @@
 #'@export
 autoplot_trend_map <-function(
   dat_grid, dat_p,
-  index, index_args = list(),abs = TRUE,sig_lev = 0.95, selyears=NULL,
+  index, index_args = list(),abs = TRUE,sig_lev = 0.05, selyears=NULL,
   title = "", plot_title = TRUE, plot_args = list(),
   output=NULL, plotdir, plotname = "") {
 
@@ -70,7 +70,7 @@ autoplot_trend_map <-function(
   # 3. Plotten --------------------------------------------------
 
   ## 3.1. get aggregations---------------------------------------------------
-  sig_val <- 1-sig_lev
+  sig_val <- sig_lev
   if(points==1){
     plot_args$p_pch <- c(24,25)
     plot_args$trend <- TRUE}

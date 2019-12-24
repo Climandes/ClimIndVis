@@ -6,14 +6,13 @@
 #' \itemize{
 #'   \item \strong{method} Three methods are available: (1) logit ("log_reg") or (2) linear regression ("lin_reg") or (3) "MannKendall" calculates a TheilSen slope and a MannKendall test.
 #'   \item \strong{count} set to TRUE, if the data is count data.
-#'   \item \strong{log_trans} if the data is not normaly distributed, set log_trans to TRUE and a logarithmic transformation is applied.
 #'   \item \strong{NAmaxTrend} Maximum value of NAs for calculation of trend. If value is exceeded, trend is set to NA.
 #'
 #'       }
 #'@return The function returns a list with two elements "statistics" and "data". Data is an array with the variable dimension and four additional dimensions for fitted trend line, upper and lower confidence interval and a local polynomial regression fitting. "statistics" is an array with the variable dimensions and additional a dimension for start year, end year, p-value, relative trend, absolute trend and trend method.
 #'@section Details: The default trend estimation and test depends on the nature of the calculated index: \cr
 #'
-#'For continuous data (e.g. sum, mean, prcptot, spi) ny default an ordinary linear regression is calculated with time as predictor for the trend estimate and a students-t test. If the data is not normaly distributed, a logarithmic transformation is applied before the trend calculation, e.g. for . \cr
+#'For continuous data (e.g. sum, mean, prcptot, spi) by default an ordinary linear regression is calculated with time as predictor for the trend estimate and a students-t test. For not normaly distributed data (e.g.precipitation), a logarithmic transformation is applied before the trend calculation. \cr
 #'
 #'For count data (e.g dd, cdd, cwd) by default a logistic regression is calculated with time as predictor for the trend estimation and a students-t test. In the calculation a correction for overdispersion is applied. \cr
 #'
@@ -64,14 +63,15 @@ calc_trend <- function(data,time ,targs){
   dat.final <- matrix(-99.9,nrow = 4,ncol=length(DAT[,1]))
 
   if(all(is.na(data))) {return(list(data = dat.final, stat=stat))}
-  else if(sum(is.na(data))>length(data)*(targs$NAmaxTrend)/100) # mehr als 80pro fehlen, trend nicht berechnet
-    {return(list(data = dat.final, stat=stat))}
+  else if(sum(is.na(data))>length(data)*(targs$NAmaxTrend)/100) 
+  {return(list(data = dat.final, stat=data.frame(inicio =-99.9,fin = -99.9,p.value = -99.9,trend.rel = -99.9,trend.abs = -99.9,method = -99.9)))}
   else if(targs$method == "logit_reg"  & targs$count == T){
     s <- 0
-    if(leapyear_shift == T){s <- 1}#if year starts in July (southern hemisphere)
-    a_bisiesto <- data.frame(DAT[,1], numdays=ifelse(((DAT[,1] +s)%%4==0 & (DAT[,1] +s)%%100!=0) | (DAT[,1] +s)%%400==0,366,365) )
-    DAT <- data.frame(years=DAT[,1],ind=DAT[,2],V3=a_bisiesto[,2] - DAT[,2])
-    trd1  <- trend.logit(DAT[,1:3], type = "counts")
+    if(leapyear_shift == T){s <- 1}
+    numdays <- data.frame(DAT[,1], numdays=ifelse(((DAT[,1] +s)%%4==0 & (DAT[,1] +s)%%100!=0) | (DAT[,1] +s)%%400==0,366,365) )
+    #numdays <- data.frame(DAT[,1], numdays=ifelse((targs$feb,targs$numdays+1,targs$numdays))
+    DAT <- data.frame(years=DAT[,1],ind=DAT[,2],V3=numdays[,2] - DAT[,2])
+    trd1  <- switch(is.null(targs$fyear)+1,trend.logit(DAT[,1:3], type = "counts",fyear=TRUE),trend.logit(DAT[,1:3], type = "counts"))
     pred1 <- predict(trd1$mod, data.frame(year = DAT[,1]), interval = "confidence", se.fit = T)
     fit1   <- pred1$fit
     se.fit1<- pred1$se.fit
@@ -100,6 +100,8 @@ calc_trend <- function(data,time ,targs){
       DAT[,2] <- DAT[,2]/100 # change percentage to probabilities
     }
     trd1  <- trend.logit(DAT[,1:2], type = "probs")
+    trd1  <- switch(is.null(targs$fyear)+1,trend.logit(DAT[,1:2], type = "probs",fyear=TRUE),trend.logit(DAT[,1:2], type = "probs"))
+    
     pred1 <- predict(trd1$mod, data.frame(year = DAT[,1]),
                      interval = "confidence", se.fit = T)
     fit1   <- pred1$fit
@@ -185,26 +187,25 @@ calc_trend <- function(data,time ,targs){
     }
   }
   else if(targs$method == "MannKendall"){
-    trd1<- trend.MannKendall(DAT[,c(1,2)])
-    #pred1 <- predict(trd1$mod, data.frame(year = DAT[,1]),
-    #                 interval = "confidence", se.fit = T, level = 0.95)
-    #fit <- pred1$fit
-    lw1 <- predict(loess(ind~years, data = DAT), data.frame(years = DAT[,1]))
-
+ 
+      trd1<- trend.MannKendall(DAT[,c(1,2)])
+      lw1 <- predict(loess(ind~years, data = DAT), data.frame(years = DAT[,1]))
+      
+ 
     dat.final[1,]  = trd1$fitted$value
     dat.final[2,]  = rep(NA,length(lw1))
     dat.final[3,]  = rep(NA,length(lw1))
     dat.final[4,]  = lw1
     naind <-get_naind(DAT)
     dat.final[,naind] = -99.9
-
-    stat <- data.frame(
-      inicio = DAT[1,1],
-      fin = DAT[dim(DAT)[1],1],
-      p.value = trd1$pval,
-      trend.rel = trd1$trend.rel*100,
-      trend.abs = trd1$trend.abs/dim(DAT)[1]*10,
-      method= 3)
+    # 
+     stat <- data.frame(
+       inicio = DAT[1,1],
+       fin = DAT[dim(DAT)[1],1],
+       p.value = trd1$pval,
+       trend.rel = switch(targs$rel +1, -99.9 ,trd1$trend.rel*100),
+       trend.abs = trd1$trend.abs/dim(DAT)[1]*10,
+       method= 3)
 
   }
  return(list(data = dat.final, stat= stat))
@@ -280,7 +281,7 @@ trend.linreg <-
 
 # trend logit
 
-trend.logit <-  function (dat.df,type="counts",cor.overdisp=TRUE,
+trend.logit <-  function (dat.df,type="counts",fyear=FALSE,cor.overdisp=TRUE,
             conf.probs=c(0.025,0.975)) {
 
     # functions (logit and inverse logit)
@@ -318,8 +319,15 @@ trend.logit <-  function (dat.df,type="counts",cor.overdisp=TRUE,
     t2 <- year[length(year)]      # last year
     t1 <- year[1]                 # first year
     t0 <- (t2+t1)/2               # middle year
-    p0 <- alogit(coef[1]+t0*coef[2])   # probability at middle year
-
+    
+    if(fyear){
+      p0 <- alogit(coef[1]+t1*coef[2])   # probability at first year
+      
+    } else{
+      p0 <- alogit(coef[1]+t0*coef[2])   # probability at middle year
+      
+    }
+  
     # fitted values:
     # note that fitted returns probs and not counts
     # here probs are augmented to counts if type = "counts"

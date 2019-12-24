@@ -33,8 +33,9 @@
 
 
 <div id="major-changes" class="section level2">
-<h2>Major changes</h2>
+<h2>major changes</h2>
 <ul>
+<li>the rainy season index formaly called "stern" is renamed to "jd"</li>
 <li>new functions for visualizing anomalies in maps (autoplot_anomaly_map) and time series (autoplot_anomaly_ts)</li>
 <li>new aggregation type “xdays” allows the aggregation over daily intervals of length x (e.g. weekly aggregation if x=7). No autoplot functions implemented yet for this aggregation type</li>
 <li>changes of method of quantile calculation. We recommend to recalculate your results from previous calculations with the updated version.</li>
@@ -43,6 +44,13 @@
 </div>
 <div id="bug-fixes" class="section level2">
 <h2>bug fixes</h2>
+<h3>2019-12-23</h3>
+<ul>
+<li>rainy season index: definition of index stern was adjusted</li>
+<li>rainy season duration: if nval is set to numeric, these values are ignored in the calculation of the duration</li>
+<li>significance level of trends: the default significance is adjusted to 0.05</li>
+</ul>
+<h3>2019-03-21</h3>
 <ul>
 <li>calc_index: cdd calculation was changed from cdd&lt;=1 to cdd &lt;1</li>
 <li>…_map functions: if all values to be plotted are NA, no plot is return</li>
@@ -54,7 +62,15 @@
 </ul>
 </div>
 
+<div id="known bugs" class="section level2">
+<h2>known bug - still do be corrected</h2>
+<h3>2019-12-23</h3>
+<ul>
+<li>autoplot_ts_station: the type "multi_agg" does not allow for all type of selected aggregations.</li>
+<li>logit trend: when calculation logit trends for indices with iformat="days" (but not for iformat="perc"), leap years are not accounted correctly.</li>
+</ul>
 
+</div>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>

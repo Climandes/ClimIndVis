@@ -30,23 +30,24 @@ rainy_season_start_sos<-function(x,na_handling="strict",nval,th1=25,th2=20,NAday
     val <- which(test1[1:(lt-2)]==1 & test2[2:(lt-1)]==1 & test2[3:lt]==1)[1]
 
     return_day=ifelse(length(val)==1,(val-1)*10+10,NA)
-    if (!is.na(return_day) & any(is.na(dec))) if (na_handling=="strict" & val > which(is.na(dec))[1]) return_day=NA
+    if (!is.na(return_day) & any(is.na(dec))) if (na_handling=="strict" & val > which(is.na(dec))[1]) return_day=nval
 
   return(tdiff=return_day)
 }
 
-rainy_season_start_stern<-function(x,na_handling="strict",nval,dd_th=0.1,...){
+rainy_season_start_jd<-function(x,na_handling="strict",nval,dd_th=0.1,...){
       tend=ifelse(any(is.na(x)) & na_handling=="strict",which(is.na(x))[1]-30,length(x)-30)
       if(tend<1){
         return_day=nval
       } else {
-        temp= x[1:tend]>dd_th & consecsum(x[1:(tend+4)]>dd_th,4,2)>1 & consecsum(x[1:(tend+4)],5,1)>25
+        temp= x[1:tend]>dd_th & consecsum(x[1:(tend+4)]>dd_th,4,2)>3 & consecsum(x[1:(tend+4)],5,1)>25
         ht<-which(temp)
-        if (length(ht>1)){
+
+        if (length(ht)>0){
         temp2=sapply(ht,function(i) max_consec(x[i:(i+30)]<=dd_th) <=7)
-        val=which(temp2)[1]
+        val=which(temp2)
         } else val=NULL
-        return_day=ifelse(length(val)==1,ht[val],NA)
+        return_day=ifelse(length(val)!=0 & !is.null(val),ht[val[1]],ifelse(any(is.na(x)),nval,NA))
       }
   return(tdiff=return_day)
 }
@@ -58,11 +59,11 @@ rainy_season_start_garcia<-function(x,na_handling="strict",nval,dd_th=0.1,...){
   } else {
     temp= x[1:tend]>dd_th & consecsum(x[1:(tend+2)],3,1)>20
     ht<-which(temp)
-    if (length(ht>1)){
+    if (length(ht)>0){
       temp2=sapply(ht,function(i) max_consec(x[i:(i+30)]<=dd_th) <=10)
-      val=which(temp2)[1]
+      val=which(temp2)
     } else val=NULL
-    return_day=ifelse(length(val)==1,ht[val],NA)
+    return_day=ifelse(length(val)!=0 & !is.null(val),ht[val[1]],ifelse(any(is.na(x)),nval,NA))
   }
   return(tdiff=return_day)
 }
@@ -73,8 +74,8 @@ rainy_season_start_gurgiser <- function(x,na_handling="strict",nval,dd_th=1,...)
     return_day=nval
   } else {
     temp= x[1:tend]>dd_th & consecsum(x[1:(tend+6)],7,1)>10 & consecsum(x[1:(tend+30)]>dd_th,31,1)>10
-    val=which(temp)[1]
-    return_day=ifelse(length(val)==1,val,NA)
+    val=which(temp)
+    return_day=ifelse(length(val)!=0,val[1],ifelse(any(is.na(x)),nval,NA))
   }
 
   return(tdiff=return_day)
@@ -86,8 +87,8 @@ rainy_season_start_consec_th <- function(x,na_handling="strict",nval=NA,days,th,
     return_day=nval
   } else {
     temp= x[1:tend]>dd_th & consecsum(x[1:(tend+(days-1))],days,1)>=th
-    val=which(temp)[1]
-    return_day=ifelse(length(val)==1,val,NA)
+    val=which(temp)
+    return_day=ifelse(length(val)!=0,val[1],ifelse(any(is.na(x)),nval,NA))
   }
   return(tdiff=return_day)
 }
@@ -99,11 +100,11 @@ rainy_season_start_consec_th_maxcdd <- function(x,na_handling="strict",nval,dd_t
   } else {
     temp= x[1:tend]>dd_th & consecsum(x[1:(tend+(days-1))],days,1)>=th
     ht<-which(temp)
-    if (length(ht>1)){
+    if (length(ht)>0){
       temp2=sapply(ht,function(i) max_consec(x[i:(i+mdays-1)]<=dd_th) <=mcdd)
-      val=which(temp2)[1]
+      val=which(temp2)
     } else val=NULL
-    return_day=ifelse(length(val)==1,ht[val],NA)
+    return_day=ifelse(length(val)!=0 & !is.null(val),ht[val[1]],ifelse(any(is.na(x)),nval,NA))
   }
   return(tdiff=return_day)
 }
@@ -133,9 +134,9 @@ rainy_season_end_gurgiser<-function(x,na_handling="strict",nval,dd_th=1,...){
   } else {
 
     temp_e= x[1:tend]<=dd_th & consecsum(x[1:(tend+45)],46,1)<10
-    val_e=which(temp_e)[1]
+    val_e=which(temp_e)
 
-    return_day=ifelse(length(val_e)==1,val_e,NA)
+    return_day=ifelse(length(val_e)!=0,val_e[1],ifelse(any(is.na(x)),nval,NA))
   }
   return(tend=return_day)
 }
@@ -151,7 +152,7 @@ rainy_season_end_garcia<-function(x,na_handling="strict",nval,dd_th=1,th=20,...)
     dd=x<dd_th
     dd_sum=sapply(1:tend,function(t) sum(dd[t:(t+19)]))
     val_e=which(dd_sum==th)[1]
-    return_day=ifelse(length(val_e)==1,val_e,NA)
+    return_day=ifelse(length(val_e)!=0,val_e[1],ifelse(any(is.na(x)),nval,NA))
   }
   return(tlength=return_day)
 }

@@ -246,6 +246,33 @@ spell_duration <- function (temp, jdays, q_temp=NULL,q_temp_inbase=NULL,date_fac
 }
 
 
+spell_length <- function(temp, date_factor, threshold, op,fun, spells_span_agg=TRUE, NAmaxAgg =20){
+  stopifnot(is.numeric(temp) && is.numeric(threshold) &&  is.factor(date_factor))
+  days_op<-match.fun(op)(temp, threshold)
+  
+  if (spells_span_agg) {
+    all.true <- climdex.pcic:::tapply.fast(days_op, date_factor, all)
+    spell <- climdex.pcic:::tapply.fast(get_series_lengths_at_ends(days_op),
+                                            date_factor, function(x) {
+                                              namask=switch((length(which(is.na(x)))/length(x)*100 >NAmaxAgg)+1,1,NA)
+                                              val=do.call(fun,list(x))*namask
+                                              return(val)})
+    na.mask <- c(1, NA)[as.integer((max.spell == 0) & all.true) +
+                          1]
+   spell <- spell * na.mask
+    
+    return(spell)
+  }else {
+    spell <- climdex.pcic:::tapply.fast(days_op, date_factor, function(x) {
+      namask=switch((length(which(is.na(x)))/length(x)*100 >NAmaxAgg)+1,1,NA)
+      val=get_series_lengths_at_ends(x)
+      spell <- do.call(fun, list(val[!(val==0)]))*namask
+      
+      return(spell)})
+    return(spell)
+  }}
+
+
 q_agg<- function(temp,date_factor,q1,q2=NULL,NAmaxAgg=20,...){
     if (!is.null(q2)){
       val=climdex.pcic:::tapply.fast(temp,date_factor,function(x) quantile(x, q2,na.rm=TRUE) - quantile(x, q1,na.rm=TRUE))
