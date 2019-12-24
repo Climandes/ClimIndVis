@@ -1,5 +1,5 @@
 # ClimIndVis 
-* *Climate Indices Visualization* *
+ *Climate Indices Visualization*
 
 The ClimIndVis package provides a set of easy-to-use functions for the generation of climate indices products for observational, reanalysis and seasonal forecast data. 
 The main features of the package are:
