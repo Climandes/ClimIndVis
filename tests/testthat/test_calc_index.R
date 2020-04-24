@@ -124,7 +124,7 @@ test_that("index functions yield correct index", {
   rx3 <- as.vector(ClimIndVis:::minmax_value(temp_prec, date_factors, func = max, NAmaxAgg=20, rx=3))
   jan <- max(caTools::runmean(temp_prec[1:31], k=3,endrule="NA"), na.rm=TRUE)*3
   feb <- max(caTools::runmean(temp_prec[31:(31+28)], k=3,endrule="NA"), na.rm=TRUE)*3 # start bei doy31, da runmean ueber 3 Tage geht
-  expect_equal(rx3[1:2],c(jan,feb))
+  expect_equal(round(rx3[1:2],dig=3),round(c(jan,feb),dig=3))
 
 
 

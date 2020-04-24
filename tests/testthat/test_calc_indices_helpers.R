@@ -18,7 +18,7 @@ test_that("get_date_factors return correct output",{
 
   sel_time<-ClimIndVis:::get_date_factors(tp,"dates",start_days="0000-02-15",end_days="0000-04-19") ## was brauchts hier?
   expect_equal(substr(sel_time$tfactor,1,4)[46], "1981")
-  expect_equal(sel_time$aggnames, "0215-0419")
+  expect_equal(sel_time$aggnames, "user_dates")
 
   sel_time<-ClimIndVis:::get_date_factors(tp,"dates",start_days="1982-02-15",end_days="1984-04-19")
   ref_time=seq(as.Date("1982-02-15"),as.Date("1984-04-19"),by="days")

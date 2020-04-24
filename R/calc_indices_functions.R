@@ -46,9 +46,14 @@ ndays_op_threshold<-function (temp,jdays, q_temp=NULL,q_temp_inbase=NULL,date_fa
       temp_base <- temp[inset]
       years_br <- range(df_year2[inset], na.rm=TRUE)
       years_base <- df_year2[inset]
-      byrs <- (years_br[2] - years_br[1] + 1)
-
-      ## acount for missing values in baseperiod??
+      
+      years_agg <- df_year[inset]
+      if (tail(years_base,1)>tail(years_agg,1)){
+        if (any(grepl("DJF",levels(date_factor)))){
+          years_base[years_agg==tail(years_agg,1) & substr(date_factor,6,8)[inset]=="DJF"]=NA
+        } else years_base[years_agg==tail(years_agg,1) ]=NA 
+        byrs <- (years_br[2] - years_br[1] )
+      } else byrs <- (years_br[2] - years_br[1] + 1)
 
       bdim <- dim(q_temp_inbase)
       yday_byr <- jdays_base + (years_base - years_br[1]) * 365

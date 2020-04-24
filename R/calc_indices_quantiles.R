@@ -120,7 +120,7 @@ get_temp_quantiles <- function (climindvis,var,qargs,ed, sel_time)
     temp <- climindvis$data[[var]]
     tdim <- dim(temp)
     dim(temp) <- c(prod(tdim[1:(length(tdim)-1)]), tdim[length(tdim)])
-    temp_base <- temp[,base_val_nl]
+    temp_base <- temp[,base_val_nl,drop=F]
   }
 
 

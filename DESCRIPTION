@@ -1,12 +1,12 @@
 Package: ClimIndVis
 Type: Package
 Title: Calculation, verification and visualisation of climate indices 
-Version: 0.1.4
+Version: 0.1.5
 Authors@R: c(person("MeteoSwiss",role=c("aut","cph")),
     person("WMO",role="cph"),
     person("SDC",role="cph"),
-    person("Katrin"," Sedlmeier",email="katrin.sedlmeier@meteoswiss.ch",role=c("aut","cre")),
-    person("Noemi","Imfeld",email="noemi.imfeld@meteoswiss.ch",role="aut","cre"),
+    person("Katrin"," Sedlmeier",email="katrin.sedlmeier@dwd.de",role=c("aut","cre")),
+    person("Noemi","Imfeld",email="noemi.imfeld@giub.unibe.ch",role="aut","cre"),
     person("Felix", "Maurer ",role="ctb"),
     person("Stefanie", "Gubler" ,role="ctb"),
     person("Christoph" ,"Frei" ,role="ctb"),

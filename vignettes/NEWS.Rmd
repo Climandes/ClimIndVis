@@ -12,15 +12,22 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
+## Major changes version 0.1.5
 
-## Major changes
+* no major changes
+
+## bug fixes version 0.1.5
+
+* resolved error when calculating percentile based indices with user defined base period. 
+
+## Major changes version 0.1.4
 
 * new functions for visualizing anomalies in maps (autoplot_anomaly_map) and time series (autoplot_anomaly_ts) 
 * new aggregation type "xdays" allows the aggregation over daily intervals of length x (e.g. weekly aggregation if x=7). No autoplot functions implemented yet for this aggregation type
 * changes of method of quantile calculation. We recommend to recalculate your results from previous calculations with the updated version.
 * changes in make_object: Function now additionally returns "jdays" for calculation of quantiles. Consider recalculating your objects in case you are using old objects.
 
-## bug fixes
+## bug fixes  version 0.1.4
 * calc_index: cdd calculation was changed from cdd<=1 to cdd <1
 * ..._map functions: if  all values to be plotted are NA, no plot is return
 * autoplot_climatology map: now also allows the visualization of percentiles
