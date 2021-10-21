@@ -4,9 +4,20 @@
 \alias{index_arguments.th_range}
 \title{arguments for index th_range}
 \usage{
-\method{index_arguments}{th_range}(climindvis, threshold, operator, threshold2,
-  operator2, thvar, iformat = "perc", NAmaxAgg = 20, trend = FALSE,
-  NAmaxTrend = 20, ...)
+\method{index_arguments}{th_range}(
+  climindvis,
+  threshold,
+  operator,
+  threshold2,
+  operator2,
+  thvar,
+  iformat = "perc",
+  NAmaxAgg = 20,
+  trend = FALSE,
+  NAmaxTrend = 20,
+  fyear = FALSE,
+  ...
+)
 }
 \arguments{
 \item{climindvis}{Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable "thvar".}

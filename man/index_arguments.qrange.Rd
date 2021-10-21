@@ -4,8 +4,16 @@
 \alias{index_arguments.qrange}
 \title{arguments for index qrange}
 \usage{
-\method{index_arguments}{qrange}(climindvis, NAmaxAgg = 20, trend = FALSE,
-  NAmaxTrend = 20, percentile1, percentile2, var, ...)
+\method{index_arguments}{qrange}(
+  climindvis,
+  NAmaxAgg = 20,
+  trend = FALSE,
+  NAmaxTrend = 20,
+  percentile1,
+  percentile2,
+  var,
+  ...
+)
 }
 \arguments{
 \item{NAmaxAgg}{Maximum number of missing values in daily data of each aggregation period (e.g. in all January values for the whole time series). Value between 0 (=0\%; no missing values allowed) and 100 (=100\%; all values can be missing values). If the number of missing values is higher than NAmaxAgg the index value for the respective grid point/station is set to NA. Default = 20 (20\%).}

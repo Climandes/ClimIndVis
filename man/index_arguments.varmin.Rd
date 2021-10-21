@@ -4,8 +4,14 @@
 \alias{index_arguments.varmin}
 \title{arguments for index varmin}
 \usage{
-\method{index_arguments}{varmin}(climindvis, var, NAmaxAgg = 20,
-  trend = FALSE, NAmaxTrend = 20, ...)
+\method{index_arguments}{varmin}(
+  climindvis,
+  var,
+  NAmaxAgg = 20,
+  trend = FALSE,
+  NAmaxTrend = 20,
+  ...
+)
 }
 \arguments{
 \item{climindvis}{Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable "var".}

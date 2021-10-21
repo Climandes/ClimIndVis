@@ -4,8 +4,15 @@
 \alias{index_arguments.sud}
 \title{arguments for index sud}
 \usage{
-\method{index_arguments}{sud}(climindvis, iformat = "perc", NAmaxAgg = 20,
-  trend = FALSE, NAmaxTrend = 20, dd_threshold = 1, ...)
+\method{index_arguments}{sud}(
+  climindvis,
+  iformat = "perc",
+  NAmaxAgg = 20,
+  trend = FALSE,
+  NAmaxTrend = 20,
+  dd_threshold = 1,
+  fyear = FALSE...
+)
 }
 \arguments{
 \item{climindvis}{Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable maximum temperature (tmax)}

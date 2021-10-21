@@ -4,8 +4,14 @@
 \alias{index_arguments.sdii}
 \title{arguments for index sdii}
 \usage{
-\method{index_arguments}{sdii}(climindvis, NAmaxAgg = 20, trend = FALSE,
-  NAmaxTrend = 20, dd_threshold = 1, ...)
+\method{index_arguments}{sdii}(
+  climindvis,
+  NAmaxAgg = 20,
+  trend = FALSE,
+  NAmaxTrend = 20,
+  dd_threshold = 1,
+  ...
+)
 }
 \arguments{
 \item{climindvis}{Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable precipitation (prec)}

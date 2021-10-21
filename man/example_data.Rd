@@ -4,7 +4,8 @@
 \name{example_data}
 \alias{example_data}
 \title{Example data for make_object}
-\format{A list with 7 elements:
+\format{
+A list with 7 elements:
 \itemize{
   \item tmin Daily Minimum temperature data in degrees Celsius. Dimensions depend on data type (see section data types)
   \item tmax Daily Maximum temperature data in degrees Celsius. Dimensions depend on data type (see section data types)
@@ -17,7 +18,8 @@
   \item data_hc_... /data_fc_... Named list containing an array of time steps of class "Date" for each hindcast year /the forecast year (time_format=t2d)}
 
   \item data_info List <<data_info>> for point data containing type, date_format and data_name as needed by make_object
- }}
+ }
+}
 \source{
 artificial datasets based on SENAMHI station data \url{www.senamhi.gob.pe} and ECMWF seasonal forecast data  \url{www.ecmwf.int}
 }
@@ -47,5 +49,7 @@ data(data_grid)
 make_object(tmin=data_grid$tmin,dates_tmin=data_grid$time,lon=data_grid$lon,lat=data_grid$lat,data_info=data_grid$data_info)
 }
 \seealso{
-Other data_examples: \code{\link{example_climindvis_objects}}
+Other data_examples: 
+\code{\link{example_climindvis_objects}}
 }
+\concept{data_examples}

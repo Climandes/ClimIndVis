@@ -4,8 +4,15 @@
 \alias{index_arguments.fd}
 \title{arguments for index fd}
 \usage{
-\method{index_arguments}{fd}(climindvis, iformat = "perc", NAmaxAgg = 20,
-  trend = FALSE, NAmaxTrend = 20, ...)
+\method{index_arguments}{fd}(
+  climindvis,
+  iformat = "perc",
+  NAmaxAgg = 20,
+  trend = FALSE,
+  NAmaxTrend = 20,
+  fyear = FALSE,
+  ...
+)
 }
 \arguments{
 \item{climindvis}{Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable minimum temperature (tmin)}

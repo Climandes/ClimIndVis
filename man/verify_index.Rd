@@ -4,8 +4,16 @@
 \alias{verify_index}
 \title{Function for verification of hindcasts of indices}
 \usage{
-verify_index(obs, hc, hc_ref = NULL, index, index_args = list(),
-  selyears = NULL, veri_metrics, veri_args = list())
+verify_index(
+  obs,
+  hc,
+  hc_ref = NULL,
+  index,
+  index_args = list(),
+  selyears = NULL,
+  veri_metrics,
+  veri_args = list()
+)
 }
 \arguments{
 \item{obs}{Observations. "climindvis" object of type p/grid as output from \code{\link{make_object}} by using daily observational or Re-analysis data.}
@@ -74,7 +82,7 @@ For more information about Fair scores, see e.g. Ferro, C. A. T. (2014). Fair sc
 \examples{
 
 ## load example hindcast and observational data for stations
-## (see \\code{\\link{example_climindvis_objects}}):
+## (see \code{\link{example_climindvis_objects}}):
 
 data("object_hc_st", "object_st")
 

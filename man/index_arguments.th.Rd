@@ -4,8 +4,18 @@
 \alias{index_arguments.th}
 \title{arguments for index th}
 \usage{
-\method{index_arguments}{th}(climindvis, threshold, operator, thvar,
-  iformat = "perc", NAmaxAgg = 20, trend = FALSE, NAmaxTrend = 20, ...)
+\method{index_arguments}{th}(
+  climindvis,
+  threshold,
+  operator,
+  thvar,
+  iformat = "perc",
+  NAmaxAgg = 20,
+  trend = FALSE,
+  NAmaxTrend = 20,
+  fyear = FALSE,
+  ...
+)
 }
 \arguments{
 \item{climindvis}{Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable "thvar".}

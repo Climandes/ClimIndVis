@@ -4,8 +4,17 @@
 \alias{calc_spi}
 \title{spi calculations}
 \usage{
-calc_spi(temp = NULL, date_factor, param = FALSE, timescale, ref,
-  distribution, NAmaxAgg = 20, iformat, limit = 4)
+calc_spi(
+  temp = NULL,
+  date_factor,
+  param = FALSE,
+  timescale,
+  ref,
+  distribution,
+  NAmaxAgg = 20,
+  iformat,
+  limit = 4
+)
 }
 \arguments{
 \item{temp}{vector of daily precipitation data to calculate SPI}

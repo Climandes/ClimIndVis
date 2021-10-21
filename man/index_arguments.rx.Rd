@@ -4,8 +4,14 @@
 \alias{index_arguments.rx}
 \title{arguments for index rx days}
 \usage{
-\method{index_arguments}{rx}(climindvis, NAmaxAgg = 20, trend = FALSE,
-  rx = 3, NAmaxTrend = 20, ...)
+\method{index_arguments}{rx}(
+  climindvis,
+  NAmaxAgg = 20,
+  trend = FALSE,
+  rx = 3,
+  NAmaxTrend = 20,
+  ...
+)
 }
 \arguments{
 \item{climindvis}{Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable precipitation (prec)}

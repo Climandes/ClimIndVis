@@ -4,10 +4,22 @@
 \alias{index_arguments.tx90p}
 \title{arguments for index tx90p}
 \usage{
-\method{index_arguments}{tx90p}(climindvis, NAmaxAgg = 20, trend = FALSE,
-  NAmaxTrend = 20, iformat = "perc", n = 5, baseperiod, inbase = TRUE,
-  min_base_fraction = 0.1, th_object = NULL, NAmaxQ = 365,
-  qens_all = TRUE, ...)
+\method{index_arguments}{tx90p}(
+  climindvis,
+  NAmaxAgg = 20,
+  trend = FALSE,
+  NAmaxTrend = 20,
+  iformat = "perc",
+  n = 5,
+  baseperiod,
+  inbase = TRUE,
+  min_base_fraction = 0.1,
+  th_object = NULL,
+  NAmaxQ = 365,
+  qens_all = TRUE,
+  fyear = FALSE,
+  ...
+)
 }
 \arguments{
 \item{climindvis}{Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable maximum temperature (tmax)}

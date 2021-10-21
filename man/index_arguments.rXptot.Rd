@@ -4,9 +4,20 @@
 \alias{index_arguments.rXptot}
 \title{arguments for index rXptot}
 \usage{
-\method{index_arguments}{rXptot}(climindvis, NAmaxAgg = 20, trend = FALSE,
-  NAmaxTrend = 20, q_threshold = 95, operator = ">", dd_threshold = 1,
-  baseperiod, th_object = NULL, NAmaxQ = 365, qens_all = TRUE, ...)
+\method{index_arguments}{rXptot}(
+  climindvis,
+  NAmaxAgg = 20,
+  trend = FALSE,
+  NAmaxTrend = 20,
+  q_threshold = 95,
+  operator = ">",
+  dd_threshold = 1,
+  baseperiod,
+  th_object = NULL,
+  NAmaxQ = 365,
+  qens_all = TRUE,
+  ...
+)
 }
 \arguments{
 \item{climindvis}{Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable precipitation (prec)}

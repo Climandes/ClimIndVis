@@ -4,8 +4,16 @@
 \alias{calc_fc_cats}
 \title{Get probabilities of forecast categories}
 \usage{
-calc_fc_cats(fc, hc, index, index_args = list(), selyears = NULL, prob,
-  ncat = 3, counts = FALSE)
+calc_fc_cats(
+  fc,
+  hc,
+  index,
+  index_args = list(),
+  selyears = NULL,
+  prob,
+  ncat = 3,
+  counts = FALSE
+)
 }
 \arguments{
 \item{fc}{Forecasts. "climindvis_index" object  of type fc_p/fc_grid as output from \code{\link{make_object}} using an ensemble daily seasonal forecasts.}

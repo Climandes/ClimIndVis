@@ -15,7 +15,6 @@ calc_index_trend(index, trend, targs, time = NULL)
 \itemize{
   \item \strong{method} Three methods are available: (1) logit ("log_reg") or (2) linear regression ("lin_reg") or (3) "MannKendall" calculates a TheilSen slope and a MannKendall test.
   \item \strong{count} set to TRUE, if the data is count data.
-  \item \strong{log_trans} if the data is not normaly distributed, set log_trans to TRUE and a logarithmic transformation is applied.
   \item \strong{NAmaxTrend} Maximum value of NAs for calculation of trend. If value is exceeded, trend is set to NA.
 
       }}
@@ -31,7 +30,7 @@ A function to calculate a logistic, linear or non-parametric trend of an index.
 \section{Details}{
  The default trend estimation and test depends on the nature of the calculated index: \cr
 
-For continuous data (e.g. sum, mean, prcptot, spi) ny default an ordinary linear regression is calculated with time as predictor for the trend estimate and a students-t test. If the data is not normaly distributed, a logarithmic transformation is applied before the trend calculation, e.g. for . \cr
+For continuous data (e.g. sum, mean, prcptot, spi) by default an ordinary linear regression is calculated with time as predictor for the trend estimate and a students-t test. For not normaly distributed data (e.g.precipitation), a logarithmic transformation is applied before the trend calculation. \cr
 
 For count data (e.g dd, cdd, cwd) by default a logistic regression is calculated with time as predictor for the trend estimation and a students-t test. In the calculation a correction for overdispersion is applied. \cr
 

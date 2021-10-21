@@ -4,9 +4,18 @@
 \alias{index_arguments.spi}
 \title{arguments for index spi}
 \usage{
-\method{index_arguments}{spi}(climindvis, timescale = 6, ref = NULL,
-  distribution = "gamma", limit = Inf, trend = FALSE, NAmaxAgg = 20,
-  forecast = FALSE, NAmaxTrend = 20, ...)
+\method{index_arguments}{spi}(
+  climindvis,
+  timescale = 6,
+  ref = NULL,
+  distribution = "gamma",
+  limit = Inf,
+  trend = FALSE,
+  NAmaxAgg = 20,
+  forecast = FALSE,
+  NAmaxTrend = 20,
+  ...
+)
 }
 \arguments{
 \item{climindvis}{Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable precipitation (prec)}
@@ -30,7 +39,7 @@ arguments for index spi
 }
 \section{Details}{
 
-The SPI calculation is based on the SCI package from Lukas Gudmundsson & James Stagge. For the SPI calculation, aggt needs to be set to "monthly". For the argument distribution, provide a distribution for which the corresponding density function (dname), the corresponding distribution function (pname) and the quantile function (qname) must be defined (see for example GammaDist). Distributions are listed in the package stats.\cr
+The SPI calculation is based on the SCI package from Lukas Gudmundsson & James Stagge. For the SPI calculation, aggt needs to be set to "monthly". For the argument distribution, provide a distribution for which the corresponding density function (dname), the corresponding distribution function (pname) and the quantile function (qname) are defined (see for example GammaDist). Distributions are listed in the package stats.\cr
 Note, that it is important, what distribution you choose for the transformation of your rainfall data. If you are not sure, consider the references below.
 }
 

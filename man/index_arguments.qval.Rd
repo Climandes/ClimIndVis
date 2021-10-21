@@ -4,8 +4,15 @@
 \alias{index_arguments.qval}
 \title{arguments for index qval}
 \usage{
-\method{index_arguments}{qval}(climindvis, NAmaxAgg = 20, trend = FALSE,
-  NAmaxTrend = 20, percentile, var, ...)
+\method{index_arguments}{qval}(
+  climindvis,
+  NAmaxAgg = 20,
+  trend = FALSE,
+  NAmaxTrend = 20,
+  percentile,
+  var,
+  ...
+)
 }
 \arguments{
 \item{NAmaxAgg}{Maximum number of missing values in daily data of each aggregation period (e.g. in all January values for the whole time series). Value between 0 (=0\%; no missing values allowed) and 100 (=100\%; all values can be missing values). If the number of missing values is higher than NAmaxAgg the index value for the respective grid point/station is set to NA. Default = 20 (20\%).}
@@ -22,4 +29,8 @@ arguments for index qval
 This index calculated the  percentile of each aggregation time period and year seperately.
 }
 
+\examples{
+data(object_st) # load example objects
+calc_index(object_st,index="qval",aggt="seasonal",percentile=5, var="tmin")
+}
 \keyword{internal}

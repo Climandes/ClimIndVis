@@ -3,7 +3,6 @@
 \docType{package}
 \name{ClimIndVis}
 \alias{ClimIndVis}
-\alias{ClimIndVis-package}
 \title{ClimIndVis}
 \description{
 Functions for calculation of climate indices and their trends as well as  verification (for seasonal forecasts) and different wrapper functions for visualization.

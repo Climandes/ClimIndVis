@@ -4,9 +4,17 @@
 \alias{index_arguments.spi_forecast}
 \title{arguments for index spi_forecast}
 \usage{
-\method{index_arguments}{spi_forecast}(climindvis, fc_p, timescale = 6,
-  ref = NULL, distribution = "gamma", trend = FALSE, trendargs,
-  NAmaxAgg = 20, ...)
+\method{index_arguments}{spi_forecast}(
+  climindvis,
+  fc_p,
+  timescale = 6,
+  ref = NULL,
+  distribution = "gamma",
+  trend = FALSE,
+  trendargs,
+  NAmaxAgg = 20,
+  ...
+)
 }
 \arguments{
 \item{climindvis}{Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable precipitation (prec)}

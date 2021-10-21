@@ -4,8 +4,7 @@
 \alias{index_arguments.tnx}
 \title{arguments for index tnx}
 \usage{
-\method{index_arguments}{tnx}(climindvis, NAmaxAgg = 20, trend = FALSE,
-  NAmaxTrend = 20, ...)
+\method{index_arguments}{tnx}(climindvis, NAmaxAgg = 20, trend = FALSE, NAmaxTrend = 20, ...)
 }
 \arguments{
 \item{climindvis}{Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable minimum temperature (tmin)}

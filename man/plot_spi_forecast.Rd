@@ -4,10 +4,26 @@
 \alias{plot_spi_forecast}
 \title{function for plotting spi for station data}
 \usage{
-plot_spi_forecast(ind_dat, full_dat_NA, selpoints, pdims, plot_title = TRUE,
-  title = "", output = NULL, plotdir = NULL, plotname = NULL,
-  ylims = NULL, plotstart = NULL, pwidth = 2000, pheight = 1300,
-  pres = 250, cex = 1, text_cex = 1, show.grid.h = TRUE, ...)
+plot_spi_forecast(
+  ind_dat,
+  full_dat_NA,
+  selpoints,
+  pdims,
+  plot_title = TRUE,
+  title = "",
+  output = NULL,
+  plotdir = NULL,
+  plotname = NULL,
+  ylims = NULL,
+  plotstart = NULL,
+  pwidth = 2000,
+  pheight = 1300,
+  pres = 250,
+  cex = 1,
+  text_cex = 1,
+  show.grid.h = TRUE,
+  ...
+)
 }
 \arguments{
 \item{ind_dat}{1 List of climindvis_index objects (as returned by \code{\link{calc_index}}).

@@ -4,8 +4,16 @@
 \alias{index_arguments.th_tmax}
 \title{arguments for index th_tmax}
 \usage{
-\method{index_arguments}{th_tmax}(climindvis, threshold, iformat = "perc",
-  NAmaxAgg = 20, trend = FALSE, NAmaxTrend = 20, ...)
+\method{index_arguments}{th_tmax}(
+  climindvis,
+  threshold,
+  iformat = "perc",
+  NAmaxAgg = 20,
+  trend = FALSE,
+  NAmaxTrend = 20,
+  fyear = FALSE,
+  ...
+)
 }
 \arguments{
 \item{climindvis}{Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable maximum temperature (tmax)}

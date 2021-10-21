@@ -4,8 +4,7 @@
 \alias{index_arguments.txn}
 \title{arguments for index txn}
 \usage{
-\method{index_arguments}{txn}(climindvis, NAmaxAgg = 20, trend = FALSE,
-  NAmaxTrend = 20, ...)
+\method{index_arguments}{txn}(climindvis, NAmaxAgg = 20, trend = FALSE, NAmaxTrend = 20, ...)
 }
 \arguments{
 \item{climindvis}{Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable maximum temperature (tmax)}

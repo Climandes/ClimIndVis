@@ -4,8 +4,18 @@
 \alias{index_arguments.cxd}
 \title{arguments for index cxd}
 \usage{
-\method{index_arguments}{cxd}(climindvis, NAmaxAgg = 20, trend = FALSE,
-  NAmaxTrend = 20, thvar, threshold, operator, spells_span_agg = FALSE, ...)
+\method{index_arguments}{cxd}(
+  climindvis,
+  NAmaxAgg = 20,
+  trend = FALSE,
+  NAmaxTrend = 20,
+  thvar,
+  threshold,
+  operator,
+  spells_span_agg = FALSE,
+  fyear = FALSE,
+  ...
+)
 }
 \arguments{
 \item{climindvis}{Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable "thvar".}

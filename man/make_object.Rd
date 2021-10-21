@@ -5,9 +5,20 @@
 \alias{make_object}
 \title{Function to generate a climindvis object}
 \usage{
-make_object(tmin = NULL, tmax = NULL, prec = NULL, tavg = NULL,
-  dates_tmin = NULL, dates_tmax = NULL, dates_prec = NULL,
-  dates_tavg = NULL, lon, lat, data_range = NULL, data_info)
+make_object(
+  tmin = NULL,
+  tmax = NULL,
+  prec = NULL,
+  tavg = NULL,
+  dates_tmin = NULL,
+  dates_tmax = NULL,
+  dates_prec = NULL,
+  dates_tavg = NULL,
+  lon,
+  lat,
+  data_range = NULL,
+  data_info
+)
 }
 \arguments{
 \item{tmin}{Daily minimum temperature data in degrees C (see NOTES)}

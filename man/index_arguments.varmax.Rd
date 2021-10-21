@@ -4,8 +4,14 @@
 \alias{index_arguments.varmax}
 \title{arguments for index varmax}
 \usage{
-\method{index_arguments}{varmax}(climindvis, var, NAmaxAgg = 20,
-  trend = FALSE, NAmaxTrend = 20, ...)
+\method{index_arguments}{varmax}(
+  climindvis,
+  var,
+  NAmaxAgg = 20,
+  trend = FALSE,
+  NAmaxTrend = 20,
+  ...
+)
 }
 \arguments{
 \item{climindvis}{Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable "var".}

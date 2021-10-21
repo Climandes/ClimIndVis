@@ -4,8 +4,16 @@
 \alias{index_arguments.minmax_xdays}
 \title{arguments for min/max of x days}
 \usage{
-\method{index_arguments}{minmax_xdays}(climindvis, var, NAmaxAgg = 20,
-  trend = FALSE, rx = 3, fun = max, NAmaxTrend = 20, ...)
+\method{index_arguments}{minmax_xdays}(
+  climindvis,
+  var,
+  NAmaxAgg = 20,
+  trend = FALSE,
+  rx = 3,
+  fun = max,
+  NAmaxTrend = 20,
+  ...
+)
 }
 \arguments{
 \item{climindvis}{Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable "var".}

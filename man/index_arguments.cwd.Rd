@@ -4,8 +4,16 @@
 \alias{index_arguments.cwd}
 \title{arguments for index cwd}
 \usage{
-\method{index_arguments}{cwd}(climindvis, NAmaxAgg = 20, trend = FALSE,
-  NAmaxTrend = 20, dd_threshold = 1, spells_span_agg = FALSE, ...)
+\method{index_arguments}{cwd}(
+  climindvis,
+  NAmaxAgg = 20,
+  trend = FALSE,
+  NAmaxTrend = 20,
+  dd_threshold = 1,
+  spells_span_agg = FALSE,
+  fyear = FALSE,
+  ...
+)
 }
 \arguments{
 \item{climindvis}{Object of type climindvis as returned by \code{\link{make_object}} which must contain the variable precipitation (prec)}
