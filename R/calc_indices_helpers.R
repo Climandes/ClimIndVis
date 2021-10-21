@@ -44,7 +44,7 @@ get_date_factors<-function(climindvis,agg,aggmons=NULL,selagg=NULL,start_days=NA
     jdays <- select_jdays(climindvis, r)
   } else if (agg == "dates"){
     r<-factor(select_date_factors(climindvis$time,start_days,end_days))
-    if (format(as.Date(start_days),"%Y")[1] !="0"){
+    if (as.integer(format(as.Date(start_days),"%Y"))[1] !=0){
       aggnames="user_dates"
     } else  aggnames=paste0(gsub("-","",substring(start_days,6,10)),"-",gsub("-","",substring(end_days,6,10)))
     jdays <- select_jdays(climindvis, r)
@@ -93,22 +93,22 @@ select_date_factors_monthly<-function(yearmons,years,aggmons){
   mons<-as.integer(unique(sapply(strsplit(levels(yearmons),split="-"),"[",2)))
   #if(length(mons<12) & tail(mons,1)< head(mons,1)) years = years[1:(length(years)-1)]
   if(all(is.element(aggmons,mons))){
-    addy<-ifelse(tail(aggmons,1)>aggmons[1],0,1)
+    addy<-ifelse(tail(aggmons,1)>=aggmons[1],0,1)
     beg_dates<-sapply(years, function(x) {
-                  if (is.element(paste0(x,"-",pad2(aggmons[1])),yearmons)){
-                    which(as.character(yearmons)==paste0(x,"-",pad2(aggmons[1])))[1]
-                  } else NA})
+      if (is.element(paste0(x,"-",pad2(aggmons[1])),yearmons)){
+        which(as.character(yearmons)==paste0(x,"-",pad2(aggmons[1])))[1]
+      } else NA})
     end_dates<-sapply(years, function(x) {
-                  if (is.element(paste0(as.integer(x)+addy,"-",pad2(tail(aggmons,1))),yearmons)) {
-                    tail(which(as.character(yearmons)==paste0(as.integer(x)+addy,"-",pad2(tail(aggmons,1)))),1)
-                  } else NA})
+      if (is.element(paste0(as.integer(x)+addy,"-",pad2(tail(aggmons,1))),yearmons)) {
+        tail(which(as.character(yearmons)==paste0(as.integer(x)+addy,"-",pad2(tail(aggmons,1)))),1)
+      } else NA})
     if(addy==1){
       end_dates[is.na(beg_dates)]=NA
       beg_dates[is.na(end_dates)]=NA
     }
     help<-array(NA,length(yearmons))
     for(i in 1:length(beg_dates)) if(!is.na(beg_dates[i])) help[beg_dates[i]:end_dates[i]]=substring(yearmons[beg_dates[i]],1,4)
-    } else stop("data does not contain (all) months to be selected, please choose different time slice")
+  } else stop("data does not contain (all) months to be selected, please choose different time slice")
   return(help)
 }
 
@@ -432,10 +432,10 @@ is_index_special<-function(index){
 # get_numdays <- function(sel_time, climindvis,iargs){
 #   len_factors <- tapply(sel_time$tfactor,sel_time$tfactor, length)
 #   ## acount for na values
-#   
+#
 #   nna <- climdex.pcic:::tapply.fast(sel_time$tfactor)
-#   
-#   
+#
+#
 #   return(numdays)
 # }
 

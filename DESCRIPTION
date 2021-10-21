@@ -1,7 +1,7 @@
 Package: ClimIndVis
 Type: Package
 Title: Calculation, verification and visualisation of climate indices 
-Version: 0.1.5
+Version: 0.1.6
 Authors@R: c(person("MeteoSwiss",role=c("aut","cph")),
     person("WMO",role="cph"),
     person("SDC",role="cph"),
@@ -39,6 +39,6 @@ Suggests:
     testthat,
     knitr,
     rmarkdown
-RoxygenNote: 6.0.1
+RoxygenNote: 7.1.2
 VignetteBuilder: knitr
 LinkingTo: Rcpp

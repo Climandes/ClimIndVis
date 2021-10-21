@@ -591,7 +591,7 @@ index_arguments.qth<-function(climindvis,thvar, NAmaxAgg=20,trend=FALSE ,NAmaxTr
 #' ind_hc<-calc_index(object_hc_st,index="tn10p",aggt="monthly")
 #' ind_fc<-calc_index(object_fc_st,index="tn10p",aggt="monthly",th_object=ind_hc)
 #'@keywords internal
-index_arguments.tn10p<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=20, iformat="perc",n=5 ,baseperiod,inbase = TRUE, 
+index_arguments.tn10p<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=20, iformat="perc",n=5 ,baseperiod,inbase = TRUE,
                                 min_base_fraction=0.1,th_object=NULL,NAmaxQ=365,qens_all=TRUE,fyear=FALSE,...){
   if(missing(climindvis)) stop("climindvis object has to be provided for calculation of index")
   check_var(climindvis,"tmin")
@@ -627,7 +627,7 @@ index_arguments.tn10p<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=2
 #' ind_hc<-calc_index(object_hc_st,index="tn90p",aggt="monthly")
 #' ind_fc<-calc_index(object_fc_st,index="tn90p",aggt="monthly",th_object=ind_hc)
 #'@keywords internal
-index_arguments.tn90p<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=20,iformat="perc",n=5, baseperiod,inbase = TRUE, 
+index_arguments.tn90p<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=20,iformat="perc",n=5, baseperiod,inbase = TRUE,
                                 min_base_fraction=0.1, th_object=NULL,NAmaxQ=365,qens_all=TRUE,fyear=FALSE,...){
   if(missing(climindvis)) stop("climindvis object has to be provided for calculation of index")
   check_var(climindvis,"tmin")
@@ -863,21 +863,22 @@ index_arguments.spells<-function(climindvis,NAmaxAgg=20,dd_threshold=1,trend=FAL
 #'@inheritParams varprec
 #'@param rs_method: method for calculation of index (further indicator arguments for each rs_method are given in brackets and defined below, arguments without default that have to be provided are in bold font ):
 #'\itemize{
-#' \item jd (nval): 3 of 5 days > 0.1mm & sum(5days) > 25mm and maximum number of consecutive dry days  within the next 30 days >=7 (definition from Jolliffe and Dodd, 1994 )
+#'    \item climandes (nval): wet day and precipitation sum(5days) > 8mm and maximum number of consecutive dry days within the next 30 days <=7 (definition from Sedlmeier et al.,submitted )
+#'    \item jd (nval): 3 of 5 days > 0.1mm & precipitation sum(5days) > 25mm and maximum number of consecutive dry days  within the next 30 days >=7 (definition from Jolliffe and Dodd, 1994 )
 #'
-#'   \item garcia (nval): sum(3days) > 20mm and maximum number of consecutive dry days within the next 30 days <=10 (definition from Garcia et al.,2007 )
+#'   \item garcia (nval): precipitation sum(3days) > 20mm and maximum number of consecutive dry days within the next 30 days <=10 (definition from Garcia et al.,2007 )
 #'
-#'   \item gurgiser (nval): sum(7days) > 10mm and number of consecutive wet days   within the next 30 days > 10 (definition from Gurgiser et al.,2017)
+#'   \item gurgiser (nval): wet day and precipitation sum(7days) > 10mm and number of consecutive wet days   within the next 30 days > 10 (definition from Gurgiser et al.,2017)
 #'
-#'   \item consec_th (\strong{days,th},nval): sum of user defined number of consecutive days (<<days>>) above user defined threshold (<<th>>) (e.g. sum of 4 days > 10mm)
+#'   \item consec_th (\strong{days,th},nval): wet day and sum of user defined number of consecutive days (<<days>>) above user defined threshold (<<th>>) (e.g. sum of 4 days > 10mm)
 #'
-#'   \item consec_th_maxcdd (\strong{days,th,mdays,mcdd},nval): sum of user defined number of consecutive days (<<days>>) above user defined threshold (<<th>>)  and maximum number of consecutive dry days (<<mdays>>)  within a number of user defined days (<<mcdd>>)  (e.g. sum of 4 days > 10mm and maximum 6 consecutive dry days within the next 30 days)
+#'   \item consec_th_maxcdd (\strong{days,th,mdays,mcdd},nval): wet day and sum of user defined number of consecutive days (<<days>>) above user defined threshold (<<th>>)  and maximum number of consecutive dry days (<<mdays>>)  within a number of user defined days (<<mcdd>>)  (e.g. sum of 4 days > 10mm and maximum 6 consecutive dry days within the next 30 days)
 #'
-#'   \item sos (th1,th2,nval,NAdays): start of season defined by a threshold amount and distribution of rainfall reveived in three consecutive dacades (at least th1mm rainfall in first decade and at least th2mm rainfall in following 2 decades. Default values are th1=25mm,th2=20mm). See DETAILS section.
+#'   \item sos (th1,th2,nval,NAdays): start of season defined by a threshold amount and distribution of rainfall received in three consecutive dacades (at least th1mm rainfall in first decade and at least th2mm rainfall in following 2 decades. Default values are th1=25mm,th2=20mm). See DETAILS section.
 #'   }
 #'@param nval Value which is returned if criteria for start of rainy season are not met, default=NA. Other values can be set to distinguish between years where data is NA and years where criteria of index are not met
 #'@param days Number of consecutive days of which precipitation sum is higher than threshold <<th>>
-#'@param th Threshold for precipitation sum of <<days>> consecutive days
+#'@param th Threshold for precipitation sum of <<days>> consecutive days in mm
 #'@param dd_th Dry day threshold
 #'@param mcdd Maximum consecutive dry days in the next <<mdays>> days
 #'@param mdays Number of days to check for <<mcdd>>
@@ -885,7 +886,7 @@ index_arguments.spells<-function(climindvis,NAmaxAgg=20,dd_threshold=1,trend=FAL
 #'@inheritParams trend_doc
 #'@section DETAILS:
 #'In this case of choosing <<sos>> decades are calculatet starting from start_date defined in the aggregtion.
-#'The returned day is the last day of the decade, e.g. if the criterion is met in the second decade, the return value would be 20. The precipitation per decade is calculated by the mean(prec)*10 in order to avoid the influence of missing values. By using the parameter NAdays, the number of allowed missing values per decade can be defined. If the onset criteria are not met the value for the given year is set to NA. 
+#'The returned day is the last day of the decade, e.g. if the criterion is met in the second decade, the return value would be 20. The precipitation per decade is calculated by the mean(prec)*10 in order to avoid the influence of missing values. By using the parameter NAdays, the number of allowed missing values per decade can be defined. If the onset criteria are not met the value for the given year is set to NA.
 #'@examples
 #' data(object_st) # load example objects
 #' calc_index(object_st,index="rainy_season_start",aggt="dates",start_days="0000-08-01",end_days="0000-03-01",rs_method="gurgiser")
@@ -908,7 +909,7 @@ index_arguments.rainy_season_start<-function(climindvis,rs_method,days,th,th1=25
     method_args=list(rs_method=rs_method,dd_th=dd_th,nval=nval)
     methodname=rs_method
   }
-  
+
   return(list(ifun=paste0("rainy_season_start"),var="prec", ifunargs=method_args,trend=trend, trendargs=list(method="lin_reg", count=TRUE, log_trans=FALSE,NAmaxTrend=NAmaxTrend, rel= TRUE),
               plotargs=list(name="rainy_season_start",iname=paste0("rsstart-" ,methodname),iformat="days_since")))
 }
@@ -919,12 +920,14 @@ index_arguments.rainy_season_start<-function(climindvis,rs_method,days,th,th1=25
 #'@inheritParams varprec
 #'@param rs_method: method for calculation of index (further indicator arguments for each rs_method are given in brackets and defined below, arguments without default that have to be provided are in bold font ):
 #'\itemize{
-#'   \item garcia (nval): sum(3days) > 20mm and maximum number of consecutive dry days within the next 30 days <=10 (definition from Garcia et al.,2007 )
-#'
-#'   \item gurgiser (nval): sum(7days) > 10mm and number of consecutive wet days   within the next 30 days > 10 (definition from Gurgiser et al.,2017)
+#'   \item climandes (nval): precipitation sum (30days) < 16mm (definition from Sedlmeier et al., submitted)
+#'   \item garcia (nval): precipitation sum (20days) = 0 (definition from Garcia et al.,2007 )
+#'   \item gurgiser (nval):  dry day and precipitation sum (46d) < 10 mm (definition from Gurgiser et al.,2017)
+#'   \item th (\strong{days,th}, nval): dry day and precipitation sum (<<days>>) > <<th>> using user defined thresholds.
 #'   }
-#'@param th Threshold for precipitation sum of <<days>> consecutive days
+#'@param th Threshold for precipitation sum of <<days>> consecutive days in mm
 #'@param dd_th Dry day threshold
+#'@param days Number of days to calculate precipitation sum
 #'@param NAdays Number of NA days allowed per decade for index <<sos>>. Default=0.
 #'@inheritParams trend_doc
 #'@section DETAILS:
@@ -935,13 +938,14 @@ index_arguments.rainy_season_start<-function(climindvis,rs_method,days,th,th1=25
 #' calc_index(object_st,index="rainy_season_end",aggt="dates",start_days="0000-02-01",end_days="0000-08-01",rs_method="gurgiser")
 #'
 #'@keywords internal
-index_arguments.rainy_season_end<-function(climindvis,rs_method,days,dd_th=1,nval=NA,trend=FALSE,NAmaxTrend=20,NAdays=0,...){
+
+index_arguments.rainy_season_end<-function(climindvis,rs_method,days=NULL,dd_th=1,th=NULL,nval=NA,trend=FALSE,NAmaxTrend=20,NAdays=0,...){
   check_var(climindvis,"prec")
-  method_args=list(rs_method=rs_method,dd_th=dd_th,nval=nval)
+  method_args=list(rs_method=rs_method,dd_th=dd_th,nval=nval,th=th,days=days)
   methodname=rs_method
-  
+
   return(list(ifun=paste0("rainy_season_end"),var="prec", ifunargs=method_args,trend=trend, trendargs=list(method="lin_reg", count=TRUE, log_trans=FALSE,NAmaxTrend=NAmaxTrend, rel= TRUE),
-              plotargs=list(name="rainy_season_end",iname=paste0("rsend-" ,methodname),iformat="days_since")))
+              plotargs=list(name="rainy_season_end",iname=paste0("rsend-" ,methodname),iformat="days_since",th=th,days=days)))
 }
 
 
@@ -959,7 +963,7 @@ index_arguments.rainy_season_end<-function(climindvis,rs_method,days,dd_th=1,nva
 #'@param th Threshold for precipitation sum of <<days>> consecutive days
 #'@param dd_th Dry day threshold
 #'@param NAdays Number of NA days allowed per decade for index <<sos>>. Default=0.
-#'@param end rs_method for end date if different than for start. For Default=NULL same method is used for end and for start. 
+#'@param end rs_method for end date if different than for start. For Default=NULL same method is used for end and for start.
 #'@inheritParams trend_doc
 #'@section DETAILS:
 #'The duration of the rainy season is calculated using the same functions for the start and end of the rainy season. The arguments for the aggregations have to be provided differently. <<day start>> indicates the first day of the calculation for the start of the rainy season and <<day end>> the first day of the time series for calculating the end of the rainy season. nstart/nend are the number of days after day_start/day_end to consider for the calculation (defaults to 300days). If the criterion for start or end are not met the value of the respective year is set to NA.
@@ -973,7 +977,7 @@ index_arguments.rainy_season_dur<-function(climindvis,rs_method,days,dd_th=1,nva
   check_var(climindvis,"prec")
   method_args=list(rs_method=rs_method,dd_th=dd_th,nval=nval)
   methodname=rs_method
-  
+
   return(list(ifun=paste0("rainy_season_dur"),var="prec", ifunargs=method_args,trend=trend, trendargs=list(method="lin_reg", count=TRUE, log_trans=FALSE,NAmaxTrend=NAmaxTrend, rel= TRUE),
               plotargs=list(name="rainy_season_dur",iname=paste0("rsdur-" ,methodname),iformat="days")))
 }
@@ -1038,7 +1042,7 @@ index_arguments.spi_forecast<-function(climindvis,fc_p, timescale=6,ref=NULL,dis
 #'This index calculated the  percentile of each aggregation time period and year seperately.
 #'@examples
 #' data(object_st) # load example objects
-#' calc_index(object_st,index="qval,aggt="seasonal",percentile=5, var="tmin")
+#' calc_index(object_st,index="qval",aggt="seasonal",percentile=5, var="tmin")
 #'@keywords internal
 index_arguments.qval<-function(climindvis,NAmaxAgg=20,trend=FALSE,NAmaxTrend=20,percentile,var,...){
   check_var(climindvis,var)

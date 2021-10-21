@@ -12,6 +12,17 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
+## Major changes version 0.1.6
+
+* added new rainy season index "climandes"
+
+## bug fixes version 0.1.6
+
+* bug fixes in existing rainy season indices 
+* bug fixes in internal functions for temporal aggregation of data
+* update of documentation
+
+
 ## Major changes version 0.1.5
 
 * no major changes

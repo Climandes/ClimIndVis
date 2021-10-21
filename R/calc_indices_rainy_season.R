@@ -36,19 +36,18 @@ rainy_season_start_sos<-function(x,na_handling="strict",nval,th1=25,th2=20,NAday
 }
 
 rainy_season_start_jd<-function(x,na_handling="strict",nval,dd_th=0.1,...){
-      tend=ifelse(any(is.na(x)) & na_handling=="strict",which(is.na(x))[1]-30,length(x)-30)
-      if(tend<1){
-        return_day=nval
-      } else {
-        temp= x[1:tend]>dd_th & consecsum(x[1:(tend+4)]>dd_th,4,2)>3 & consecsum(x[1:(tend+4)],5,1)>25
-        ht<-which(temp)
-
-        if (length(ht)>0){
-        temp2=sapply(ht,function(i) max_consec(x[i:(i+30)]<=dd_th) <=7)
-        val=which(temp2)
-        } else val=NULL
-        return_day=ifelse(length(val)!=0 & !is.null(val),ht[val[1]],ifelse(any(is.na(x)),nval,NA))
-      }
+  tend=ifelse(any(is.na(x)) & na_handling=="strict",which(is.na(x))[1]-30,length(x)-30)
+  if(tend<1){
+    return_day=nval
+  } else {
+    temp= x[1:tend]>=dd_th & consecsum(x[1:(tend+4)]>=dd_th,4,2)>3 & consecsum(x[1:(tend+4)],5,1)>25
+    ht<-which(temp)
+    if (length(ht)>0){
+      temp2=sapply(ht,function(i) max_consec(x[i:(i+30)]<dd_th) <=7)
+      val=which(temp2)
+    } else val=NULL
+    return_day=ifelse(length(val)!=0 & !is.null(val),ht[val[1]],ifelse(any(is.na(x)),nval,NA))
+  }
   return(tdiff=return_day)
 }
 
@@ -57,10 +56,10 @@ rainy_season_start_garcia<-function(x,na_handling="strict",nval,dd_th=0.1,...){
   if(tend<1){
     return_day=nval
   } else {
-    temp= x[1:tend]>dd_th & consecsum(x[1:(tend+2)],3,1)>20
+    temp= x[1:tend]>=dd_th & consecsum(x[1:(tend+2)],3,1)>20
     ht<-which(temp)
     if (length(ht)>0){
-      temp2=sapply(ht,function(i) max_consec(x[i:(i+30)]<=dd_th) <=10)
+      temp2=sapply(ht,function(i) max_consec(x[i:(i+30)]<dd_th) <=10)
       val=which(temp2)
     } else val=NULL
     return_day=ifelse(length(val)!=0 & !is.null(val),ht[val[1]],ifelse(any(is.na(x)),nval,NA))
@@ -68,12 +67,12 @@ rainy_season_start_garcia<-function(x,na_handling="strict",nval,dd_th=0.1,...){
   return(tdiff=return_day)
 }
 
-rainy_season_start_gurgiser <- function(x,na_handling="strict",nval,dd_th=1,...){
+rainy_season_start_gurgiser <- function(x,na_handling="strict",nval,dd_th=0,...){
   tend=ifelse(any(is.na(x)) & na_handling=="strict",which(is.na(x))[1]-30,length(x)-30)
   if(tend<1){
     return_day=nval
   } else {
-    temp= x[1:tend]>dd_th & consecsum(x[1:(tend+6)],7,1)>10 & consecsum(x[1:(tend+30)]>dd_th,31,1)>10
+    temp= x[1:tend]>=dd_th & consecsum(x[1:(tend+6)],7,1)>10 & consecsum(x[1:(tend+30)]>=dd_th,31,1)>10
     val=which(temp)
     return_day=ifelse(length(val)!=0,val[1],ifelse(any(is.na(x)),nval,NA))
   }
@@ -86,7 +85,7 @@ rainy_season_start_consec_th <- function(x,na_handling="strict",nval=NA,days,th,
   if(tend<1){
     return_day=nval
   } else {
-    temp= x[1:tend]>dd_th & consecsum(x[1:(tend+(days-1))],days,1)>=th
+    temp= x[1:tend]>=dd_th & consecsum(x[1:(tend+(days-1))],days,1)>=th
     val=which(temp)
     return_day=ifelse(length(val)!=0,val[1],ifelse(any(is.na(x)),nval,NA))
   }
@@ -98,10 +97,10 @@ rainy_season_start_consec_th_maxcdd <- function(x,na_handling="strict",nval,dd_t
   if(tend<1){
     return_day=nval
   } else {
-    temp= x[1:tend]>dd_th & consecsum(x[1:(tend+(days-1))],days,1)>=th
+    temp= x[1:tend]>=dd_th & consecsum(x[1:(tend+(days-1))],days,1)>=th
     ht<-which(temp)
     if (length(ht)>0){
-      temp2=sapply(ht,function(i) max_consec(x[i:(i+mdays-1)]<=dd_th) <=mcdd)
+      temp2=sapply(ht,function(i) max_consec(x[i:(i+mdays-1)]<dd_th) <=mcdd)
       val=which(temp2)
     } else val=NULL
     return_day=ifelse(length(val)!=0 & !is.null(val),ht[val[1]],ifelse(any(is.na(x)),nval,NA))
@@ -111,17 +110,19 @@ rainy_season_start_consec_th_maxcdd <- function(x,na_handling="strict",nval,dd_t
 
 
 
-rainy_season_end<-function (temp, date_factor, rs_method,nval,dd_th=1,th=20,...) { #},days=NA,th=NA,mdays=NA,mcdd=NA){
+rainy_season_end<-function (temp, date_factor, rs_method, nval, dd_th = 1, th = 20,days=NULL,...)
+{
   tryCatch({
-  stopifnot(is.numeric(temp) && is.character(rs_method) && is.factor(date_factor))
-  stopifnot(exists(paste0("rainy_season_end_",rs_method)))
-  stopifnot(is.function(get(paste0("rainy_season_end_",rs_method))))
-  }, error = function(cond){
+    stopifnot(is.numeric(temp) && is.character(rs_method) && is.factor(date_factor))
+    stopifnot(exists(paste0("rainy_season_end_", rs_method)))
+    stopifnot(is.function(get(paste0("rainy_season_end_",
+                                     rs_method))))
+  }, error = function(cond) {
     message("error in calculating end of rainy season: ")
     message(cond)
     stop_quietly()
   })
-  end<-climdex.pcic:::tapply.fast(temp,date_factor,paste0("rainy_season_end_",rs_method),na_handling="strict",nval=nval,dd_th=dd_th,th=th ) #,days=days,th=th,mdays=mdays,mcdd=mcdd)
+  end <- climdex.pcic:::tapply.fast(temp, date_factor, paste0("rainy_season_end_",rs_method), na_handling = "strict", nval = nval, dd_th = dd_th, th = th,days=days)
   return(end)
 }
 
@@ -133,7 +134,7 @@ rainy_season_end_gurgiser<-function(x,na_handling="strict",nval,dd_th=1,...){
     return_day=nval
   } else {
 
-    temp_e= x[1:tend]<=dd_th & consecsum(x[1:(tend+45)],46,1)<10
+    temp_e= x[1:tend]<dd_th & consecsum(x[1:(tend+45)],46,1)<10
     val_e=which(temp_e)
 
     return_day=ifelse(length(val_e)!=0,val_e[1],ifelse(any(is.na(x)),nval,NA))
@@ -143,13 +144,13 @@ rainy_season_end_gurgiser<-function(x,na_handling="strict",nval,dd_th=1,...){
 
 
 
-rainy_season_end_garcia<-function(x,na_handling="strict",nval,dd_th=1,th=20,...){
+rainy_season_end_garcia<-function(x,na_handling="strict",nval,dd_th=0,th=20,...){
 
   tend=ifelse(any(is.na(x)) & na_handling=="strict",which(is.na(x))[1]-19,length(x)-19)
   if(tend<1){
     return_day=nval
   } else {
-    dd=x<dd_th
+    dd=ifelse(dd_th==0,x==0,x<dd_th)
     dd_sum=sapply(1:tend,function(t) sum(dd[t:(t+19)]))
     val_e=which(dd_sum==th)[1]
     return_day=ifelse(length(val_e)!=0,val_e[1],ifelse(any(is.na(x)),nval,NA))
@@ -157,29 +158,38 @@ rainy_season_end_garcia<-function(x,na_handling="strict",nval,dd_th=1,th=20,...)
   return(tlength=return_day)
 }
 
-# rainy_season_dur<-function (temp, date_factor, jdays, rs_method,nval,dd_th=1,th=NA,...){ #,days=NA,th=NA,mdays=NA,mcdd=NA){
-#   tryCatch({
-#     stopifnot(is.numeric(temp) && is.character(rs_method) && is.factor(date_factor))
-#     stopifnot(exists(paste0("rainy_season_end_",rs_method)))
-#     stopifnot(is.function(get(paste0("rainy_season_end_",rs_method))))
-#   }, error = function(cond){
-#     message("error in calculating duration of rainy season: ")
-#     message(cond)
-#     stop_quietly()
-#   })
-#   start<-climdex.pcic:::tapply.fast(temp,date_factor,paste0("rainy_season_start_",rs_method),na_handling="strict",nval=nval,days=days,th=th,dd_th=dd_th)# ,mdays=mdays,mcdd=mcdd,th1=th1,th2=th2,NAdays=NAdays)
-#   helpjd=unlist(tapply(jdays, date_factor, function(x) {
-#     x[1: (which(x==pad2(jday_end,3))-1)]=NA
-#     return(x)}))
-#   date_factor2=date_factor
-#   date_factor2[!is.na(date_factor)][is.na(helpjd)]=NA
-#
-#   end<-climdex.pcic:::tapply.fast(temp,date_factor2,paste0("rainy_season_end_",rs_method),na_handling="strict",nval=nval,dd_th=dd_th,th=th)
-#   return(end-start)
-# }
+rainy_season_end_th<-function(x,na_handling="strict",nval,dd_th=1,days=30,th=16,...){
+
+  tend=ifelse(any(is.na(x)) & na_handling=="strict",which(is.na(x))[1]-days+1,length(x)-days+1)
+  if(tend<1){
+    return_day=nval
+  } else {
+
+    temp_e= x[1:tend]<dd_th & consecsum(x[1:(tend+days-1)],days,1)<th
+    val_e=which(temp_e)
+
+    return_day=ifelse(length(val_e)!=0,val_e[1],ifelse(any(is.na(x)),nval,NA))
+  }
+  return(tend=return_day)
+}
+
+rainy_season_end_climandes<-function(x,na_handling="strict",nval,dd_th=1,...){
+
+  tend=ifelse(any(is.na(x)) & na_handling=="strict",which(is.na(x))[1]-29,length(x)-29)
+  if(tend<1){
+    return_day=nval
+  } else {
+
+    temp_e= x[1:tend]<dd_th & consecsum(x[1:(tend+29)],30,1)<16
+    val_e=which(temp_e)
+
+    return_day=ifelse(length(val_e)!=0,val_e[1],ifelse(any(is.na(x)),nval,NA))
+  }
+  return(tend=return_day)
+}
 
 
-#for logical vec
+
 max_consec<-function(d,NA_val=0) {
   if(class(d) != "logical") stop("input for max_consec needs to be of class logical")
   d[which(d==FALSE)]=NA
