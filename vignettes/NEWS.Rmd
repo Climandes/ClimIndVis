@@ -12,6 +12,10 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
+## Notes for version 0.1.6
+
+* devtools::install_github("Climandes/ClimIndVis",build_vignettes = TRUE)
+
 ## Major changes version 0.1.6
 
 * added new rainy season index "climandes"
