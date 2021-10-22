@@ -29,7 +29,7 @@ install.packages("devtools")
 Then you can install ClimIndVis :
 
 ```
-devtools::install_github("Climandes/ClimIndVis")
+devtools::install_github("Climandes/ClimIndVis", build_vignettes = TRUE)
 ```
 
 After the installation is complete, you can load ClimIndVis with:
