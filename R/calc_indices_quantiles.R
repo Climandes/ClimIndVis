@@ -165,6 +165,7 @@ get_prec_quantiles <- function (prec, sel_time, qargs, ed, gd, agg_factor_h){
 
   # only select wet days above threshold
   wet_days <- !(is.na(prec) | prec < qargs$dd_threshold)
+  prec[is.na(agg_factor_h)] <- as.numeric(NA) # Set NA on days outside the base period
   prec <- prec[wet_days]
   agg_factor_h <- agg_factor_h[wet_days]
 
