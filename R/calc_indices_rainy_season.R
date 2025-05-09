@@ -51,6 +51,22 @@ rainy_season_start_jd<-function(x,na_handling="strict",nval,dd_th=0.1,...){
   return(tdiff=return_day)
 }
 
+rainy_season_start_climandes<-function(x,na_handling="strict",nval,dd_th=0.1,...){
+  tend=ifelse(any(is.na(x)) & na_handling=="strict",which(is.na(x))[1]-30,length(x)-30)
+  if(tend<1){
+    return_day=nval
+  } else {
+    temp= x[1:tend]>=dd_th & consecsum(x[1:(tend+2)],5,1)>8
+    ht<-which(temp)
+    if (length(ht)>0){
+      temp2=sapply(ht,function(i) max_consec(x[i:(i+30)]<dd_th) <=7)
+      val=which(temp2)
+    } else val=NULL
+    return_day=ifelse(length(val)!=0 & !is.null(val),ht[val[1]],ifelse(any(is.na(x)),nval,NA))
+  }
+  return(tdiff=return_day)
+}
+
 rainy_season_start_garcia<-function(x,na_handling="strict",nval,dd_th=0.1,...){
   tend=ifelse(any(is.na(x)) & na_handling=="strict",which(is.na(x))[1]-30,length(x)-30)
   if(tend<1){
