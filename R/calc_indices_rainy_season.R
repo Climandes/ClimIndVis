@@ -56,7 +56,7 @@ rainy_season_start_climandes<-function(x,na_handling="strict",nval,dd_th=1,...){
   if(tend<1){
     return_day=nval
   } else {
-    temp= x[1:tend]>=dd_th & consecsum(x[1:(tend+2)],5,1)>8
+    temp= x[1:tend]>=dd_th & consecsum(x[1:(tend+4)],5,1)>8
     ht<-which(temp)
     if (length(ht)>0){
       temp2=sapply(ht,function(i) max_consec(x[i:(i+30)]<dd_th) <=7)
