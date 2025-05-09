@@ -51,7 +51,7 @@ rainy_season_start_jd<-function(x,na_handling="strict",nval,dd_th=0.1,...){
   return(tdiff=return_day)
 }
 
-rainy_season_start_climandes<-function(x,na_handling="strict",nval,dd_th=0.1,...){
+rainy_season_start_climandes<-function(x,na_handling="strict",nval,dd_th=1,...){
   tend=ifelse(any(is.na(x)) & na_handling=="strict",which(is.na(x))[1]-30,length(x)-30)
   if(tend<1){
     return_day=nval
