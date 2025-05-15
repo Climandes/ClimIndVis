@@ -71,10 +71,7 @@ cut_to_same_dates<-function(data,selyears=NULL){
             dhelp <- array(dd$data[[x]],dim=c(prod(d[1:(ld-1)]),d[ld]))[,yy]
             dd$data[[x]]=array(dhelp,c(d[1:(ld-1)],dim(dhelp)[-1]),dimnames=c(dimnames(dd$data[[x]])))
           } else {
-            dd$data[[x]]=dd$data[[x]][,yy]
-            if (d[1] == 1) {
-              dd$data[[x]]=array(dd$data[[x]], c(1, length(yy)))
-            }
+            dd$data[[x]]=dd$data[[x]][,yy,drop=FALSE]
           }
         }
         return(dd)

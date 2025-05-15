@@ -215,7 +215,6 @@ calculate_index.rainy_season_dur <- function(climindvis,aggt,...){
   args$start_days=args$day_end
   args$end_days=paste0("0000",substring(as.Date(paste0("1981",substring(args$day_end,5,10)))+args$nend,5,10))
   sel_time_end<-get_date_factors(climindvis,args$aggt,args$aggmons,args$selagg,args$start_days,args$end_days,args$start,args$end,args$xdays)
-
   d=dim(climindvis$data[[iargs$var]])
   ld=length(d)
 
@@ -241,7 +240,7 @@ if ((emon<smon)) {
 
 }
   
- iout=iend[!is.na(sel),]+diff-istart[sel[!is.na(sel)],]
+ iout=iend[!is.na(sel),,drop=FALSE]+diff-istart[sel[!is.na(sel)],,drop=FALSE]
 
  if(!is.null(args$nval)){
    iend_sel = iend[!is.na(sel),]
