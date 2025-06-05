@@ -1063,7 +1063,7 @@ index_arguments.qval<-function(climindvis,NAmaxAgg=20,trend=FALSE,NAmaxTrend=20,
 #'@keywords internal
 index_arguments.qrange<-function(climindvis,NAmaxAgg=20,trend=FALSE,NAmaxTrend=20,percentile1,percentile2,var,...){
   check_var(climindvis,var)
-  return(list(ifun="q_agg",var=var,ifunargs=list(q1=q_threshold/100,q2=q_threshold2/100, NAmaxAgg=NAmaxAgg),
+  return(list(ifun="q_agg",var=var,ifunargs=list(q1=percentile1/100,q2=percentile2/100, NAmaxAgg=NAmaxAgg),
     trend=trend,trendargs=list(method="lin_reg",count=FALSE,  log_trans=FALSE,NAmaxTrend=NAmaxTrend, rel=FALSE),
-    plotargs=list(iname=paste0(var,"_q",q_threshold,"_q",q_threshold2),iformat=ifelse(var=="prec","mm","degreeC"))))
+    plotargs=list(iname=paste0(var,"_q",percentile1,"_q",percentile2),iformat=ifelse(var=="prec","mm","degreeC"))))
 }
