@@ -13,22 +13,21 @@ calc_spi <- function (temp = NULL,date_factor, param=FALSE,timescale , ref, dist
   if (is.null(ref)){
     refdat <- temp
     reffac <- date_factor
-  } else{
-    refdat <- temp[which(date_factor == ref[1])[1]:tail(which(date_factor == ref[2]),n=1)]
-    reffac <- date_factor[which(date_factor == ref[1])[1]:tail(which(date_factor == ref[2]),n=1)]
-    }
-
-    na <- climdex.pcic:::tapply.fast(is.na(refdat), reffac, sum)
-    dlength <- climdex.pcic:::tapply.fast(refdat, reffac,function(x) length(x))
-    percna <- na/dlength > (NAmaxAgg/100)
-    agg_val <- climdex.pcic:::tapply.fast(refdat, reffac, sum, na.rm=TRUE)
-    agg_val[percna] <- NA
-
-    if (is.null(ref)){
-    agg_pred <- agg_val
-
   } else {
+    years  <- as.numeric(names(date_factor))
+    refdat <- temp[which(years == ref[1])[1]:tail(which(years == ref[2]),n=1)]
+    reffac <- date_factor[which(years == ref[1])[1]:tail(which(years == ref[2]),n=1)]
+  }
 
+  na <- climdex.pcic:::tapply.fast(is.na(refdat), reffac, sum)
+  dlength <- climdex.pcic:::tapply.fast(refdat, reffac,function(x) length(x))
+  percna <- na/dlength > (NAmaxAgg/100)
+  agg_val <- climdex.pcic:::tapply.fast(refdat, reffac, sum, na.rm=TRUE)
+  agg_val[percna] <- NA
+
+  if (is.null(ref)){
+    agg_pred <- agg_val
+  } else {
     na_pred <- climdex.pcic:::tapply.fast(is.na(temp), date_factor, sum)
     dlength_pred <- climdex.pcic:::tapply.fast(temp, date_factor,function(x) length(x))
     percna_pred <- na_pred/dlength_pred > (NAmaxAgg/100)
