@@ -1046,7 +1046,7 @@ index_arguments.spi_forecast<-function(climindvis,fc_p, timescale=6,ref=NULL,dis
 #'@keywords internal
 index_arguments.qval<-function(climindvis,NAmaxAgg=20,trend=FALSE,NAmaxTrend=20,percentile,var,...){
   check_var(climindvis,var)
-  return(list(ifun="q_agg",var=var,ifunargs=list(q1=percentile/100,q2=NULL, NAmaxAgg=NAmaxAgg),
+  return(list(ifun="q_agg",var=var,ifunargs=list(q1=percentile/100,q2=NULL, param=TRUE, NAmaxAgg=NAmaxAgg),
     trend=trend,trendargs=list(method="lin_reg",count=FALSE,  log_trans=FALSE,NAmaxTrend=NAmaxTrend, rel=FALSE),
     plotargs=list(iname=paste0(var,"_q",percentile),iformat=ifelse(var=="prec","mm","degreeC"))))
 }

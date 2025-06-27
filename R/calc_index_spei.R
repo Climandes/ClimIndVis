@@ -14,9 +14,10 @@ calc_spi <- function (temp = NULL,date_factor, param=FALSE,timescale , ref, dist
     refdat <- temp
     reffac <- date_factor
   } else {
-    years  <- as.numeric(names(date_factor))
-    refdat <- temp[which(years == ref[1])[1]:tail(which(years == ref[2]),n=1)]
-    reffac <- date_factor[which(years == ref[1])[1]:tail(which(years == ref[2]),n=1)]
+    years    <- as.numeric(names(date_factor))
+    interval <- which(years == ref[1])[1]:tail(which(years == ref[2]),n=1)
+    refdat   <- temp[interval]
+    reffac   <- droplevels(date_factor[interval])
   }
 
   na <- climdex.pcic:::tapply.fast(is.na(refdat), reffac, sum)
