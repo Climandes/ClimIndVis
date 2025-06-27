@@ -999,10 +999,10 @@ index_arguments.rainy_season_dur<-function(climindvis,rs_method,days,dd_th=1,nva
 #' calc_index(object_st,index="spi",aggt="monthly")
 
 #'@keywords internal
-index_arguments.spi<-function(climindvis,timescale=6,ref=NULL,distribution="gamma",limit=Inf, trend=FALSE,NAmaxAgg=20,forecast=FALSE,NAmaxTrend=20,param=FALSE,...){
+index_arguments.spi<-function(climindvis,timescale=6,ref=NULL,distribution="gamma",limit=Inf, trend=FALSE,NAmaxAgg=20,forecast=FALSE,NAmaxTrend=20,...){
   if(missing(climindvis)) stop("Not all mandatory arguments provided")
   check_var(climindvis,"prec")
-  return(list(ifun="calc_spi",var="prec",ifunargs=list(distribution=distribution,param=param,timescale=timescale,ref= ref,NAmaxAgg=NAmaxAgg,limit=limit, iformat="SPI"),
+  return(list(ifun="calc_spi",var="prec",ifunargs=list(distribution=distribution,param=FALSE,timescale=timescale,ref= ref,NAmaxAgg=NAmaxAgg,limit=limit, iformat="SPI"),
               trendargs=list(method="lin_reg", count=FALSE,log_trans=FALSE,NAmaxTrend=NAmaxTrend, rel= TRUE),trend=trend,
               plotargs=list(iname=paste0("SPI",timescale))))
 }
