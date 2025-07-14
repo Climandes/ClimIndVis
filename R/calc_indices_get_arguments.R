@@ -789,7 +789,7 @@ index_arguments.csdi<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=20
   }
   if(q_threshold<0 || q_threshold >100) stop("q_threshold value has to be between 0 and 100")
   return(list(ifun="spell_duration",var="tmin",
-    ifunargs=list(func="min", op="<",min_length=6,spells_span_agg=spells_span_agg, NAmaxAgg=NAmaxAgg),
+    ifunargs=list(func="min", op="<",min_length=min_length,spells_span_agg=spells_span_agg, NAmaxAgg=NAmaxAgg),
     qargs=list(qth=(q_threshold/100),n=n, baseperiod = baseperiod,inbase=inbase, min_base_fraction=min_base_fraction,
                th_quantiles=th_object$index_info$th_quantiles,NAmaxQ=NAmaxQ,qens_all=qens_all,q_var="min"),
     trend=trend,trendargs=list(method="logit_reg",count=FALSE,  log_trans=FALSE,NAmaxTrend=NAmaxTrend, rel= TRUE,fyear=fyear),
@@ -827,7 +827,7 @@ index_arguments.wsdi<-function(climindvis,NAmaxAgg=20,trend=FALSE ,NAmaxTrend=20
   }
   if(q_threshold<0 || q_threshold >100) stop("threshold value has to be between 0 and 100")
   return(list(ifun="spell_duration",var="tmax",
-    ifunargs=list( func="max", op=">",min_length=6,spells_span_agg=spells_span_agg,NAmaxAgg=NAmaxAgg),
+    ifunargs=list( func="max", op=">",min_length=min_length,spells_span_agg=spells_span_agg,NAmaxAgg=NAmaxAgg),
     qargs=list(qth=(q_threshold/100),n=n, baseperiod = baseperiod,inbase=inbase, min_base_fraction=min_base_fraction,
                th_quantiles=th_object$index_info$th_quantiles,NAmaxQ=NAmaxQ,qens_all=qens_all, q_var="tmax"),
     trend=trend,trendargs=list(method="logit_reg",count=FALSE,  log_trans=FALSE,NAmaxTrend=NAmaxTrend, rel= TRUE,fyear=fyear),
