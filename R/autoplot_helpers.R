@@ -114,6 +114,8 @@ cut_to_same_dates_index<-function(index_data,selyears=NULL){
     fc=which(sapply(index_data, function(x) grepl("fc",x$data_info$type )))
 
 
+    has_agg_dim <- is.element("agg", index_data[[1]]$index_info$idims)
+
     index_out=list()
     if(length(fc)>0){
       years_fc=Reduce(intersect,lapply(index_data[fc], function(dd) dd$index_info$years))
@@ -121,13 +123,15 @@ cut_to_same_dates_index<-function(index_data,selyears=NULL){
       years=Reduce(intersect,c(lapply(index_data[-fc], function(dd) dd$index_info$years),list(selyears)))
       if (length(years)==0) stop("no matching years/no years selected in <<selyears>> in climindvis_index objects" )
       index_out[fc]<-lapply(index_data[fc], function(dd){
-        sel=get_index_array_input(dd,c("agg","year"),list(agg,years_fc))
+        if(has_agg_dim) sel=get_index_array_input(dd,c("agg","year"),list(agg,years_fc))
+        else sel=get_index_array_input(dd,"year",list(years_fc))
         dd$index=index_array(dd$index,sel$dims,sel$sel)
         return(dd)
       })
 
       index_out[-fc]<-lapply(index_data[-fc], function(dd){
-        sel=get_index_array_input(dd,c("agg","year"),list(agg,years))
+        if(has_agg_dim) sel=get_index_array_input(dd,c("agg","year"),list(agg,years))
+        else sel=get_index_array_input(dd,"year",list(years))
         dd$index=index_array(dd$index,sel$dims,sel$sel)
         return(dd)
       })
@@ -135,7 +139,8 @@ cut_to_same_dates_index<-function(index_data,selyears=NULL){
       years=Reduce(intersect,c(lapply(index_data, function(dd) dd$index_info$years),list(selyears)))
       if (length(years)==0) stop("no matching years/no years selected in <<selyears>> in climindvis_index objects" )
       index_out<-lapply(index_data, function(dd){
-        sel=get_index_array_input(dd,c("agg","year"),list(agg,years))
+        if(has_agg_dim) sel=get_index_array_input(dd,c("agg","year"),list(agg,years))
+        else sel=get_index_array_input(dd,"year",list(years))
         dd$index=index_array(dd$index,sel$dims,sel$sel)
         return(dd)
       })
