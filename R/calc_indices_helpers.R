@@ -391,9 +391,13 @@ check_agg_complete<-function(r,agg){
       cut=NULL
       cm=unique(substring(chelp,6,7))
       for (i in cm){
-        if (!all(is.element(years[substring(chelp,6,7)==i],range(years)))){
+        years_for_month <- as.integer(substring(chelp[substring(chelp, 6, 7) == i], 1, 4))
+        interior <- years_for_month[!is.element(years_for_month, range(years))]
+        if (length(interior) > 0) {
           cut=c(cut,paste0(years,"-",i))
           message(paste0("warning: data for month", i, "is not complete. Index is not calculated for this month."))
+        } else {
+          cut=c(cut,paste0(years_for_month,"-",i))
         }
       }
       }
@@ -405,9 +409,13 @@ check_agg_complete<-function(r,agg){
       cs=unique(substring(chelp,6,8))
 
       for (i in cs){
-        if (!(all(is.element(years[substring(chelp,6,8)==i],range(years))) & length(years)>2)){
+        years_for_season <- as.integer(substring(chelp[substring(chelp, 6, 8) == i], 1, 4))
+        interior <- years_for_season[!is.element(years_for_season, range(years))]
+        if (length(interior) > 0) {
           cut=c(cut,paste0(years,"-",i))
           message(paste0("warning: data for season", i, "is not complete. Index is not calculated for this season."))
+        } else {
+          cut=c(cut,paste0(years_for_season,"-",i))
         }
       }
       }
